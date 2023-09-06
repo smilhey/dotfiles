@@ -1,0 +1,18 @@
+    sway swaylock swayidle swaybg dunst rofi-wayland waybar wl-clipboard grim sddm foot
+    20 | install libxcb-devel                                                                                    | 2023-08-24 16:27 | Install        |    3   
+    19 | install podman distrobox                                                                                | 2023-08-24 15:47 | Install        |   43   
+    18 | install openssl-devel                                                                                   | 2023-08-24 15:32 | Install        |    1   
+    17 | install openssl                                                                                         | 2023-08-24 15:25 | Install        |    1   
+    16 | install patch                                                                                           | 2023-08-24 15:17 | Install        |    1   
+    14 | install gcc gcc-c++ gmp gmp-devel make ncurses ncurses-compat-libs xz perl                              | 2023-08-24 15:06 | Install        |  195   
+    13 | install btop                                                                                            | 2023-08-24 15:02 | Install        |    1   
+    12 | install btrfs-assistant                                                                                 | 2023-08-24 14:58 | Install        |    8   
+    11 | install tldr                                                                                            | 2023-08-24 14:47 | Install        |    4   
+    10 | install bat                                                                                             | 2023-08-24 14:45 | Install        |    1   
+     9 | install python-pip pipx python-virtualenv python-neovim ripgrep fd-find fzf                             | 2023-08-24 14:44 | Install        |   16   
+     8 | install sassc meson                                                                                     | 2023-08-24 14:23 | Install        |    4   
+     7 | install gcc gcc-c++ make cmake                                                                          | 2023-08-24 14:20 | Install        |   17   
+     6 | install glib2-devel                                                                                     | 2023-08-24 14:19 | Install        |   10   
+     5 | install flatpak                                                                                         | 2023-08-24 14:10 | Install        |    6 EE
+     4 | install zsh                                                                                             | 2023-08-24 13:12 | Install        |    2   
+     3 | install git neofetch neovim                                                                             | 2023-08-24 13:11 | Install        |   33   
