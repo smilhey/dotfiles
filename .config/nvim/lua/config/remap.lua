@@ -11,10 +11,10 @@ vim.keymap.set("n", "n", "nzzzv")
 vim.keymap.set("n", "N", "Nzzzv")
 
 vim.keymap.set("n", "<leader>vwm", function()
-	require("vim-with-me").StartVimWithMe()
+    require("vim-with-me").StartVimWithMe()
 end)
 vim.keymap.set("n", "<leader>svwm", function()
-	require("vim-with-me").StopVimWithMe()
+    require("vim-with-me").StopVimWithMe()
 end)
 
 -- greatest remap ever
@@ -42,9 +42,14 @@ vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><
 vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true })
 
 vim.keymap.set("n", "<leader><leader>", function()
-	vim.cmd("so")
+    vim.cmd("so")
 end)
 
 vim.keymap.set("n", "<A-Tab>", "gt")
 --vim.g.copilot_no_tab_map = true
 --vim.g.copilot_assume_mapped = true
+
+vim.keymap.set("n", "j", "gj")
+vim.keymap.set("n", "k", "gk")
+vim.keymap.set("n", "0", "g0")
+vim.keymap.set("n", "#", "g#")
