@@ -1,9 +1,9 @@
-ffmpeg                                                                                          
 https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+ffmpeg
 mesa-va-drivers mesa-vdpau-drivers                                                              
 qt5-qtgraphicaleffects qt5-qtquickcontrols2 qt5-qtquickcontrols                                                                             
 btrfs-assistant Thunar zathura firefox btop distrobox podman zathura-pdf-mupdf                                                                               
-tmux patch ripgrep fd-find fzf unzip bzip2 wget bat tldr                                                                                        
+tmux patch ripgrep fd-find fzf unzip bzip2 wget bat tldr tlp-rdw tlp                                                                                        
 python-cairo python-pip pipx python-virtualenv python-neovim                              
 m4 openssl-devel openssl glib2-devel libxcb-devel gcc gcc-c++ gmp gmp-devel make ncurses ncurses-compat-libs xz perl make cmake meson                             
 flatpak                                                                                         
