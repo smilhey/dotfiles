@@ -51,6 +51,8 @@ return {
 			},
 		})
 
+		lsp.configure("jedi_language_server", { filetypes = { "ipynb", "py" } })
+
 		lsp.configure("clangd", {
 			cmd = {
 				"clangd",
@@ -201,9 +203,9 @@ return {
 			},
 			sources = {
 				{ name = "nvim_lsp" },
-				--{name = 'copilot'},
+				{ name = "copilot" },
 				{ name = "path" },
-				{ name = "buffer", keyword_length = 3 },
+				{ name = "buffer",  keyword_length = 3 },
 				{ name = "luasnip", keyword_length = 2 },
 				{ name = "otter" },
 			},

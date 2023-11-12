@@ -46,8 +46,8 @@ vim.keymap.set("n", "<leader><leader>", function()
 end)
 
 vim.keymap.set("n", "<A-Tab>", "gt")
---vim.g.copilot_no_tab_map = true
---vim.g.copilot_assume_mapped = true
+-- vim.g.copilot_no_tab_map = true
+-- vim.g.copilot_assume_mapped = true
 
 vim.keymap.set("n", "j", "gj")
 vim.keymap.set("n", "k", "gk")
