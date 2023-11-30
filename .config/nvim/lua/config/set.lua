@@ -28,8 +28,8 @@ vim.opt.updatetime = 50
 
 vim.opt.clipboard = "unnamedplus"
 
-vim.opt.colorcolumn = "80"
-vim.cmd([[hi ColorColumn ctermbg=lightgrey guibg=#ebdbb2]])
+-- vim.opt.colorcolumn = "80"
+-- vim.cmd([[hi ColorColumn ctermbg=lightgrey guibg=#ebdbb2]])
 
 -- vim.opt.textwidth = 70
 -- vim.opt.formatoptions = table.concat({
