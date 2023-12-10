@@ -127,3 +127,27 @@ set -o vi
 
 # opam configuration
 [[ ! -r /home/smilhey/.opam/opam-init/init.zsh ]] || source /home/smilhey/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/home/smilhey/miniforge3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/home/smilhey/miniforge3/etc/profile.d/conda.sh" ]; then
+        . "/home/smilhey/miniforge3/etc/profile.d/conda.sh"
+    else
+        export PATH="/home/smilhey/miniforge3/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+
+if [ -f "/home/smilhey/miniforge3/etc/profile.d/mamba.sh" ]; then
+    . "/home/smilhey/miniforge3/etc/profile.d/mamba.sh"
+fi
+# <<< conda initialize <<<
+
+# Adding doom to path 
+path+=('/home/smilhey/.emacs.d/bin/')
+nv () {nvim --server ~/.cache/nvim/server.pipe --remote "$(realpath "$1")"}
+alias nvl='nvim --listen ~/.cache/nvim/server.pipe -c":term"'
