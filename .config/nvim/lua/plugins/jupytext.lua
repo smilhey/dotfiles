@@ -1,1 +1,0 @@
-return {'goerz/jupytext.vim'}

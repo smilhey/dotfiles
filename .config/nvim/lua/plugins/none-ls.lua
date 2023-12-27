@@ -13,6 +13,7 @@ return {
 				null_ls.builtins.formatting.clang_format, -- c formatting
 				null_ls.builtins.formatting.zigfmt, -- zig formatting
 				null_ls.builtins.formatting.stylua, -- lua formatting
+				null_ls.builtins.formatting.prettier, -- javascript formatting
 			},
 			on_attach = function(client, bufnr)
 				if client.supports_method("textDocument/formatting") then
