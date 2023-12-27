@@ -32,7 +32,7 @@ vim.keymap.set("n", "n", "nzzzv")
 vim.keymap.set("n", "N", "Nzzzv")
 
 -- Remapping esc
-vim.keymap.set("t", "<Esc>", "<C-\\><C-n>")
+-- vim.keymap.set("t", "<Esc>", "<C-\\><C-n>")
 vim.keymap.set("i", "<C-c>", "<Esc>")
 
 vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
