@@ -1,15 +1,18 @@
+flatpaks = sioyek, libreoffice, discord, flatseal, boxes, spotify
+luarocks
+remove inkscape
 https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 ffmpeg
+ags
 mesa-va-drivers mesa-vdpau-drivers                                                              
 qt5-qtgraphicaleffects qt5-qtquickcontrols2 qt5-qtquickcontrols                                                                             
-btrfs-assistant Thunar zathura firefox btop distrobox podman zathura-pdf-mupdf                                                                               
-tmux patch ripgrep fd-find fzf unzip bzip2 wget bat tldr tlp-rdw tlp                                                                                        
+btrfs-assistant nautilus firefox btop distrobox podman mpv imv
+tmux patch ripgrep fd-find fzf unzip bzip2 wget bat tldr tlp-rdw tlp
 python-cairo python-pip pipx python-virtualenv python-neovim                              
 m4 openssl-devel openssl glib2-devel libxcb-devel gcc gcc-c++ gmp gmp-devel make ncurses ncurses-compat-libs xz perl make cmake meson                             
 flatpak                                                                                         
 network-manager-applet blueman pavucontrol                                                                        
 group install Dial-up Networking Support                                                                
 group install Hardware Support                                                                          
-sway-config-fedora                                                                              
-sway swaylock swayidle swaybg dunst rofi-wayland waybar wl-clipboard grim sddm foot
-git neofetch neovim zsh                                                                                                                                                                          
+Hyprland swaylock swayidle swaybg wl-clipboard grim sddm 
+git gh fastfetch neovim zsh                                                                                                                                                                          
