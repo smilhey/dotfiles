@@ -150,4 +150,21 @@ fi
 # Adding doom to path 
 path+=('/home/smilhey/.emacs.d/bin/')
 nv () {nvim --server ~/.cache/nvim/server.pipe --remote "$(realpath "$1")"}
+# nv() {
+#   local target_path
+#   target_path=$(realpath "$1")
+#   dir=$(dirname "$target_path")
+#
+#   if [ -f "$target_path" ]; then
+#     # If it's a file, cd into its parent directory
+#     nvim --server ~/.cache/nvim/server.pipe --remote-send "<ESC>:cd $dir<CR>" && nvim --server ~/.cache/nvim/server.pipe --remote "$target_path" 
+#   elif [ -d "$target_path" ]; then
+#     # If it's a directory, cd into it
+#     nvim --server ~/.cache/nvim/server.pipe --remote-send "<ESC>:cd $target_path<CR>" && nvim --server ~/.cache/nvim/server.pipe --remote "$target_path" 
+#       
+#   else
+#     echo "Invalid argument: $1 is not a valid file or directory."
+#   fi
+# }
+
 alias nvl='nvim --listen ~/.cache/nvim/server.pipe -c":term"'
