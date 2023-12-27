@@ -70,7 +70,7 @@ const Applauncher = () => {
 export default () =>
     Widget.Window({
         name: WINDOW_NAME,
-        anchor: ["top", "left"],
+        // anchor: ["top", "left"],
         popup: true,
         focusable: true,
         visible: false,
