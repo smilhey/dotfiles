@@ -10,7 +10,7 @@ fi
 
 # export SUDO_EDITOR=/usr/bin/nvim
 export EDITOR=/usr/bin/nvim
-export MANPAGER='nvim +Man!'
+# export MANPAGER='nvim +Man!'
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
@@ -147,8 +147,6 @@ if [ -f "/home/smilhey/miniforge3/etc/profile.d/mamba.sh" ]; then
 fi
 # <<< conda initialize <<<
 
-# Adding doom to path 
-path+=('/home/smilhey/.emacs.d/bin/')
 nv () {nvim --server ~/.cache/nvim/server.pipe --remote "$(realpath "$1")"}
 # nv() {
 #   local target_path
