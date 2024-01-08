@@ -5,7 +5,7 @@ return {
 			formatters_by_ft = {
 				lua = { "stylua" },
 				python = { "black" },
-				c = { "clang-format" },
+				c = { "clang_format" },
 				rust = { "rustfmt" },
 				-- zig = { "zig fmt" },
 				ocaml = { "ocamlformat" },
@@ -14,7 +14,7 @@ return {
 			},
 			format_on_save = {
 				-- These options will be passed to conform.format()
-				timeout_ms = 100,
+				timeout_ms = 500,
 				lsp_fallback = true,
 			},
 		})

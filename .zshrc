@@ -80,7 +80,7 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git zsh-syntax-highlighting zsh-autosuggestions)
+plugins=(git zsh-syntax-highlighting zsh-autosuggestions zsh-vi-mode)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -165,4 +165,5 @@ nv () {nvim --server ~/.cache/nvim/server.pipe --remote "$(realpath "$1")"}
 #   fi
 # }
 
-alias nvl='nvim --listen ~/.cache/nvim/server.pipe -c":term"'
+alias nvl='nvim --listen ~/.cache/nvim/server.pipe -c"term"'
+alias nvd='neovide -- --listen ~/.cache/nvim/server.pipe -c "term"'

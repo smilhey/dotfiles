@@ -1,24 +1,25 @@
+vim.opt.termguicolors = true
+
 vim.opt.cmdheight = 0
 vim.opt.cmdwinheight = 2
 
 vim.env.PATH = vim.env.PATH
-    .. ":/home/smilhey/miniforge3/condabin"
-    .. ":/home/smilhey/.opam/default/bin"
-    .. ":/home/smilhey/.cabal/bin"
-    .. ":/home/smilhey/.ghcup/bin"
-    .. ":/home/smilhey/.nvm/versions/node/v20.8.0/bin"
-    .. ":/home/smilhey/.local/bin"
-    .. ":/home/smilhey/.zig"
-    .. ":/home/smilhey/.cargo/bin"
-    .. ":/home/smilhey/.emacs.d/bin/"
+	.. ":/home/smilhey/miniforge3/condabin"
+	.. ":/home/smilhey/.opam/default/bin"
+	.. ":/home/smilhey/.cabal/bin"
+	.. ":/home/smilhey/.ghcup/bin"
+	.. ":/home/smilhey/.nvm/versions/node/v21.5.0/bin"
+	.. ":/home/smilhey/.local/bin"
+	.. ":/home/smilhey/.zig"
+	.. ":/home/smilhey/.cargo/bin"
+	.. ":/home/smilhey/.emacs.d/bin/"
 
 vim.opt.autochdir = false
 vim.opt.smartcase = true
 vim.opt.ignorecase = true
 vim.api.nvim_command("autocmd BufRead,BufNewFile *.wgsl set filetype=wgsl")
-vim.api.nvim_command("autocmd TermOpen * startinsert")                        -- starts in insert mode
-vim.api.nvim_command("autocmd TermOpen * setlocal nonumber norelativenumber") -- no numbers
-vim.api.nvim_command("autocmd TermEnter * setlocal signcolumn=no")            -- no sign column
+vim.api.nvim_command("autocmd TermOpen * startinsert") -- starts in insert mode
+vim.api.nvim_command("autocmd TermEnter * setlocal signcolumn=no nonumber norelativenumber") -- no numbers and signcolumn
 vim.opt.nu = true
 vim.opt.relativenumber = true
 vim.opt.mouse = ""
@@ -38,8 +39,6 @@ vim.opt.undofile = true
 
 vim.opt.hlsearch = false
 vim.opt.incsearch = true
-
-vim.opt.termguicolors = true
 
 vim.opt.scrolloff = 8
 vim.opt.signcolumn = "yes"

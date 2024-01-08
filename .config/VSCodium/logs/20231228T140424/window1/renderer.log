@@ -1,0 +1,5 @@
+2023-12-28 14:04:25.956 [warning] Via 'product.json#extensionEnabledApiProposals' extension 'ms-python.python' wants API proposal 'registerIssueDataProvider' but that proposal DOES NOT EXIST. Likely, the proposal has been finalized (check 'vscode.d.ts') or was abandoned.
+2023-12-28 14:04:26.497 [info] Started initializing default profile extensions in extensions installation folder. file:///home/smilhey/.vscode-oss/extensions
+2023-12-28 14:04:26.952 [info] Completed initializing default profile extensions in extensions installation folder. file:///home/smilhey/.vscode-oss/extensions
+2023-12-28 14:04:27.631 [info] Started local extension host with pid 22788.
+2023-12-28 14:04:29.713 [info] [perf] Render performance baseline is 67ms

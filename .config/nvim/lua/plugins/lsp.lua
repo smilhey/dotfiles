@@ -21,7 +21,6 @@ return {
 				require("luasnip.loaders.from_vscode").lazy_load()
 			end,
 		},
-		"rafamadriz/friendly-snippets",
 		"onsails/lspkind-nvim",
 	},
 	config = function()
@@ -158,6 +157,7 @@ return {
 
 		vim.api.nvim_set_hl(0, "CmpItemKindCopilot", { fg = "#6CC644" })
 		vim.diagnostic.config({
+			underline = false,
 			virtual_text = true,
 			float = {
 				header = false,

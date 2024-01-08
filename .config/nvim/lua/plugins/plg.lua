@@ -1,1 +1,1 @@
-return { dir = "~/Misc/plg.nvim/" }
+return { dir = "~/Misc/utils.nvim/" }
