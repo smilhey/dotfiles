@@ -1,18 +1,26 @@
--- vim.keymap.set("i", "(", "()<Left>")
--- vim.keymap.set("i", "[", "[]<Left>")
--- vim.keymap.set("i", "{", "{}<Left>")
--- vim.keymap.set("i", ")", "()<Left>")
--- vim.keymap.set("i", "]", "[]<Left>")
--- vim.keymap.set("i", "}", "{}<Left>")
--- vim.keymap.set("i", '"', '""<Left>')
+vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
+	pattern = "*",
+	callback = function()
+		local file_name = vim.fn.expand("%:t") -- Get the current file name
+		if not file_name:match("%.ipynb$") then
+			vim.keymap.set("n", ":", "q:i")
+			vim.keymap.set("n", "?", "q?i")
+			vim.keymap.set("n", "/", "q/i")
 
-vim.keymap.set("n", ":", "q:i")
-vim.keymap.set("n", "?", "q?i")
-vim.keymap.set("n", "/", "q/i")
+			vim.keymap.set("n", "q:", ":")
+			vim.keymap.set("n", "q?", "?")
+			vim.keymap.set("n", "q/", "/")
+		end
+	end,
+})
 
-vim.keymap.set("n", "q:", ":")
-vim.keymap.set("n", "q?", "?")
-vim.keymap.set("n", "q/", "/")
+-- vim.keymap.set("n", ":", "q:i")
+-- vim.keymap.set("n", "?", "q?i")
+-- vim.keymap.set("n", "/", "q/i")
+--
+-- vim.keymap.set("n", "q:", ":")
+-- vim.keymap.set("n", "q?", "?")
+-- vim.keymap.set("n", "q/", "/")
 
 vim.g.mapleader = " "
 -- vim.keymap.set("n", "<leader>bt", "<cmd>buffer term <Tab><CR>")

@@ -1,2 +1,3 @@
-2023/12/28-14:09:58.484 5664 Creating DB /home/smilhey/.config/VSCodium/Session Storage since it was missing.
-2023/12/28-14:09:58.492 5664 Reusing MANIFEST /home/smilhey/.config/VSCodium/Session Storage/MANIFEST-000001
+2024/01/08-21:54:28.692 3ef3 Reusing MANIFEST /home/smilhey/.config/VSCodium/Session Storage/MANIFEST-000001
+2024/01/08-21:54:28.692 3ef3 Recovering log #3
+2024/01/08-21:54:28.693 3ef3 Reusing old log /home/smilhey/.config/VSCodium/Session Storage/000003.log 

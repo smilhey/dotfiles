@@ -10,7 +10,7 @@ fi
 
 # export SUDO_EDITOR=/usr/bin/nvim
 export EDITOR=/usr/bin/nvim
-# export MANPAGER='nvim +Man!'
+export MANPAGER='nvim +Man!'
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
