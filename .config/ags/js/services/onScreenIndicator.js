@@ -1,7 +1,9 @@
-import { Service, Utils } from "../imports.js";
+import Service from "resource:///com/github/Aylur/ags/service.js";
+import Utils from "resource:///com/github/Aylur/ags/utils.js";
+import Audio from "resource:///com/github/Aylur/ags/service/audio.js";
+
 import icons from "../icons.js";
 import { getAudioTypeIcon } from "../utils.js";
-import { Audio } from "../imports.js";
 import Brightness from "./Brightness.js";
 
 class Indicator extends Service {

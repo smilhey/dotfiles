@@ -1,5 +1,9 @@
 [Default Applications]
 text/plain=nvim.desktop
+application/pdf=org.pwmt.zathura-pdf-poppler.desktop
+image/jpeg=imv.desktop
 
 [Added Associations]
 text/plain=nvim.desktop;
+application/pdf=org.pwmt.zathura-pdf-mupdf.desktop;org.pwmt.zathura-pdf-poppler.desktop;
+image/jpeg=imv.desktop;

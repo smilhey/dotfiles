@@ -3,7 +3,9 @@ import icons from "../../icons.js";
 import { getAudioTypeIcon } from "../../utils.js";
 import { Arrow } from "../ToggleButton.js";
 import { Menu } from "../ToggleButton.js";
-import { Audio, Widget, Utils } from "../../imports.js";
+import Audio from "resource:///com/github/Aylur/ags/service/audio.js";
+import Widget from "resource:///com/github/Aylur/ags/widget.js";
+import Utils from "resource:///com/github/Aylur/ags/utils.js";
 import HoverableButton from "../../misc/HoverableButton.js";
 
 /** @param {'speaker' | 'microphone'=} type */

@@ -2,7 +2,6 @@ import Widget from "resource:///com/github/Aylur/ags/widget.js";
 import icons from "../icons.js";
 import PowerMenu from "../services/powermenu.js";
 import ShadedPopup from "./ShadedPopup.js";
-import Separator from "../misc/Separator.js";
 
 /**
  * @param {'sleep' | 'reboot' | 'logout' | 'shutdown'} action
@@ -38,11 +37,11 @@ export default () =>
     child: Widget.Box({
       children: [
         SysButton("sleep", "Sleep"),
-        Separator(),
+        Widget.Separator(),
         SysButton("reboot", "Reboot"),
-        Separator(),
+        Widget.Separator(),
         SysButton("logout", "Log Out"),
-        Separator(),
+        Widget.Separator(),
         SysButton("shutdown", "Shutdown"),
       ],
     }),
