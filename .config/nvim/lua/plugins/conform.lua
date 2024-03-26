@@ -11,6 +11,7 @@ return {
 				ocaml = { "ocamlformat" },
 				haskel = { "fourmolu" },
 				javascript = { "prettier" },
+				json = { "prettier" },
 			},
 			format_on_save = {
 				-- These options will be passed to conform.format()

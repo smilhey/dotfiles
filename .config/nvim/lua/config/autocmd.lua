@@ -5,7 +5,7 @@ vim.api.nvim_create_autocmd({ "BufWinEnter", "BufEnter" }, {
 	callback = function()
 		local bufnr = vim.api.nvim_get_current_buf()
 
-		local function set_extmarks(namespace, pattern, hl_group)
+		local function set_extmarks(namespace, pattern, hl_group, symbol)
 			if not pcall(vim.cmd, "silent vimgrep /" .. pattern .. "/gj %") then
 				return
 			end
@@ -17,7 +17,7 @@ vim.api.nvim_create_autocmd({ "BufWinEnter", "BufEnter" }, {
 				vim.api.nvim_buf_set_extmark(bufnr, space, item.lnum - 1, 0, {
 					virt_text = {
 						{
-							string.rep("━", 80),
+							symbol,
 							hl_group,
 						},
 					},
@@ -26,8 +26,8 @@ vim.api.nvim_create_autocmd({ "BufWinEnter", "BufEnter" }, {
 			end
 		end
 
-		set_extmarks("MarkdownCells", "<!--", "Comment")
-		set_extmarks("PythonCells", "```", "FloatBorder")
+		set_extmarks("MarkdownCells", "<!--", "Comment", string.rep(" ", 80))
+		set_extmarks("PythonCells", "```", "FloatBorder", string.rep("━", 80))
 		vim.fn.setqflist({}, "r")
 	end,
 })
@@ -37,23 +37,6 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	pattern = "*",
 	callback = function()
 		vim.highlight.on_yank({ timeout = 100 })
-	end,
-})
-
-vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
-	group = vim.api.nvim_create_augroup("RemapEx", { clear = true }),
-	callback = function()
-		local bufnr = vim.api.nvim_get_current_buf()
-		local file_name = vim.fn.expand("%:t")
-		if not file_name:match("%.ipynb$") and not file_name:match("%.Rmd$") then
-			vim.keymap.set("n", ":", "q:i", { buffer = bufnr })
-			vim.keymap.set("n", "?", "q?i", { buffer = bufnr })
-			vim.keymap.set("n", "/", "q/i", { buffer = bufnr })
-
-			vim.keymap.set("n", "q:", ":", { buffer = bufnr })
-			vim.keymap.set("n", "q?", "?", { buffer = bufnr })
-			vim.keymap.set("n", "q/", "/", { buffer = bufnr })
-		end
 	end,
 })
 

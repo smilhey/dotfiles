@@ -1,4 +1,5 @@
 if vim.g.neovide then
+	-- vim.g.neovide_transparency = 0.9
 	vim.g.neovide_padding_top = 0
 	vim.g.neovide_padding_bottom = 0
 	vim.g.neovide_padding_right = 0
@@ -21,3 +22,5 @@ require("config.remap")
 require("config.lazy")
 require("config.set")
 require("config.autocmd")
+require("utils.lspecho")
+require("utils.custom")

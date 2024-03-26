@@ -1,16 +1,45 @@
-return {
-	"blazkowolf/gruber-darker.nvim",
-	config = function()
-		vim.cmd.colorscheme("gruber-darker")
-		vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
-	end,
-}
+return {}
+
+-- return {
+-- 	"bluz71/vim-moonfly-colors",
+-- 	name = "moonfly",
+-- 	lazy = false,
+-- 	priority = 1000,
+-- 	config = function()
+-- 		vim.cmd("colorscheme moonfly")
+-- 		vim.g.moonflyTransparent = true
+-- 	end,
+-- }
+
+-- return {
+-- 	"luisiacc/gruvbox-baby",
+-- 	config = function()
+-- 		vim.g.gruvbox_baby_transparent = true
+-- 		vim.cmd("colorscheme gruvbox-baby")
+-- 		vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+-- 		vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
+-- 		vim.api.nvim_set_hl(0, "FloatBorder", { bg = "none" })
+-- 		vim.api.nvim_set_hl(0, "SignColumn", { bg = "none" })
+-- 		-- vim.api.nvim_set_hl(0, "LineNr", { bg = "none" })
+-- 	end,
+-- }
+
+-- return {
+-- 	"blazkowolf/gruber-darker.nvim",
+-- 	config = function()
+-- 		vim.cmd.colorscheme("gruber-darker")
+-- 		vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
+-- 	end,
+-- }
 
 -- return {
 -- 	"rose-pine/neovim",
 -- 	config = function()
--- 		require("rose-pine").setup({ disable_background = true })
--- 		vim.cmd("colorscheme rose-pine")
+-- 		vim.cmd("colorscheme rose-pine-main")
+-- 		vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+-- 		vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
+-- 		vim.api.nvim_set_hl(0, "FloatBorder", { bg = "none" })
+-- 		vim.api.nvim_set_hl(0, "NormalNC", { bg = "none" })
 -- 	end,
 -- }
 
@@ -19,14 +48,16 @@ return {
 -- 	-- Default options:
 -- 	config = function()
 -- 		require("kanagawa").setup({
--- 			transparent = true, -- do not set background color
--- 			background = { -- map the value of 'background' option to a theme
--- 				dark = "dragon", -- try "dragon" !
--- 				light = "lotus",
--- 			},
+-- 			theme = "dragon",
+-- 			transparent = true,
 -- 		})
--- 		-- setup must be called before loading
 -- 		vim.cmd("colorscheme kanagawa")
+-- 		vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+-- 		vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
+-- 		vim.api.nvim_set_hl(0, "FloatBorder", { bg = "none" })
+-- 		vim.api.nvim_set_hl(0, "NormalNC", { bg = "none" })
+-- 		vim.api.nvim_set_hl(0, "SignColumn", { bg = "none" })
+-- 		vim.api.nvim_set_hl(0, "LineNr", { bg = "none" })
 -- 	end,
 -- }
 
@@ -35,20 +66,21 @@ return {
 -- 	priority = 1000,
 -- 	config = function()
 -- 		require("gruvbox").setup({
--- 			transparent_mode = false,
+-- 			transparent_mode = true,
 -- 		})
--- 		vim.o.background = "dark" -- or "light" for light mode
--- 		vim.cmd([[colorscheme gruvbox]])
--- 		vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
--- 		vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
+-- 		vim.o.background = "dark"
+-- 		vim.cmd.colorscheme("gruvbox")
 -- 	end,
 -- }
 
 -- return {
---     "catppuccin/nvim",
---     name = "catppuccin",
---     priority = 1000,
---     config = function()
---         vim.cmd.colorscheme("catppuccin-latte")
---     end,
+-- 	"catppuccin/nvim",
+-- 	name = "catppuccin",
+-- 	priority = 1000,
+-- 	config = function()
+-- 		require("catppuccin").setup({
+-- 			transparent_background = true,
+-- 		})
+-- 		vim.cmd.colorscheme("catppuccin")
+-- 	end,
 -- }

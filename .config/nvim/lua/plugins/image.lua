@@ -1,5 +1,6 @@
 return {
 	"3rd/image.nvim",
+	lazy = true,
 	cond = not vim.g.neovide,
 	opts = {
 		backend = "kitty", -- whatever backend you would like to use
