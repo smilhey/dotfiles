@@ -12,6 +12,7 @@ return {
 				haskel = { "fourmolu" },
 				javascript = { "prettier" },
 				json = { "prettier" },
+				typst = { "typstfmt" },
 			},
 			format_on_save = {
 				-- These options will be passed to conform.format()

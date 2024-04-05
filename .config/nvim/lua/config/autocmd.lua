@@ -27,7 +27,8 @@ vim.api.nvim_create_autocmd({ "BufWinEnter", "BufEnter" }, {
 		end
 
 		set_extmarks("MarkdownCells", "<!--", "Comment", string.rep(" ", 80))
-		set_extmarks("PythonCells", "```", "FloatBorder", string.rep("━", 80))
+		-- set_extmarks("PythonCells", "```", "FloatBorder", string.rep("━", 80))
+		set_extmarks("PythonCells", "```", "Comment", "**********" .. string.rep(" ", 80))
 		vim.fn.setqflist({}, "r")
 	end,
 })

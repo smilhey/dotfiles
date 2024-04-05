@@ -1,5 +1,5 @@
 return {
-	dir = "~/Misc/cabinet.nvim",
+	dir = "~/misc/cabinet.nvim",
 	config = function()
 		local cabinet = require("cabinet")
 		cabinet:setup()

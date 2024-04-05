@@ -10,5 +10,7 @@ if not vim.loop.fs_stat(lazypath) then
 	})
 end
 vim.opt.rtp:prepend(lazypath)
+-- vim.opts.ui.backdrop = false
 
-require("lazy").setup("plugins")
+local opts = { ui = { backdrop = 100 } }
+require("lazy").setup("plugins", opts)

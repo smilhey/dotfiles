@@ -47,11 +47,8 @@ return {}
 -- 	"rebelot/kanagawa.nvim",
 -- 	-- Default options:
 -- 	config = function()
--- 		require("kanagawa").setup({
--- 			theme = "dragon",
--- 			transparent = true,
--- 		})
--- 		vim.cmd("colorscheme kanagawa")
+-- 		require("kanagawa").setup({})
+-- 		vim.cmd("colorscheme kanagawa-dragon")
 -- 		vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
 -- 		vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
 -- 		vim.api.nvim_set_hl(0, "FloatBorder", { bg = "none" })

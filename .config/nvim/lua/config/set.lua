@@ -1,9 +1,14 @@
+vim.cmd("colorscheme habamax")
 vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
 vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
 vim.api.nvim_set_hl(0, "FloatBorder", { bg = "none" })
 vim.api.nvim_set_hl(0, "NormalNC", { bg = "none" })
 vim.api.nvim_set_hl(0, "SignColumn", { bg = "none" })
 vim.api.nvim_set_hl(0, "LineNr", { bg = "none" })
+vim.api.nvim_set_hl(0, "WinSeparator", { bg = "none" })
+vim.api.nvim_set_hl(0, "WinSeparator", { bg = "none" })
+vim.api.nvim_set_hl(0, "@variable", {})
+vim.api.nvim_set_hl(0, "@lsp.type.variable", {})
 
 vim.opt.termguicolors = true
 vim.opt.wildoptions = "tagfile"

@@ -5,7 +5,6 @@ return {
 			style = "markdown",
 			output_extension = "md",
 			force_ft = "markdown",
-			custom_language_formatting = {},
 		})
 	end,
 }

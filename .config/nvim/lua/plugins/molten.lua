@@ -54,9 +54,12 @@ return {
 			{ silent = true, noremap = true, desc = "show/enter output" }
 		)
 
+		local block_start = "```python\\|# %%\\|```{\\|@code"
+		local block_end = "```\\|# %%\\|@end"
+
 		function MoltenEvaluateBlock()
-			local start_pos = vim.fn.search("```python\\|# %%\\|```{", "bn")
-			local end_pos = vim.fn.search("```\\|# %%", "n")
+			local start_pos = vim.fn.search(block_start, "bn")
+			local end_pos = vim.fn.search(block_end, "n")
 			if start_pos ~= 0 and end_pos ~= 0 then
 				vim.fn.MoltenEvaluateRange(start_pos + 1, end_pos - 1)
 			else
@@ -65,27 +68,20 @@ return {
 		end
 
 		function MoltenEvaluateAll()
-			if pcall(vim.cmd, "vimgrep /```python/gj %") then
+			if pcall(vim.cmd, "vimgrep /" .. block_start .. "/gj %") then
 				local quickfix_list = vim.fn.getqflist()
 				local cursor_pos = vim.fn.getcurpos()
 
 				for _, item in ipairs(quickfix_list) do
 					vim.fn.cursor({ item.lnum, 0 })
-					vim.fn.MoltenEvaluateRange(item.lnum + 1, vim.fn.search("```", "n") - 1)
+					pcall(function()
+						vim.fn.MoltenEvaluateRange(item.lnum + 1, vim.fn.search(block_end, "n") - 1)
+					end)
 				end
 				vim.fn.setqflist({}, "r")
 				vim.fn.setpos(".", cursor_pos)
 			else
-				pcall(vim.cmd, "vimgrep /```{r/gj %")
-				local quickfix_list = vim.fn.getqflist()
-				local cursor_pos = vim.fn.getcurpos()
-
-				for _, item in ipairs(quickfix_list) do
-					vim.fn.cursor({ item.lnum, 0 })
-					vim.fn.MoltenEvaluateRange(item.lnum + 1, vim.fn.search("```", "n") - 1)
-				end
-				vim.fn.setqflist({}, "r")
-				vim.fn.setpos(".", cursor_pos)
+				vim.notify("No code cell to execute ", vim.log.levels.WARN)
 			end
 		end
 
