@@ -5,8 +5,7 @@ vim.api.nvim_set_hl(0, "FloatBorder", { bg = "none" })
 vim.api.nvim_set_hl(0, "NormalNC", { bg = "none" })
 vim.api.nvim_set_hl(0, "SignColumn", { bg = "none" })
 vim.api.nvim_set_hl(0, "LineNr", { bg = "none" })
-vim.api.nvim_set_hl(0, "WinSeparator", { bg = "none" })
-vim.api.nvim_set_hl(0, "WinSeparator", { bg = "none" })
+vim.api.nvim_set_hl(0, "WinSeparator", { bg = "none", fg = "none" })
 vim.api.nvim_set_hl(0, "@variable", {})
 vim.api.nvim_set_hl(0, "@lsp.type.variable", {})
 
@@ -14,7 +13,7 @@ vim.opt.termguicolors = true
 vim.opt.wildoptions = "tagfile"
 
 vim.opt.laststatus = 3
-vim.opt.cmdheight = 0
+-- vim.opt.cmdheight = 0
 vim.opt.cmdwinheight = 2
 
 vim.env.PATH = vim.env.PATH

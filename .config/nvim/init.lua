@@ -18,9 +18,11 @@ if vim.g.neovide then
 		vim.g.neovide_scale_factor = tonumber(opts.fargs[1])
 	end, { nargs = 1 })
 end
+
 require("config.remap")
 require("config.lazy")
 require("config.set")
 require("config.autocmd")
-require("utils.lspecho")
-require("utils.custom")
+require("utils.globals")
+require("utils.tui")
+require("utils.zen")

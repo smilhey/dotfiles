@@ -1,7 +1,7 @@
 return {
 	{
 		"nvim-neorg/neorg",
-		dependencies = { "luarocks.nvim" },
+		dependencies = { "vhyrro/luarocks.nvim" },
 		ft = "norg",
 		config = function()
 			vim.opt.conceallevel = 2

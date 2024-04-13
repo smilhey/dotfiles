@@ -9,7 +9,7 @@ fi
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # export SUDO_EDITOR=/usr/bin/nvim
-export EDITOR=/usr/bin/nvim
+export EDITOR=/home/smilhey/.local/bin/neovim/bin/
 export MANPAGER='nvim +Man!'
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
@@ -117,6 +117,7 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
+export PATH=~/.local/bin/neovim/bin:$PATH
 path+=('/home/smilhey/.local/bin')
 path+=('/home/smilhey/.zig')
 path+=('/home/smilhey/.cargo/bin')
@@ -148,22 +149,18 @@ fi
 # <<< conda initialize <<<
 
 nv () {nvim --server ~/.cache/nvim/server.pipe --remote "$(realpath "$1")"}
-# nv() {
-#   local target_path
-#   target_path=$(realpath "$1")
-#   dir=$(dirname "$target_path")
-#
-#   if [ -f "$target_path" ]; then
-#     # If it's a file, cd into its parent directory
-#     nvim --server ~/.cache/nvim/server.pipe --remote-send "<ESC>:cd $dir<CR>" && nvim --server ~/.cache/nvim/server.pipe --remote "$target_path" 
-#   elif [ -d "$target_path" ]; then
-#     # If it's a directory, cd into it
-#     nvim --server ~/.cache/nvim/server.pipe --remote-send "<ESC>:cd $target_path<CR>" && nvim --server ~/.cache/nvim/server.pipe --remote "$target_path" 
-#       
-#   else
-#     echo "Invalid argument: $1 is not a valid file or directory."
-#   fi
-# }
 
 alias nvl='nvim --listen ~/.cache/nvim/server.pipe -c"term"'
 alias nvd='neovide -- --listen ~/.cache/nvim/server.pipe -c "term"'
+
+
+# >>> juliaup initialize >>>
+
+# !! Contents within this block are managed by juliaup !!
+
+path=('/home/smilhey/.juliaup/bin' $path)
+export PATH
+
+# <<< juliaup initialize <<<
+
+export JULIA_PROJECT='@.'

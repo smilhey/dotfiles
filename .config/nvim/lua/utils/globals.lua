@@ -1,39 +1,15 @@
+-- Global lua print function for lua objects
 function P(object)
 	print(vim.inspect(object))
 end
 
-function T(tui)
-	local buffer = vim.api.nvim_create_buf(false, true)
-
-	local screen_width = vim.api.nvim_get_option("columns")
-	local screen_height = vim.api.nvim_get_option("lines")
-	local float_width = 100
-	local float_height = 30
-	local row = math.floor((screen_height - float_height) / 2)
-	local col = math.floor((screen_width - float_width) / 2)
-
-	vim.api.nvim_open_win(buffer, true, {
-		relative = "editor",
-		width = float_width,
-		height = float_height,
-		row = row,
-		col = col,
-		style = "minimal",
-		border = "single",
-	})
-
-	vim.cmd("term " .. tui)
-	vim.schedule(function()
-		vim.cmd("startinsert")
-	end)
-end
-
-local function float_prompt(callback)
+-- Open a prompt UI and run a callback with the input
+function Float_prompt(callback)
 	local buffer = vim.api.nvim_create_buf(false, true)
 	vim.bo[buffer].buftype = "prompt"
 
-	local screen_width = vim.api.nvim_get_option("columns")
-	local screen_height = vim.api.nvim_get_option("lines")
+	local screen_width = vim.api.nvim_get_option_value("columns", {})
+	local screen_height = vim.api.nvim_get_option_value("lines", {})
 	local float_width = 20
 	local float_height = 1
 	local row = math.floor((screen_height - float_height) / 2)
@@ -60,7 +36,3 @@ local function float_prompt(callback)
 		vim.api.nvim_buf_delete(buffer, { force = true })
 	end)
 end
-
-vim.keymap.set("n", "<leader>ui", function()
-	float_prompt(T)
-end, {})

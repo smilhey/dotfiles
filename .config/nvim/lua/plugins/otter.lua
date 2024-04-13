@@ -14,7 +14,7 @@ return {
 			},
 			strip_wrapping_quote_characters = { "'", '"', "`" },
 		})
-		local languages = { "python", "markdown", "R" }
+		local languages = { "python", "markdown", "R", "neorg" }
 		local completion = true
 		local diagnostics = true
 		-- treesitter query to look for embedded languages
@@ -22,7 +22,7 @@ return {
 		local tsquery = nil
 
 		vim.api.nvim_create_autocmd({ "BufWinEnter", "BufEnter" }, {
-			pattern = { "*.ipynb", "*.md", "*.Rmd" },
+			pattern = { "*.ipynb", "*.md", "*.Rmd", ".norg" },
 			desc = "Otter actions",
 			callback = function()
 				local bufnr = vim.api.nvim_get_current_buf()

@@ -4,7 +4,7 @@ return {
 	event = "InsertEnter",
 	config = function()
 		require("copilot").setup({
-			suggestion = { enabled = false },
+			suggestion = { enabled = true, keymap = { accept = "<M-;>" } },
 			panel = { enabled = false },
 			filetypes = {
 				markdown = true,

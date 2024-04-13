@@ -1,5 +1,7 @@
 return {
 	"3rd/image.nvim",
+	ft = { "norg", "markdown", ".ipynb" },
+	dependencies = { "vhyrro/luarocks.nvim" },
 	cond = not vim.g.neovide,
 	opts = {
 		backend = "kitty", -- whatever backend you would like to use

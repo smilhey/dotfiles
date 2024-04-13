@@ -1,4 +1,13 @@
-return {}
+-- return {}
+
+return {
+	"Verf/deepwhite.nvim",
+	-- lazy = false,
+	-- priority = 1000,
+	config = function()
+		-- vim.cmd("colorscheme deepwhite")
+	end,
+}
 
 -- return {
 -- 	"bluz71/vim-moonfly-colors",
