@@ -11,11 +11,11 @@ return {
 		-- vim.g.molten_output_win_max_height = 20
 		-- vim.g.molten_image_provider = "image.nvim"
 		if not vim.g.neovide then
-			vim.g.molten_image_provider = "wezterm"
+			vim.g.molten_image_provider = "image.nvim"
 		end
 	end,
 	config = function()
-		vim.api.nvim_set_hl(0, "MoltenVirtualText", { link = "Normal" })
+		-- vim.api.nvim_set_hl(0, "MoltenVirtualText", { link = "Normal" })
 
 		--key mappings
 		vim.keymap.set(

@@ -4,7 +4,6 @@ return {
 		dependencies = { "vhyrro/luarocks.nvim" },
 		ft = "norg",
 		config = function()
-			vim.opt.conceallevel = 2
 			require("neorg").setup({
 				load = {
 					["core.defaults"] = {}, -- Loads default behaviour
@@ -12,12 +11,10 @@ return {
 					["core.concealer"] = {
 						config = {
 							folds = false,
-							icon_preset = "varied",
+							-- icon_preset = "varied",
 							icons = {
 								code_block = {
 									spell_check = false,
-									width = "content",
-									padding = { left = 10, right = 10 },
 								},
 							},
 						},
@@ -29,6 +26,9 @@ return {
 							},
 						},
 					},
+					["core.integrations.otter"] = {},
+					["core.latex.renderer"] = {},
+					["core.integrations.image"] = {},
 				},
 			})
 		end,

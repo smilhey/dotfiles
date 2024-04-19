@@ -27,5 +27,6 @@ return {
 		max_width_window_percentage = math.huge,
 		window_overlap_clear_enabled = true, -- toggles images when windows are overlapped
 		window_overlap_clear_ft_ignore = { "cmp_menu", "cmp_docs", "" },
+		hijack_file_patterns = { "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp" }, -- render image files as images when opened
 	},
 }

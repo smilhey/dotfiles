@@ -1,19 +1,40 @@
+vim.keymap.set("i", "<A-BS>", "<C-w>")
+
+-- wezterm integration
+local function switch_pane(direction)
+	local current_window = vim.api.nvim_get_current_win()
+	local direction_table = { Left = "h", Down = "j", Up = "k", Right = "l" }
+	vim.cmd("wincmd " .. direction_table[direction])
+	if vim.api.nvim_get_current_win() == current_window then
+		vim.system({ "wezterm", "cli", "activate-pane-direction", direction })
+	end
+end
+
 -- resizing splits
 vim.keymap.set("n", "<A-h>", "<C-W><C-<>")
 vim.keymap.set("n", "<A-j>", "<C-W><C-->")
 vim.keymap.set("n", "<A-k>", "<C-W><C-+>")
 vim.keymap.set("n", "<A-l>", "<C-W><C->>")
 -- moving between splits
-vim.keymap.set("n", "<C-h>", "<C-W><C-h>")
-vim.keymap.set("n", "<C-j>", "<C-W><C-j>")
-vim.keymap.set("n", "<C-k>", "<C-W><C-k>")
-vim.keymap.set("n", "<C-l>", "<C-W><C-l>")
+vim.keymap.set("n", "<C-h>", function()
+	switch_pane("Left")
+end)
+vim.keymap.set("n", "<C-j>", function()
+	switch_pane("Down")
+end)
+vim.keymap.set("n", "<C-k>", function()
+	switch_pane("Up")
+end)
+vim.keymap.set("n", "<C-l>", function()
+	switch_pane("Right")
+end)
 
-vim.keymap.set("n", "]a", "<cmd>bnext<CR>", { silent = true })
-vim.keymap.set("n", "[a", "<cmd>bprev<CR>", { silent = true })
+vim.keymap.set("n", "L", "<cmd>bnext<CR>", { desc = "Next Buffer", silent = true })
+vim.keymap.set("n", "H", "<cmd>bprev<CR>", { desc = "Previous Buffer", silent = true })
 vim.keymap.set("n", "]q", "<cmd>try | cnext | catch | cfirst | catch | endtry<CR><CR>", { silent = true })
 vim.keymap.set("n", "[q", "<cmd>try | cprev | catch | clast | catch | endtry<CR><CR>", { silent = true })
 
+-- using cmdwindow as default
 vim.keymap.set("n", ":", "q:i")
 vim.keymap.set("n", "?", "q?i")
 vim.keymap.set("n", "/", "q/i")
@@ -63,8 +84,8 @@ vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
 
 vim.keymap.set("n", "J", "mzJ`z")
--- vim.keymap.set("n", "<C-d>", "<C-d>zz")
--- vim.keymap.set("n", "<C-u>", "<C-u>z.")
+vim.keymap.set("n", "<C-d>", "<C-d>zz")
+vim.keymap.set("n", "<C-u>", "<C-u>z.")
 vim.keymap.set("n", "<C-f>", "<C-f>zz")
 vim.keymap.set("n", "<C-b>", "<C-b>zz")
 vim.keymap.set("n", "n", "nzzzv")

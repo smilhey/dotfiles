@@ -13,6 +13,7 @@ return {
 				write_to_disk = false,
 			},
 			strip_wrapping_quote_characters = { "'", '"', "`" },
+			handle_leading_whitespace = true,
 		})
 		local languages = { "python", "markdown", "R", "neorg" }
 		local completion = true

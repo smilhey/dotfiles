@@ -37,20 +37,51 @@
 -- 	end,
 -- })
 
+vim.api.nvim_create_autocmd("BufEnter", {
+	group = vim.api.nvim_create_augroup("codeblocks_namespace", { clear = true }),
+	pattern = { "*.md", "*.Rmd" },
+	callback = function()
+		local _, code_query = pcall(
+			vim.treesitter.query.parse,
+			"markdown",
+			[[
+                (code_fence_content)  @codeblock
+            ]]
+		)
+
+		local function dim_codeblocks(bufnr, query)
+			local language_tree = vim.treesitter.get_parser(bufnr, "markdown")
+			local syntax_tree = language_tree:parse()
+			local root = syntax_tree[1]:root()
+			for _, match in query:iter_matches(root, bufnr) do
+				for id, node in pairs(match) do
+					local capture = query.captures[id]
+					if capture == "codeblock" then
+						local start_row, _, end_row, _ = node:range()
+						vim.api.nvim_buf_set_extmark(
+							bufnr,
+							vim.api.nvim_create_namespace("codeblocks_namespace"),
+							start_row,
+							0,
+							{
+								end_row = end_row,
+								hl_group = "CursorColumn",
+								hl_eol = true,
+							}
+						)
+					end
+				end
+			end
+		end
+		dim_codeblocks(0, code_query)
+	end,
+})
+
 vim.api.nvim_create_autocmd("TextYankPost", {
 	group = vim.api.nvim_create_augroup("HighlightOnYank", { clear = true }),
 	pattern = "*",
 	callback = function()
 		vim.highlight.on_yank({ timeout = 100 })
-	end,
-})
-
-vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-	group = vim.api.nvim_create_augroup("wgsl", { clear = true }),
-	pattern = "*.wgsl",
-	callback = function()
-		-- vim.cmd("set filetype=wgsl")
-		vim.o.filetype = "wgsl"
 	end,
 })
 
@@ -71,3 +102,29 @@ vim.api.nvim_create_autocmd({ "TermEnter" }, {
 		vim.opt_local.relativenumber = false
 	end,
 })
+
+vim.api.nvim_create_autocmd({ "CmdlineEnter", "CmdwinEnter" }, {
+	callback = function()
+		vim.cmd("redir @z")
+	end,
+})
+
+vim.keymap.set("n", "<C-Enter>", function()
+	local output = vim.fn.getreg("z")
+	local output = vim.split(output, "\n", { plain = true })
+	if vim.tbl_isempty(output) then
+		vim.notify("No cmd output to display", vim.log.levels.WARN)
+	end
+	local scratch_buffer = vim.api.nvim_create_buf(false, true)
+	vim.api.nvim_open_win(scratch_buffer, true, {
+		split = "below",
+		height = 10,
+		win = 0,
+		style = "minimal",
+	})
+	vim.api.nvim_buf_set_lines(scratch_buffer, 0, -1, false, output)
+	vim.bo[scratch_buffer].modifiable = false
+	vim.keymap.set("n", "q", function()
+		vim.api.nvim_win_close(0, true)
+	end, { buffer = scratch_buffer, nowait = true, noremap = true, silent = true })
+end)
