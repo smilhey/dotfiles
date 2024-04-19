@@ -1,2 +1,12 @@
 *.json
 .config/VSCodium
+.config/Slack
+.config/cni
+.config/enchant
+.config/geeqie
+.config/qimgv
+.config/radian
+.config/typstfmt
+.config/zed
+.config/btop
+.config/cosmic
