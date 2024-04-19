@@ -54,4 +54,28 @@ for i = 1, 8 do
 	})
 end
 
+table.insert(keys, {
+	key = ";",
+	mods = "CTRL",
+	action = act.ActivateCommandPalette,
+})
+
+table.insert(keys, {
+	key = "t",
+	mods = "ALT",
+	action = act.SpawnTab("CurrentPaneDomain"),
+})
+
+table.insert(keys, {
+	key = "w",
+	mods = "ALT",
+	action = act.CloseCurrentTab({ confirm = true }),
+})
+
+table.insert(keys, {
+	key = "p",
+	mods = "ALT",
+	action = act.CloseCurrentPane({ confirm = true }),
+})
+
 return keys
