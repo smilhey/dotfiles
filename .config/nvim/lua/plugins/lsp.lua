@@ -13,14 +13,6 @@ return {
 		"hrsh7th/cmp-nvim-lsp",
 		"hrsh7th/cmp-buffer",
 		"hrsh7th/cmp-path",
-		"saadparwaiz1/cmp_luasnip",
-		{
-			"L3MON4D3/LuaSnip",
-			dependencies = "rafamadriz/friendly-snippets",
-			config = function()
-				require("luasnip.loaders.from_vscode").lazy_load()
-			end,
-		},
 		"onsails/lspkind-nvim",
 	},
 	config = function()
@@ -110,7 +102,6 @@ return {
 		})
 
 		local cmp = require("cmp")
-		local luasnip = require("luasnip")
 		local lspkind = require("lspkind")
 
 		local cmp_select = { behavior = cmp.SelectBehavior.Select }
@@ -129,11 +120,6 @@ return {
 				completion = cmp.config.window.bordered("single"),
 				documentation = cmp.config.window.bordered("single"),
 			},
-			snippet = {
-				expand = function(args)
-					luasnip.lsp_expand(args.body)
-				end,
-			},
 			formatting = {
 				format = lspkind.cmp_format({
 					with_text = true,
@@ -143,7 +129,6 @@ return {
 						copilot = "",
 						buffer = "[buf]",
 						nvim_lsp = "[LSP]",
-						luasnip = "[snip]",
 					},
 				}),
 			},
@@ -153,7 +138,6 @@ return {
 				{ name = "copilot" },
 				{ name = "path" },
 				{ name = "buffer", keyword_length = 3 },
-				{ name = "luasnip", keyword_length = 2 },
 			},
 		})
 
