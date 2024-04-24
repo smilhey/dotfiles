@@ -12,5 +12,26 @@ end
 vim.opt.rtp:prepend(lazypath)
 -- vim.opts.ui.backdrop = false
 
-local opts = { ui = { backdrop = 100 } }
+local opts = {
+	performance = {
+		rtp = {
+			disabled_plugins = {
+				"2html",
+				"gzip",
+				"remote_plugins",
+				"tarPlugin",
+				"tohtml",
+				"tutor",
+				"zipPlugin",
+				"netrw",
+				"netrwPlugin",
+			},
+		},
+	},
+	ui = {
+		border = "single",
+		backdrop = 100,
+		title = "Lazy.nvim",
+	},
+}
 require("lazy").setup("plugins", opts)

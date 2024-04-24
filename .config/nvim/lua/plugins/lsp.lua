@@ -7,6 +7,19 @@ return {
 			build = function()
 				pcall(vim.cmd, "MasonUpdate")
 			end,
+			config = function()
+				require("mason").setup({
+					ui = {
+						icons = {
+							package_installed = "✓",
+							package_pending = "➜",
+							package_uninstalled = "✗",
+						},
+						border = "single",
+						height = 0.8,
+					},
+				})
+			end,
 		},
 		{ "williamboman/mason-lspconfig.nvim" },
 		"hrsh7th/nvim-cmp",

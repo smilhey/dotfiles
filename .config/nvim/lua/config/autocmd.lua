@@ -103,28 +103,32 @@ vim.api.nvim_create_autocmd({ "TermEnter" }, {
 	end,
 })
 
-vim.api.nvim_create_autocmd({ "CmdlineEnter", "CmdwinEnter" }, {
+local status_group = vim.api.nvim_create_augroup("StatusDisappear", { clear = true })
+
+vim.api.nvim_create_autocmd("CmdwinEnter", {
+	group = status_group,
 	callback = function()
-		vim.cmd("redir @z")
+		-- vim.opt.laststatus = 0
+		vim.cmd("startinsert")
 	end,
 })
 
-vim.keymap.set("n", "<C-Enter>", function()
-	local output = vim.fn.getreg("z")
-	local output = vim.split(output, "\n", { plain = true })
-	if vim.tbl_isempty(output) then
-		vim.notify("No cmd output to display", vim.log.levels.WARN)
-	end
-	local scratch_buffer = vim.api.nvim_create_buf(false, true)
-	vim.api.nvim_open_win(scratch_buffer, true, {
-		split = "below",
-		height = 10,
-		win = 0,
-		style = "minimal",
-	})
-	vim.api.nvim_buf_set_lines(scratch_buffer, 0, -1, false, output)
-	vim.bo[scratch_buffer].modifiable = false
-	vim.keymap.set("n", "q", function()
-		vim.api.nvim_win_close(0, true)
-	end, { buffer = scratch_buffer, nowait = true, noremap = true, silent = true })
-end)
+-- vim.api.nvim_create_autocmd("CmdwinLeave", {
+-- 	group = status_group,
+-- 	callback = function()
+-- 		vim.opt.laststatus = 3
+-- 	end,
+-- })
+
+vim.api.nvim_create_autocmd("BufEnter", {
+	pattern = { "!MsgArea", "!Command Line" },
+	callback = function()
+		vim.opt_local.winbar = "%#StatusLine# %n %*%=%m %f"
+	end,
+})
+
+vim.api.nvim_create_autocmd("BufWinEnter", {
+	callback = function()
+		vim.cmd("silent! normal! g'\"")
+	end,
+})

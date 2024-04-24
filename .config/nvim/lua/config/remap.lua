@@ -1,3 +1,8 @@
+vim.keymap.set("n", "<leader>nh", "<cmd>nohlsearch<CR>", { desc = "Clear and redraw the screen" })
+vim.keymap.set("n", "<C-e>", function()
+	local result = vim.treesitter.get_captures_at_cursor(0)
+	P(result)
+end, { noremap = true, silent = false })
 vim.keymap.set("i", "<A-BS>", "<C-w>")
 
 -- wezterm integration
@@ -35,9 +40,9 @@ vim.keymap.set("n", "]q", "<cmd>try | cnext | catch | cfirst | catch | endtry<CR
 vim.keymap.set("n", "[q", "<cmd>try | cprev | catch | clast | catch | endtry<CR><CR>", { silent = true })
 
 -- using cmdwindow as default
-vim.keymap.set("n", ":", "q:i")
-vim.keymap.set("n", "?", "q?i")
-vim.keymap.set("n", "/", "q/i")
+vim.keymap.set("n", ":", "q:")
+vim.keymap.set("n", "?", "q?")
+vim.keymap.set("n", "/", "q/")
 
 vim.keymap.set("n", "q:", ":")
 vim.keymap.set("n", "q?", "?")
@@ -79,7 +84,6 @@ vim.keymap.set("n", "<C-w>]", function()
 end)
 -- vim.keymap.set("n", "<leader>pv", vim.cmd.Ex)
 
-vim.g.mapleader = " "
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
 

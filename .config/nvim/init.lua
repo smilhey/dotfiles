@@ -19,9 +19,9 @@ if vim.g.neovide then
 	end, { nargs = 1 })
 end
 
+require("config.set")
 require("config.remap")
 require("config.lazy")
-require("config.set")
 require("config.autocmd")
 require("utils.globals")
 require("utils.tui")
