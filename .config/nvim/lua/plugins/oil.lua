@@ -39,9 +39,14 @@ return {
 				["<C-s>"] = "actions.select_split",
 				["<C-v>"] = "actions.select_vsplit",
 				["<C-c>"] = false,
-				["q"] = "actions.close",
 				["<C-l>"] = false,
 			},
+		})
+		vim.api.nvim_create_autocmd("FileType", {
+			pattern = "oil",
+			callback = function()
+				vim.keymap.set("n", "q", require("oil").close, { buffer = 0, desc = "Close Oil", nowait = true })
+			end,
 		})
 		vim.keymap.set("n", "<leader>pv", "<cmd>Oil<CR>", { desc = "Navigate project with Oil" })
 	end,
