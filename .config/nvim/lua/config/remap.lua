@@ -40,13 +40,13 @@ vim.keymap.set("n", "]q", "<cmd>try | cnext | catch | cfirst | catch | endtry<CR
 vim.keymap.set("n", "[q", "<cmd>try | cprev | catch | clast | catch | endtry<CR><CR>", { silent = true })
 
 -- using cmdwindow as default
-vim.keymap.set("n", ":", "q:")
-vim.keymap.set("n", "?", "q?")
-vim.keymap.set("n", "/", "q/")
+vim.keymap.set({ "n", "v" }, ":", "q:")
+vim.keymap.set({ "n", "v" }, "?", "q?")
+vim.keymap.set({ "n", "v" }, "/", "q/")
 
-vim.keymap.set("n", "q:", ":")
-vim.keymap.set("n", "q?", "?")
-vim.keymap.set("n", "q/", "/")
+vim.keymap.set({ "n", "v" }, "q:", ":")
+vim.keymap.set({ "n", "v" }, "q?", "?")
+vim.keymap.set({ "n", "v" }, "q/", "/")
 
 local open_term = function(direction)
 	-- Check if there's a terminal buffer in the current workspace
