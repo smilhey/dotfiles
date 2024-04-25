@@ -31,7 +31,7 @@ local function custom_input(opts, on_confirm, win_opts)
 	vim.cmd("startinsert")
 	vim.defer_fn(function()
 		vim.api.nvim_buf_set_text(buf, 0, 2, 0, 2, { default_text })
-		vim.cmd("startinsert! | stopinsert")
+		vim.cmd("startinsert!")
 	end, 5)
 end
 

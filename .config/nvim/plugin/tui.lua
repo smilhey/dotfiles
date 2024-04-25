@@ -26,5 +26,7 @@ local function launch(tui)
 end
 
 vim.keymap.set("n", "<leader>ui", function()
-	Float_prompt(launch)
+	vim.ui.input("Launch TUI: ", function(tui)
+		launch(tui)
+	end)
 end, {})

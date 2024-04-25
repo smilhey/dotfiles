@@ -43,6 +43,7 @@ vim.keymap.set("n", "[q", "<cmd>try | cprev | catch | clast | catch | endtry<CR>
 vim.keymap.set({ "n", "v" }, ":", "q:")
 vim.keymap.set({ "n", "v" }, "?", "q?")
 vim.keymap.set({ "n", "v" }, "/", "q/")
+vim.keymap.set({ "n", "v" }, "!", "!<C-f>")
 
 vim.keymap.set({ "n", "v" }, "q:", ":")
 vim.keymap.set({ "n", "v" }, "q?", "?")

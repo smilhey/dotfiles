@@ -7,12 +7,10 @@ local function custom_select(items, opts, on_choice, win_opts)
 	local string_items = vim.tbl_map(function(item)
 		return format_item(item)
 	end, items)
-	local win_width = math.max(
-		unpack(vim.tbl_map(function(item)
-			return #item
-		end, string_items)),
-		#prompt
-	)
+	local win_width = math.max(unpack(vim.tbl_map(function(string)
+		return #string
+	end, string_items)))
+	win_width = math.max(win_width, #prompt)
 	local win_height = #items > 0 and #items or 1
 
 	local default_win_opts = {
@@ -29,6 +27,7 @@ local function custom_select(items, opts, on_choice, win_opts)
 	win_opts = vim.tbl_deep_extend("force", default_win_opts, win_opts)
 	local win = vim.api.nvim_open_win(buf, true, win_opts)
 	vim.wo[win].winhighlight = "lCursor:"
+	vim.wo[win].signcolumn = "no"
 	vim.wo[win].cursorline = true
 	vim.wo[win].cursorlineopt = "line"
 	vim.api.nvim_buf_set_lines(buf, 0, -1, false, string_items)
