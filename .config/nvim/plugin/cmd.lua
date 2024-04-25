@@ -41,6 +41,13 @@ function M.init_window(display)
 	if vim.api.nvim_win_is_valid(M[display].window) then
 		return
 	end
+	-- getting the split to show at the bottom
+	local win = vim.api.nvim_get_current_win()
+	vim.cmd("wincmd j")
+	while win ~= vim.api.nvim_get_current_win() do
+		win = vim.api.nvim_get_current_win()
+		vim.cmd("wincmd j")
+	end
 	M.clear_buffer(display)
 	M[display].window = vim.api.nvim_open_win(M[display].buffer, true, {
 		split = "below",
@@ -64,7 +71,7 @@ function M.render_split(display, lines, clear)
 end
 
 function M.on_usr_msg(show_kind, lines)
-	M.history.messages = vim.iter({ M.history.messages, lines }):flatten():totable()
+	M.history.messages = vim.tbl_flatten({ M.history.messages, lines })
 	local text = table.concat(lines, "\n")
 	if show_kind == "echo" then
 		vim.notify(text, vim.log.levels.INFO)
