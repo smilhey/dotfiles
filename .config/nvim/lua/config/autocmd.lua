@@ -108,21 +108,15 @@ local status_group = vim.api.nvim_create_augroup("StatusDisappear", { clear = tr
 vim.api.nvim_create_autocmd("CmdwinEnter", {
 	group = status_group,
 	callback = function()
-		-- vim.opt.laststatus = 0
 		vim.cmd("startinsert")
 	end,
 })
 
--- vim.api.nvim_create_autocmd("CmdwinLeave", {
--- 	group = status_group,
--- 	callback = function()
--- 		vim.opt.laststatus = 3
--- 	end,
--- })
-
-vim.api.nvim_create_autocmd("BufEnter", {
-	pattern = { "!MsgArea", "!Command Line" },
+vim.api.nvim_create_autocmd("BufWinEnter", {
 	callback = function()
+		if vim.fn.win_gettype() ~= "" or vim.bo.filetype == "MsgArea" or vim.bo.filetype == "Zen" then
+			return
+		end
 		vim.opt_local.winbar = "%#StatusLine# %n %*%=%m %f"
 	end,
 })
