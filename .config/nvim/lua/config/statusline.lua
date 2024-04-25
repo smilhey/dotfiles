@@ -18,8 +18,11 @@ function _G.Statusline_Getmode()
 		c = { mode = "COMMAND", highlight = "FloatShadow" },
 	}
 	local mode_current = vim.fn.mode()
+	if vim.fn.win_gettype() == "command" then
+		return "%#FloatShadow# COMMAND %#StatusLine# "
+	end
 	if mode_table[mode_current] == nil then
-		return "%#HighlightNormal# NORMAL"
+		return "%#Statusline# NORMAL"
 	else
 		return "%#"
 			.. mode_table[mode_current:sub(1, 1)].highlight
@@ -98,7 +101,7 @@ function _G.Statusline_MacroRecording()
 	if recording_register == "" then
 		return ""
 	else
-		return "%#Error#" .. LEFT_BRACE .. "rec @" .. recording_register .. RIGHT_BRACE .. "%#StatusLine# "
+		return "%#WarningMsg#" .. LEFT_BRACE .. "rec @" .. recording_register .. RIGHT_BRACE .. "%#StatusLine# "
 	end
 end
 
