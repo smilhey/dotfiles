@@ -60,44 +60,50 @@ return {
 			":noautocmd MoltenEnterOutput<CR>",
 			{ silent = true, noremap = true, desc = "show/enter output" }
 		)
-
-		local block_start = "```python\\|# %%\\|```{\\|@code"
-		local block_end = "```\\|# %%\\|@end"
-
-		function MoltenEvaluateBlock()
-			local start_pos = vim.fn.search(block_start, "bn")
-			local end_pos = vim.fn.search(block_end, "n")
-			if start_pos ~= 0 and end_pos ~= 0 then
-				vim.fn.MoltenEvaluateRange(start_pos + 1, end_pos - 1)
-			else
-				print("No valid code block found")
-			end
-		end
+		vim.keymap.set("n", "<space>e", function()
+			local curpos = vim.fn.getpos(".")
+			vim.cmd("MoltenEvaluateOperator")
+			vim.api.nvim_input("ib")
+			vim.schedule(function()
+				vim.fn.setpos(".", curpos)
+			end)
+		end, { silent = true, noremap = true, desc = "evaluate cell" })
 
 		function MoltenEvaluateAll()
-			if pcall(vim.cmd, "vimgrep /" .. block_start .. "/gj %") then
-				local quickfix_list = vim.fn.getqflist()
-				local cursor_pos = vim.fn.getcurpos()
-
-				for _, item in ipairs(quickfix_list) do
-					vim.fn.cursor({ item.lnum, 0 })
-					pcall(function()
-						vim.fn.MoltenEvaluateRange(item.lnum + 1, vim.fn.search(block_end, "n") - 1)
-					end)
-				end
-				vim.fn.setqflist({}, "r")
-				vim.fn.setpos(".", cursor_pos)
+			local query
+			if vim.bo.filetype == "markdown" then
+				_, query = pcall(
+					vim.treesitter.query.parse,
+					"markdown",
+					[[
+                (code_fence_content)  @codeblock
+            ]]
+				)
 			else
-				vim.notify("No code cell to execute ", vim.log.levels.WARN)
+				_, query = pcall(
+					vim.treesitter.query.parse,
+					"norg",
+					[[
+                (ranged_verbatim_tag_content)  @codeblock
+            ]]
+				)
+			end
+			local bufnr = vim.api.nvim_get_current_buf()
+			local parser = vim.treesitter.get_parser(bufnr)
+			local tree = parser:parse()
+			local root = tree[1]:root()
+			for _, match in query:iter_matches(root, bufnr) do
+				for id, node in pairs(match) do
+					local capture = query.captures[id]
+					if capture == "codeblock" then
+						local start_row, _, end_row, _ = node:range()
+						vim.fn.MoltenEvaluateRange(start_row + 1, end_row)
+					end
+				end
 			end
 		end
 
-		-- Define a command to trigger the custom function
-		vim.api.nvim_create_user_command("MoltenEvaluateBlock", MoltenEvaluateBlock, {})
 		vim.api.nvim_create_user_command("MoltenEvaluateAll", MoltenEvaluateAll, {})
-
-		-- Map a key combination to trigger the custom command
-		vim.keymap.set("n", "<space>e", MoltenEvaluateBlock, { silent = true })
 
 		-- automatically import output chunks from a jupyter notebook
 		-- tries to find a kernel that matches the kernel in the jupyter notebook
