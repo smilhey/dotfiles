@@ -1,6 +1,7 @@
 local M = {
 	history = { window = -1, buffer = -1, messages = {} },
 	output = { window = -1, buffer = -1 },
+	debug_messages = {},
 }
 
 function M.content_to_lines(content)
@@ -27,7 +28,7 @@ function M.init_buffer(display)
 	local buf = vim.api.nvim_create_buf(false, true)
 	vim.bo[buf].filetype = "MsgArea"
 	vim.bo[buf].bufhidden = "wipe"
-	vim.api.nvim_buf_set_name(buf, "[MsgArea - ]" .. display)
+	vim.api.nvim_buf_set_name(buf, "[MsgArea - " .. display .. "]")
 	vim.bo[buf].modifiable = false
 	vim.keymap.set("n", "q", function()
 		vim.api.nvim_win_close(M[display].window, true)
@@ -40,29 +41,26 @@ function M.init_window(display)
 	if vim.api.nvim_win_is_valid(M[display].window) then
 		return
 	end
+	M.clear_buffer(display)
 	M[display].window = vim.api.nvim_open_win(M[display].buffer, true, {
 		split = "below",
-		height = 10,
+		height = 7,
 	})
 	vim.wo[M[display].window].winfixbuf = true
 end
 
 function M.render_split(display, lines, clear)
 	M.init_buffer(display)
-	local buf, win = M[display].buffer, M[display].window
+	M.init_window(display)
 	local start_line, end_line = 0, -1
-	if not vim.api.nvim_win_is_valid(win) then
-		M.init_window(display)
-		M.clear_buffer(display)
-	end
 	if not clear then
-		local buf_lines = vim.api.nvim_buf_get_lines(buf, 0, -1, true)
+		local buf_lines = vim.api.nvim_buf_get_lines(M[display].buffer, 0, -1, true)
 		start_line = vim.deep_equal(buf_lines, { "" }) and 0 or #buf_lines
 		end_line = -1
 	end
-	vim.bo[buf].modifiable = true
-	vim.api.nvim_buf_set_lines(buf, start_line, end_line, false, lines)
-	vim.bo[buf].modifiable = false
+	vim.bo[M[display].buffer].modifiable = true
+	vim.api.nvim_buf_set_lines(M[display].buffer, start_line, end_line, false, lines)
+	vim.bo[M[display].buffer].modifiable = false
 end
 
 function M.on_usr_msg(show_kind, lines)
@@ -93,14 +91,17 @@ function M.on_empty(lines)
 	if lines[1]:find("^:!") then
 		table.remove(lines, 1)
 	end
-	M.render_split("output", lines, false)
+	-- TODO : should probably implement a rendering queue
+	vim.schedule(function()
+		M.render_split("output", lines, false)
+	end)
 end
 
 function M.on_show(...)
 	local kind, content, _ = ...
 	local lines = M.content_to_lines(content)
 	if kind == "" then
-		M.on_empty(lines, replace_last)
+		M.on_empty(lines)
 		return
 	elseif kind == "return_prompt" then
 		return vim.api.nvim_input("<cr>")
@@ -114,11 +115,14 @@ function M.on_show(...)
 	then
 		M.on_usr_msg(kind, lines)
 		return
-	elseif kind == "search_count" or "quickfix" then
+	elseif kind == "search_count" or kind == "quickfix" then
 		return
 	end
 end
 
+---Custom handler for the ui-messages
+---@param event string
+---@vararg
 function M.handler(event, ...)
 	if event == "msg_show" then
 		M.on_show(...)
@@ -132,20 +136,27 @@ function M.handler(event, ...)
 end
 
 function M.debug_handler(event, ...)
-	local kind, content, _ = ...
-	vim.api.nvim_win_set_buf(0, 0)
-	vim.api.nvim_buf_set_lines(
-		0,
-		-1,
-		-1,
-		true,
-		{ "E : " .. event .. " K: " .. kind .. " C: " .. vim.inspect(unpack(content)) }
-	)
+	if event == "msg_show" then
+		local kind, content, _ = ...
+		if kind == "" then
+			table.insert(M.debug_messages, { " E " .. event .. " C " .. vim.inspect(unpack(content)) })
+		end
+	end
+end
+
+function M.debug_write()
+	local json_output = vim.fn.json_encode(M.debug_messages)
+	local file = io.open("debug_output.json", "a+")
+	if file then
+		file:write(json_output)
+		file:close()
+	else
+		vim.notify("Failed to open file", vim.log.levels.ERROR)
+	end
 end
 
 -- Also need to override the default vim.ui.input(), vim.ui.select() and other
--- stuff that might render in msg-area with user input. vim commands like ls do
--- not seem to send any msg_show event.
+-- stuff that might render in msg-area with user input.
 
 function M.notify(msg, log_level, opts)
 	vim.g.status_line_notify = { message = msg, level = log_level }
@@ -165,3 +176,4 @@ function M.init()
 end
 
 M.init()
+-- return M
