@@ -1,7 +1,7 @@
 return {
 	"neovim/nvim-lspconfig",
 	dependencies = {
-		{ "folke/neodev.nvim" },
+		"folke/neodev.nvim",
 		{
 			"williamboman/mason.nvim",
 			build = function()
@@ -21,7 +21,7 @@ return {
 				})
 			end,
 		},
-		{ "williamboman/mason-lspconfig.nvim" },
+		"williamboman/mason-lspconfig.nvim",
 		"hrsh7th/nvim-cmp",
 		"hrsh7th/cmp-nvim-lsp",
 		"hrsh7th/cmp-buffer",
@@ -32,37 +32,18 @@ return {
 		vim.api.nvim_create_autocmd("LspAttach", {
 			desc = "LSP actions",
 			callback = function(client, bufnr)
-				local opts = { buffer = bufnr, remap = false }
-
+				local opts = { buffer = bufnr, remap = false, desc = "LSP actions" }
 				vim.keymap.set("n", "gd", function()
 					vim.lsp.buf.definition()
 				end, opts)
 				vim.keymap.set("n", "K", function()
 					vim.lsp.buf.hover()
 				end, opts)
-				vim.keymap.set("n", "<leader>vws", function()
+				vim.keymap.set("n", "<leader>ws", function()
 					vim.lsp.buf.workspace_symbol()
 				end, opts)
 				vim.keymap.set("n", "<leader>vd", function()
 					vim.diagnostic.open_float()
-				end, opts)
-				vim.keymap.set("n", "]d", function()
-					vim.diagnostic.goto_next()
-				end, opts)
-				vim.keymap.set("n", "[d", function()
-					vim.diagnostic.goto_prev()
-				end, opts)
-				vim.keymap.set("n", "<leader>vca", function()
-					vim.lsp.buf.code_action()
-				end, opts)
-				vim.keymap.set("n", "<leader>vrr", function()
-					vim.lsp.buf.references()
-				end, opts)
-				vim.keymap.set("n", "<leader>vrn", function()
-					vim.lsp.buf.rename()
-				end, opts)
-				vim.keymap.set("i", "<C-h>", function()
-					vim.lsp.buf.signature_help()
 				end, opts)
 			end,
 		})
@@ -73,7 +54,6 @@ return {
 				"lua_ls",
 			},
 		})
-
 		require("neodev").setup({})
 
 		local lspconfig = require("lspconfig")
@@ -122,7 +102,7 @@ return {
 			["<C-p>"] = cmp.mapping.select_prev_item(cmp_select),
 			["<C-n>"] = cmp.mapping.select_next_item(cmp_select),
 			["<C-y>"] = cmp.mapping.confirm({ select = true }),
-			["<C-Space>"] = cmp.mapping.complete(),
+			-- ["<C-Space>"] = cmp.mapping.complete(),
 		})
 		cmp_mappings["<Tab>"] = nil
 		cmp_mappings["<S-Tab>"] = nil
@@ -130,8 +110,8 @@ return {
 		cmp.setup({
 			mapping = cmp_mappings,
 			window = {
-				completion = cmp.config.window.bordered("single"),
-				documentation = cmp.config.window.bordered("single"),
+				completion = { border = "single" },
+				documentation = { border = "single" },
 			},
 			formatting = {
 				format = lspkind.cmp_format({
@@ -154,7 +134,7 @@ return {
 			},
 		})
 
-		vim.api.nvim_set_hl(0, "CmpItemKindCopilot", { fg = "#6CC644" })
+		vim.api.nvim_set_hl(0, "CmpItemKindCopilot", { link = "String" })
 		vim.diagnostic.config({
 			underline = false,
 			virtual_text = true,
