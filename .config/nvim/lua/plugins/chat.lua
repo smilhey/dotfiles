@@ -1,6 +1,5 @@
 return {
 	"jackMort/ChatGPT.nvim",
-	event = "VeryLazy",
 	config = function()
 		local home = vim.fn.expand("$HOME")
 		require("chatgpt").setup({

@@ -1,5 +1,6 @@
 return {
 	"jmbuhr/otter.nvim",
+	dependencies = { "neovim/nvim-lspconfig", "hrsh7th/nvim-cmp" },
 	config = function()
 		local otter = require("otter")
 		otter.setup({
@@ -23,7 +24,7 @@ return {
 		local tsquery = nil
 
 		vim.api.nvim_create_autocmd({ "BufWinEnter", "BufEnter" }, {
-			pattern = { "*.ipynb", "*.md", "*.Rmd", ".norg" },
+			pattern = { "*.ipynb", "markdown", "norg" },
 			desc = "Otter actions",
 			callback = function()
 				local bufnr = vim.api.nvim_get_current_buf()

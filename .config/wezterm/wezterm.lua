@@ -19,7 +19,7 @@ config.adjust_window_size_when_changing_font_size = false
 config.use_fancy_tab_bar = false
 config.hide_tab_bar_if_only_one_tab = true
 config.font = w.font("JetBrains Mono")
-config.enable_wayland = false
+config.enable_wayland = true
 config.font_size = 16
 config.window_background_opacity = 1
 

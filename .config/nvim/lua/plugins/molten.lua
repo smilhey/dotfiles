@@ -1,6 +1,5 @@
 return {
 	"benlubas/molten-nvim",
-	lazy = true,
 	build = ":UpdateRemotePlugins",
 	init = function()
 		vim.g.molten_virt_text_output = true

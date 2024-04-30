@@ -4,5 +4,9 @@ return {
 		"nvim-lua/plenary.nvim", -- required
 		"sindrets/diffview.nvim", -- optional - Diff integration
 	},
-	config = true,
+	config = function()
+		local neogit = require("neogit")
+		neogit.setup({})
+		vim.keymap.set("n", "<leader>ng", neogit.open, { noremap = true, silent = true })
+	end,
 }
