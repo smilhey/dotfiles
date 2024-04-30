@@ -32,19 +32,12 @@ return {
 		vim.api.nvim_create_autocmd("LspAttach", {
 			desc = "LSP actions",
 			callback = function(client, bufnr)
-				local opts = { buffer = bufnr, remap = false, desc = "LSP actions" }
 				vim.keymap.set("n", "gd", function()
 					vim.lsp.buf.definition()
-				end, opts)
-				vim.keymap.set("n", "K", function()
-					vim.lsp.buf.hover()
-				end, opts)
+				end, { buffer = bufnr, remap = false, desc = "LSP go to def" })
 				vim.keymap.set("n", "<leader>ws", function()
 					vim.lsp.buf.workspace_symbol()
-				end, opts)
-				vim.keymap.set("n", "<leader>vd", function()
-					vim.diagnostic.open_float()
-				end, opts)
+				end, { buffer = bufnr, remap = false, desc = "LSP workspace wymbol" })
 			end,
 		})
 
@@ -87,7 +80,7 @@ return {
 		})
 
 		lspconfig.clangd.setup({
-			capabilities = lsp_capabilities,
+			-- capabilities = lsp_capabilities,
 			cmd = {
 				"clangd",
 				"--offset-encoding=utf-16",
@@ -102,12 +95,31 @@ return {
 			["<C-p>"] = cmp.mapping.select_prev_item(cmp_select),
 			["<C-n>"] = cmp.mapping.select_next_item(cmp_select),
 			["<C-y>"] = cmp.mapping.confirm({ select = true }),
-			-- ["<C-Space>"] = cmp.mapping.complete(),
+			["<C-Space>"] = cmp.mapping.complete(),
 		})
 		cmp_mappings["<Tab>"] = nil
 		cmp_mappings["<S-Tab>"] = nil
+		vim.keymap.set({ "i", "s" }, "<Tab>", function()
+			if vim.snippet.jumpable(1) then
+				return "<cmd>lua vim.snippet.jump(1)<cr>"
+			else
+				return "<Tab>"
+			end
+		end, { expr = true, desc = "Jump to next snippet placeholder" })
+		vim.keymap.set({ "i", "s" }, "<S-Tab>", function()
+			if vim.snippet.jumpable(-1) then
+				return "<cmd>lua vim.snippet.jump(-1)<cr>"
+			else
+				return "<S-Tab>"
+			end
+		end, { expr = true, desc = "Jump to previous snippet placeholder" })
 
 		cmp.setup({
+			snippet = {
+				expand = function(args)
+					vim.snippet.expand(args.body)
+				end,
+			},
 			mapping = cmp_mappings,
 			window = {
 				completion = { border = "single" },
@@ -139,7 +151,7 @@ return {
 			underline = false,
 			virtual_text = true,
 			float = {
-				header = false,
+				header = { "Diagnostics", "FloatTitle" },
 				border = "single",
 				focusable = true,
 			},

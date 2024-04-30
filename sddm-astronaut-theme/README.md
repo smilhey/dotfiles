@@ -1,16 +1,27 @@
 # sddm-astronaut-theme
 
-A theme for the [SDDM login manager](https://github.com/sddm/sddm) based on [`Sugar Dark for SDDM`](https://github.com/MarianArlt/sddm-sugar-dark).
-Screen resolution: 1080p.
+A theme for the [SDDM login manager](https://github.com/sddm/sddm).
+
+- Screen resolution: 1080p
+- Font: Open sans
 
 ### Preview
-![Preview](./Previews/preview.png)
+
+You can easily change how it looks in **[config](./theme.conf)**. 
+Here are some examples:
+
+![Preview](./Previews/preview1.png)
+![Preview](./Previews/preview2.png)
+![Preview](./Previews/preview3.png)
+![Preview](./Previews/preview4.png)
 
 ### Dependencies
 
 ```sh
-qt5-graphicaleffects qt5-quickcontrols2 qt5-svg sddm
+qt6-5compat qt6-declarative qt6-svg sddm
 ```
+> qt6-declarative replaces qt6-quickcontrols2
+> https://archlinux.org/packages/extra/x86_64/qt6-declarative/
 
 ### Install
 
@@ -34,4 +45,5 @@ Based on the theme [`Sugar Dark for SDDM`](https://github.com/MarianArlt/sddm-su
 
 ### License
 
-Distributed under the [GPLv3+](https://www.gnu.org/licenses/gpl-3.0.html) License.
+Distributed under the **[GPLv3+](https://www.gnu.org/licenses/gpl-3.0.html) License**.    
+Copyright (C) 2022-2024 Keyitdev.

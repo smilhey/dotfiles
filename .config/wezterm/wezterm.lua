@@ -20,7 +20,7 @@ config.use_fancy_tab_bar = false
 config.hide_tab_bar_if_only_one_tab = true
 config.font = w.font("JetBrains Mono")
 config.enable_wayland = false
-config.font_size = 15
+config.font_size = 16
 config.window_background_opacity = 1
 
 config.colors = colors

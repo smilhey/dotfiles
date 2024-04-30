@@ -3,10 +3,9 @@ return {
 	config = function()
 		vim.opt.termguicolors = true
 		require("colorizer").setup({
-			-- 	mode = "virtualtext", -- Set the display mode.
-			--              user_default_options = {
-			-- 	virtualtext = "██",
-			-- },
+			user_default_options = {
+				hsl_fn = true,
+			},
 		})
 	end,
 }

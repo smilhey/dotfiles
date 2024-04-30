@@ -77,19 +77,11 @@ function _G.StatusLine_Branch()
 end
 
 function _G.Statusline_Search()
-	if vim.v.hlsearch == 1 then
-		-- searchcount can fail e.g. if unbalanced braces in search pattern
-		local ok, searchcount = pcall(vim.fn.searchcount)
+	-- searchcount can fail e.g. if unbalanced braces in search pattern
+	local ok, searchcount = pcall(vim.fn.searchcount)
 
-		if ok and searchcount["total"] > 0 then
-			return LEFT_BRACE
-				.. "⌕ : "
-				.. searchcount["current"]
-				.. "∕"
-				.. searchcount["total"]
-				.. RIGHT_BRACE
-				.. " "
-		end
+	if ok and searchcount["total"] > 0 then
+		return LEFT_BRACE .. "  : " .. searchcount["current"] .. "∕" .. searchcount["total"] .. RIGHT_BRACE
 	end
 
 	return ""
@@ -144,9 +136,10 @@ statusline = statusline .. "%{%v:lua.StatusLine_notify()%}"
 statusline = statusline .. ALIGN_RHS
 
 -- RHS - Warnings
--- not needed if cmdheigh > 0
--- statusline = statusline .. "%{v:lua.Statusline_Search()}"
+statusline = statusline .. "%{v:lua.Statusline_Search()}"
+statusline = statusline .. SEPARATOR
 statusline = statusline .. "%{%v:lua.Statusline_MacroRecording()%}"
+statusline = statusline .. SEPARATOR
 statusline = statusline .. "%{v:lua.Statusline_DiagnosticStatus()}"
 statusline = statusline .. SEPARATOR
 

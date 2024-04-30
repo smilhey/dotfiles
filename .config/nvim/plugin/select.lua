@@ -1,4 +1,4 @@
-local function custom_select(items, opts, on_choice, win_opts)
+local function win_select(items, opts, on_choice, win_opts)
 	local buf = vim.api.nvim_create_buf(false, true)
 	vim.bo[buf].bufhidden = "wipe"
 
@@ -42,5 +42,5 @@ local function custom_select(items, opts, on_choice, win_opts)
 end
 
 vim.ui.select = function(items, opts, on_choice)
-	custom_select(items, opts, on_choice, {})
+	win_select(items, opts, on_choice, {})
 end

@@ -56,5 +56,11 @@ vim.keymap.set("n", "<leader>ms", function()
 end, { silent = true, desc = "Select a global mark" })
 
 vim.keymap.set("n", "<leader>md", function()
-	vim.ui.select(vim.fn.getmarklist(), { prompt = "Global Marks", format_item = format_mark }, goto_mark)
+	vim.ui.select(
+		vim.tbl_filter(filter_mark, vim.fn.getmarklist()),
+		{ prompt = "Global Marks", format_item = format_mark },
+		function(choice)
+			vim.cmd("delmark " .. choice.mark:sub(-1))
+		end
+	)
 end, { silent = true, desc = "Delete a global mark" })

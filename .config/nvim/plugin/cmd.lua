@@ -1,7 +1,8 @@
 local M = {
 	history = { window = -1, buffer = -1, messages = {} },
 	output = { window = -1, buffer = -1 },
-	debug_messages = {},
+	confirm = { window = -1 },
+	split_height = 7,
 }
 
 function M.content_to_lines(content)
@@ -41,18 +42,11 @@ function M.init_window(display)
 	if vim.api.nvim_win_is_valid(M[display].window) then
 		return
 	end
-	-- getting the split to show at the bottom
-	local win = vim.api.nvim_get_current_win()
-	vim.cmd("wincmd j")
-	while win ~= vim.api.nvim_get_current_win() do
-		win = vim.api.nvim_get_current_win()
-		vim.cmd("wincmd j")
-	end
 	M.clear_buffer(display)
-	M[display].window = vim.api.nvim_open_win(M[display].buffer, true, {
-		split = "below",
-		height = 7,
-	})
+	M[display].window = vim.api.nvim_open_win(M[display].buffer, true, { split = "below" })
+	-- getting the split to show at the bottom
+	vim.cmd("wincmd J")
+	vim.api.nvim_win_set_height(M[display].window, M.split_height)
 	vim.wo[M[display].window].winfixbuf = true
 end
 
@@ -71,8 +65,11 @@ function M.render_split(display, lines, clear)
 end
 
 function M.on_usr_msg(show_kind, lines)
-	M.history.messages = vim.tbl_flatten({ M.history.messages, lines })
+	M.history.messages = vim.iter({ M.history.messages, lines }):flatten():totable()
 	local text = table.concat(lines, "\n")
+	if text == "" then
+		return
+	end
 	if show_kind == "echo" then
 		vim.notify(text, vim.log.levels.INFO)
 	else
@@ -83,10 +80,47 @@ end
 function M.on_history_show()
 	vim.api.nvim_input("<cr>")
 	if #M.history.messages == 0 then
-		vim.notify("No history messages", vim.log.levels.INFO)
+		vim.notify("Messages history is emtpy", vim.log.levels.INFO)
 		return
 	end
 	M.render_split("history", M.history.messages, false)
+end
+
+function M.on_confirm(kind, lines)
+	local text = vim.tbl_filter(function(line)
+		return line ~= ""
+	end, lines)
+	local win_opts = {
+		relative = "editor",
+		width = math.max(unpack(vim.tbl_map(function(line)
+			return #line
+		end, text))),
+		height = #text,
+		row = vim.o.lines / 2 - 1,
+		col = math.floor((vim.o.columns - 30) / 2),
+		style = "minimal",
+		border = "single",
+	}
+	if kind == "confirm" then
+		win_opts.title = text[1]
+		win_opts.height = #text - 1
+	elseif kind == "confirm_sub" then
+		if vim.api.nvim_win_is_valid(M.confirm.window) then
+			return
+		else
+			-- folke trick to get the highlight to show on first replace
+			vim.api.nvim_input(" <bs>")
+		end
+	end
+	local buf = vim.api.nvim_create_buf(false, true)
+	vim.bo[buf].bufhidden = "wipe"
+	M.confirm.window = vim.api.nvim_open_win(buf, false, win_opts)
+	vim.api.nvim_buf_set_lines(buf, 0, -1, false, text)
+	vim.schedule(function()
+		vim.api.nvim_win_close(M.confirm.window, true)
+		M.confirm_window = -1
+	end)
+	vim.cmd("redraw")
 end
 
 function M.on_empty(lines)
@@ -98,7 +132,6 @@ function M.on_empty(lines)
 	if lines[1]:find("^:!") then
 		table.remove(lines, 1)
 	end
-	-- TODO : should probably implement a rendering queue
 	vim.schedule(function()
 		M.render_split("output", lines, false)
 	end)
@@ -122,65 +155,77 @@ function M.on_show(...)
 	then
 		M.on_usr_msg(kind, lines)
 		return
+	elseif kind == "confirm" or kind == "confirm_sub" then
+		M.on_confirm(kind, lines)
 	elseif kind == "search_count" or kind == "quickfix" then
 		return
 	end
 end
 
----Custom handler for the ui-messages
----@param event string
----@vararg
 function M.handler(event, ...)
 	if event == "msg_show" then
 		M.on_show(...)
 	elseif event == "msg_history_show" then
 		M.on_history_show()
-	-- I don't care about other events (showcmd, showmode, showruler,
-	-- history_clear and msg_clear)
 	else
+		-- ignore (showcmd, showmode, showruler, history_clear and msg_clear)
 		return
 	end
 end
 
-function M.debug_handler(event, ...)
-	if event == "msg_show" then
-		local kind, content, _ = ...
-		if kind == "" then
-			table.insert(M.debug_messages, { " E " .. event .. " C " .. vim.inspect(unpack(content)) })
-		end
-	end
-end
-
-function M.debug_write()
-	local json_output = vim.fn.json_encode(M.debug_messages)
-	local file = io.open("debug_output.json", "a+")
-	if file then
-		file:write(json_output)
-		file:close()
-	else
-		vim.notify("Failed to open file", vim.log.levels.ERROR)
-	end
-end
-
--- Also need to override the default vim.ui.input(), vim.ui.select() and other
--- stuff that might render in msg-area with user input.
-
 function M.notify(msg, log_level, opts)
 	vim.g.status_line_notify = { message = msg, level = log_level }
+	vim.schedule(function()
+		vim.cmd("redrawstatus!")
+	end)
 	vim.defer_fn(function()
 		vim.g.status_line_notify = { message = "", level = nil }
-		vim.cmd("redrawstatus!")
-	end, 2000)
+		vim.schedule(function()
+			vim.cmd("redrawstatus!")
+		end)
+	end, 3000)
+end
+
+function M.attach()
+	vim.ui_attach(M.namespace, { ext_messages = true }, function(event, ...)
+		M.handler(event, ...)
+		if event:match("msg") ~= nil then
+			return true
+		end
+		return false
+	end)
+end
+
+function M.detach()
+	vim.ui_detach(M.namespace)
 end
 
 function M.init()
 	vim.notify = M.notify
-	local ns = vim.api.nvim_create_namespace("msg")
-	vim.ui_attach(ns, { ext_messages = true }, function(event, ...)
-		M.handler(event, ...)
-		-- M.debug_handler(event, ...)
-	end)
+	M.namespace = vim.api.nvim_create_namespace("msg")
+	M.attach()
+	-- Best way to get to see what you're typing without handling cmdline
+	-- messages the output in still handled our handler
+	-- ui.input and ui.select are overriden elsewhere
+	local fn_input = vim.fn.input
+	local fn_inputlist = vim.fn.inputlist
+	local fn_getchar = vim.fn.getchar
+	local fn_getcharstr = vim.fn.getcharstr
+	local wrap = function(fn)
+		local wrapped_fn = function(...)
+			M.detach()
+			vim.cmd("redraw")
+			local input = fn(...)
+			M.attach()
+			vim.cmd("redraw")
+			return input
+		end
+		return wrapped_fn
+	end
+	vim.fn.input = wrap(fn_input)
+	vim.fn.inputlist = wrap(fn_inputlist)
+	vim.fn.getchar = wrap(fn_getchar)
+	vim.fn.getcharstr = wrap(fn_getcharstr)
 end
 
 M.init()
--- return M

@@ -1,4 +1,4 @@
-local function custom_input(opts, on_confirm, win_opts)
+local function win_input(opts, on_confirm, win_opts)
 	local buf = vim.api.nvim_create_buf(false, true)
 	vim.bo[buf].buftype = "prompt"
 	vim.bo[buf].bufhidden = "wipe"
@@ -36,5 +36,5 @@ local function custom_input(opts, on_confirm, win_opts)
 end
 
 vim.ui.input = function(opts, on_confirm)
-	custom_input(opts, on_confirm, { relative = "cursor", row = 1, col = 1 })
+	win_input(opts, on_confirm, { relative = "cursor", row = 1, col = 1 })
 end

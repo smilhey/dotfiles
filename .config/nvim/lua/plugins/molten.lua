@@ -1,5 +1,6 @@
 return {
 	"benlubas/molten-nvim",
+	lazy = true,
 	build = ":UpdateRemotePlugins",
 	init = function()
 		vim.g.molten_virt_text_output = true
@@ -16,8 +17,6 @@ return {
 	end,
 	config = function()
 		-- vim.api.nvim_set_hl(0, "MoltenVirtualText", { link = "Normal" })
-
-		--key mappings
 		vim.keymap.set(
 			"n",
 			"<space>ip",

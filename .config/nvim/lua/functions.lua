@@ -2,3 +2,9 @@
 function P(object)
 	print(vim.inspect(object))
 end
+
+function F(fn, args)
+	return function()
+		fn(args)
+	end
+end

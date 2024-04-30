@@ -32,4 +32,4 @@ local function zen()
 end
 
 vim.api.nvim_create_user_command("Zen", zen, {})
-vim.keymap.set("n", "<leader>z", zen, {})
+vim.keymap.set("n", "<leader>z", zen, { desc = "Zen" })

@@ -19,6 +19,7 @@ if vim.g.neovide then
 	end, { nargs = 1 })
 end
 
+require("functions")
 require("config.set")
 require("config.remap")
 require("config.lazy")

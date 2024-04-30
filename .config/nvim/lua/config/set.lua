@@ -1,23 +1,25 @@
+local colorscheme = require("config.ui.colorscheme")
+colorscheme()
+
 vim.g.mapleader = " "
 
--- vim.cmd("colorscheme deepwhite")
-
 -- habamax colorscheme
-vim.cmd("colorscheme habamax")
--- vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
-vim.api.nvim_set_hl(0, "Function", { ctermfg = 109, fg = "#87afaf" })
-vim.api.nvim_set_hl(0, "Module", { ctermfg = 109, fg = "#87afaf" })
-vim.api.nvim_set_hl(0, "Identifier", { fg = "none" })
-vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
-vim.api.nvim_set_hl(0, "FloatBorder", { bg = "none" })
-vim.api.nvim_set_hl(0, "NormalNC", { bg = "none" })
-vim.api.nvim_set_hl(0, "SignColumn", { bg = "none" })
-vim.api.nvim_set_hl(0, "LineNr", { bg = "none" })
-vim.api.nvim_set_hl(0, "WinSeparator", { bg = "none", fg = "none" })
-vim.api.nvim_set_hl(0, "MsgSeparator", { bg = "none", fg = "none", underline = true })
-vim.api.nvim_set_hl(0, "Statusline", { bg = "none" })
--- vim.api.nvim_set_hl(0, "@variable", {})
--- vim.api.nvim_set_hl(0, "@lsp.type.variable", {})
+
+-- vim.cmd("colorscheme habamax")
+-- -- vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+-- vim.api.nvim_set_hl(0, "Function", { ctermfg = 109, fg = "#87afaf" })
+-- vim.api.nvim_set_hl(0, "Module", { ctermfg = 109, fg = "#87afaf" })
+-- vim.api.nvim_set_hl(0, "Identifier", { fg = "none" })
+-- vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
+-- vim.api.nvim_set_hl(0, "FloatBorder", { bg = "none" })
+-- vim.api.nvim_set_hl(0, "NormalNC", { bg = "none" })
+-- vim.api.nvim_set_hl(0, "SignColumn", { bg = "none" })
+-- vim.api.nvim_set_hl(0, "LineNr", { bg = "none" })
+-- vim.api.nvim_set_hl(0, "WinSeparator", { bg = "none", fg = "none" })
+-- vim.api.nvim_set_hl(0, "MsgSeparator", { bg = "none", fg = "none", underline = true })
+-- vim.api.nvim_set_hl(0, "Statusline", { bg = "none" })
+-- -- vim.api.nvim_set_hl(0, "@variable", {})
+-- -- vim.api.nvim_set_hl(0, "@lsp.type.variable", {})
 
 vim.opt.termguicolors = true
 vim.opt.pumblend = 0
@@ -45,7 +47,9 @@ vim.opt.cmdwinheight = 2
 vim.opt.showcmd = false
 vim.opt.showcmdloc = "statusline"
 vim.opt.showmode = false
-vim.opt.statusline = require("config.statusline")
+vim.opt.statusline = require("config.ui.statusline")
+vim.opt.tabline = require("config.ui.tabline")
+vim.opt.showtabline = 2
 vim.opt_local.winbar = "%#StatusLine# %n %*%=%m %f"
 vim.opt.shortmess = "aoOstTIcCFqS"
 

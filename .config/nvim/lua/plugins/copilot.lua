@@ -2,10 +2,9 @@ return {
 	{
 		"CopilotC-Nvim/CopilotChat.nvim",
 		branch = "canary",
-		-- lazy = true,
 		dependencies = {
-			-- { "zbirenbaum/copilot.lua" }, -- or github/copilot.vim
-			{ "nvim-lua/plenary.nvim" }, -- for curl, log wrapper
+			{ "zbirenbaum/copilot.lua" },
+			{ "nvim-lua/plenary.nvim" },
 		},
 		config = function()
 			local chat = require("CopilotChat")
@@ -38,24 +37,28 @@ return {
 					reset = { normal = "<M-r>", insert = "<M-r>" },
 				},
 			})
-
-			vim.api.nvim_del_user_command("CopilotChat")
-			vim.api.nvim_del_user_command("CopilotChatOpen")
-			vim.api.nvim_del_user_command("CopilotChatClose")
-			vim.api.nvim_del_user_command("CopilotChatToggle")
-			vim.api.nvim_del_user_command("CopilotChatReset")
-			vim.api.nvim_del_user_command("CopilotChatSave")
-			vim.api.nvim_del_user_command("CopilotChatLoad")
-			vim.api.nvim_del_user_command("CopilotChatDebugInfo")
-			vim.api.nvim_del_user_command("CopilotChatExplain")
-			vim.api.nvim_del_user_command("CopilotChatReview")
-			vim.api.nvim_del_user_command("CopilotChatFix")
-			vim.api.nvim_del_user_command("CopilotChatOptimize")
-			vim.api.nvim_del_user_command("CopilotChatDocs")
-			vim.api.nvim_del_user_command("CopilotChatTests")
-			vim.api.nvim_del_user_command("CopilotChatFixDiagnostic")
-			vim.api.nvim_del_user_command("CopilotChatCommit")
-			vim.api.nvim_del_user_command("CopilotChatCommitStaged")
+			local chat_cmds = {
+				"CopilotChat",
+				"CopilotChatOpen",
+				"CopilotChatClose",
+				"CopilotChatToggle",
+				"CopilotChatReset",
+				"CopilotChatSave",
+				"CopilotChatLoad",
+				"CopilotChatDebugInfo",
+				"CopilotChatExplain",
+				"CopilotChatReview",
+				"CopilotChatFix",
+				"CopilotChatOptimize",
+				"CopilotChatDocs",
+				"CopilotChatTests",
+				"CopilotChatFixDiagnostic",
+				"CopilotChatCommit",
+				"CopilotChatCommitStaged",
+			}
+			for _, cmd in ipairs(chat_cmds) do
+				vim.api.nvim_del_user_command(cmd)
+			end
 
 			vim.api.nvim_create_user_command("CopilotChat", function()
 				chat.toggle()
@@ -68,7 +71,8 @@ return {
 		event = "InsertEnter",
 		config = function()
 			require("copilot").setup({
-				suggestion = { enabled = true, keymap = { accept = "<M-;>" } },
+				-- suggestion = { enabled = true, keymap = { accept = "<M-;>" } },
+				suggestion = { enabled = false },
 				panel = { enabled = false },
 				filetypes = {
 					markdown = true,

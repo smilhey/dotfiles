@@ -126,3 +126,27 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
 		vim.cmd("silent! normal! g'\"")
 	end,
 })
+
+vim.api.nvim_create_autocmd("Filetype", {
+	pattern = { "help", "qf", "query" },
+	callback = function()
+		vim.keymap.set(
+			"n",
+			"q",
+			"<cmd>close<CR>",
+			{ desc = "Close no file/temporary windows", silent = true, nowait = true, buffer = true }
+		)
+	end,
+})
+
+vim.api.nvim_create_autocmd("CmdwinEnter", {
+	callback = function()
+		vim.opt.hlsearch = true
+	end,
+})
+
+vim.api.nvim_create_autocmd("CmdwinLeave", {
+	callback = function()
+		vim.opt.hlsearch = false
+	end,
+})

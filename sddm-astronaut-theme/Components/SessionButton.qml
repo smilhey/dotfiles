@@ -1,19 +1,17 @@
-// SDDM Sugar Candy is free software: you can redistribute it and/or modify it
-// under the terms of the GNU General Public License as published by the
-// Free Software Foundation, either version 3 of the License, or any later version.
-// Config created by https://github.com/MarianArlt
-// Config modified by keyitdev https://github.com/keyitdev
+// Config created by Keyitdev https://github.com/Keyitdev/sddm-astronaut-theme
+// Copyright (C) 2022-2024 Keyitdev
+// Based on https://github.com/MarianArlt/sddm-sugar-dark
+// Distributed under the GPLv3+ License https://www.gnu.org/licenses/gpl-3.0.html
 
-import QtQuick 2.11
-import QtQuick.Controls 2.4
-import QtGraphicalEffects 1.0
+import QtQuick 2.15
+import QtQuick.Controls 2.15
+import Qt5Compat.GraphicalEffects
 
 Item {
     id: sessionButton
     height: root.font.pointSize
     width: parent.width / 2
     anchors.horizontalCenter: parent.horizontalCenter
-
     property var selectedSession: selectSession.currentIndex
     property string textConstantSession
     property int loginButtonWidth
@@ -21,7 +19,9 @@ Item {
 
     ComboBox {
         id: selectSession
-
+        // important
+        // change also in errorMessage
+        height: root.font.pointSize * 2
         hoverEnabled: true
         anchors.left: parent.left
         Keys.onPressed: {
@@ -68,7 +68,7 @@ Item {
 
         contentItem: Text {
             id: displayedItem
-            text: (config.TranslateSession || (textConstantSession + ":")) + " " + selectSession.currentText
+            text: selectSession.currentText
             color: root.palette.text
             verticalAlignment: Text.AlignVCenter
             anchors.left: parent.left
