@@ -24,7 +24,7 @@ return {
 		local tsquery = nil
 
 		vim.api.nvim_create_autocmd({ "BufWinEnter", "BufEnter" }, {
-			pattern = { "*.ipynb", "markdown", "norg" },
+			pattern = { "*.ipynb", "*.md", "norg" },
 			desc = "Otter actions",
 			callback = function()
 				local bufnr = vim.api.nvim_get_current_buf()
@@ -35,10 +35,16 @@ return {
 				vim.keymap.set("n", "K", function()
 					otter.ask_hover()
 				end, { buffer = bufnr })
-				vim.keymap.set("n", "<leader>vrr", function()
+				vim.keymap.set("n", "crr", function()
 					otter.ask_references()
 				end, { buffer = bufnr })
-				vim.keymap.set("n", "<leader>vrn", function()
+				vim.keymap.set("x", "<C-r><C-r>", function()
+					otter.ask_references()
+				end, { buffer = bufnr })
+				vim.keymap.set("x", "<C-r>r", function()
+					otter.ask_references()
+				end, { buffer = bufnr })
+				vim.keymap.set("n", "crn", function()
 					otter.ask_rename()
 				end, { buffer = bufnr })
 			end,
