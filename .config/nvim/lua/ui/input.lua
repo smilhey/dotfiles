@@ -35,6 +35,4 @@ local function win_input(opts, on_confirm, win_opts)
 	end, 5)
 end
 
-vim.ui.input = function(opts, on_confirm)
-	win_input(opts, on_confirm, { relative = "cursor", row = 1, col = 1 })
-end
+return win_input

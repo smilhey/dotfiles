@@ -202,7 +202,7 @@ end
 
 function M.init()
 	vim.notify = M.notify
-	M.namespace = vim.api.nvim_create_namespace("msg")
+	M.namespace = vim.api.nvim_create_namespace("CustomMsgArea")
 	M.attach()
 	-- Best way to get to see what you're typing without handling cmdline
 	-- messages the output in still handled our handler
@@ -228,4 +228,4 @@ function M.init()
 	vim.fn.getcharstr = wrap(fn_getcharstr)
 end
 
-M.init()
+return M

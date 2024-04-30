@@ -42,25 +42,41 @@ local function goto_mark(item)
 		vim.cmd("normal! '" .. item.mark:sub(-1))
 	end)
 end
+local function del_mark(item)
+	vim.cmd("delmark " .. item.mark:sub(-1))
+end
 
 local function filter_mark(item)
 	return not item.mark:sub(-1):match("[0-9]")
 end
 
-vim.keymap.set("n", "<leader>ms", function()
-	vim.ui.select(
-		vim.tbl_filter(filter_mark, vim.fn.getmarklist()),
-		{ prompt = "Global Marks", format_item = format_mark },
-		goto_mark
-	)
-end, { silent = true, desc = "Select a global mark" })
+-- vim.keymap.set("n", "<leader>ms", function()
+-- 	vim.ui.select(
+-- 		vim.tbl_filter(filter_mark, vim.fn.getmarklist()),
+-- 		{ prompt = "Global Marks", format_item = format_mark },
+-- 		goto_mark
+-- 	)
+-- end, { silent = true, desc = "Select a global mark" })
+--
+-- vim.keymap.set("n", "<leader>md", function()
+-- 	vim.ui.select(
+-- 		vim.tbl_filter(filter_mark, vim.fn.getmarklist()),
+-- 		{ prompt = "Global Marks", format_item = format_mark },
+-- 		function(choice)
+-- 			vim.cmd("delmark " .. choice.mark:sub(-1))
+-- 		end
+-- 	)
+-- end, { silent = true, desc = "Delete a global mark" })
 
-vim.keymap.set("n", "<leader>md", function()
-	vim.ui.select(
-		vim.tbl_filter(filter_mark, vim.fn.getmarklist()),
-		{ prompt = "Global Marks", format_item = format_mark },
-		function(choice)
-			vim.cmd("delmark " .. choice.mark:sub(-1))
-		end
-	)
-end, { silent = true, desc = "Delete a global mark" })
+local win_menu = require("ui.menu")
+vim.keymap.set("n", "<leader>m", function()
+	local marks = vim.tbl_filter(filter_mark, vim.fn.getmarklist())
+	if vim.tbl_isempty(marks) then
+		vim.notify("No marks set", vim.log.levels.INFO)
+		return
+	end
+	win_menu(marks, format_mark, {
+		["g"] = { desc = "Goto mark", fn = goto_mark, close = true },
+		["d"] = { desc = "Delete mark", fn = del_mark, close = true },
+	}, { desc = true, win_opts = { title = "Global Marks" } })
+end, { silent = true, desc = "Select or delet global mark" })

@@ -41,6 +41,4 @@ local function win_select(items, opts, on_choice, win_opts)
 	end, { buffer = buf, noremap = true, nowait = true })
 end
 
-vim.ui.select = function(items, opts, on_choice)
-	win_select(items, opts, on_choice, {})
-end
+return win_select

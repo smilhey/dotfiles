@@ -126,8 +126,8 @@ function _G.StatusLine_notify()
 		[vim.log.levels.WARN] = "WarningMsg",
 		[vim.log.levels.OFF] = "Normal",
 	}
-	if vim.g.status_line_notify.message == "" then
-		return " "
+	if vim.g.status_line_notify.level == nil then
+		return ""
 	end
 	return "%#" .. hi[vim.g.status_line_notify.level] .. "#" .. vim.g.status_line_notify.message .. "%#StatusLine#"
 end
