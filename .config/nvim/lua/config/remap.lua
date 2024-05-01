@@ -23,6 +23,9 @@ local function switch_pane(direction)
 	if vim.env.TERM_PROGRAM == "WezTerm" and vim.api.nvim_get_current_win() == current_window then
 		vim.system({ "wezterm", "cli", "activate-pane-direction", direction })
 	end
+	if vim.env.TERM_PROGRAM == "tmux" and vim.api.nvim_get_current_win() == current_window then
+		vim.system({ "tmux", "select-pane", "-" .. direction:sub(1, 1) })
+	end
 end
 
 -- resizing splits

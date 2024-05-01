@@ -41,12 +41,10 @@ return {
 				swap = {
 					enable = true,
 					swap_next = {
-						["<leader>sbl"] = "@code_cell.outer",
-						desc = "swap next block",
+						["<leader>sbl"] = { query = "@code_cell.outer", desc = "swap next block" },
 					},
 					swap_previous = {
-						["<leader>sbh"] = "@code_cell.outer",
-						desc = "swap previous block",
+						["<leader>sbh"] = { query = "@code_cell.outer", desc = "swap previous block" },
 					},
 				},
 			},
