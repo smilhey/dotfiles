@@ -18,7 +18,7 @@ return {
 								},
 							},
 						},
-					}, -- Adds pretty icons to your documents
+					},
 					["core.dirman"] = { -- Manages Neorg workspaces
 						config = {
 							workspaces = {
@@ -27,8 +27,9 @@ return {
 						},
 					},
 					["core.integrations.otter"] = {},
+					["core.integrations.treesitter"] = {},
 					["core.latex.renderer"] = {},
-					["core.integrations.image"] = {},
+					["core.integrations.image"] = { config = { render_on_enter = true } },
 				},
 			})
 		end,

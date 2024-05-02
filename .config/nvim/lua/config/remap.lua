@@ -72,41 +72,6 @@ vim.keymap.set({ "n", "v" }, "q:", ":", { desc = "Switching cmdwin and cmdline",
 vim.keymap.set({ "n", "v" }, "q?", "?", { desc = "Switching cmdwin and cmdline", silent = true })
 vim.keymap.set({ "n", "v" }, "q/", "/", { desc = "Switching cmdwin and cmdline", silent = true })
 
-local open_term = function(direction)
-	-- Check if there's a terminal buffer in the current workspace
-	local term_buf_exists = false
-	local path = string.gsub(vim.fn.expand("%:p:h"), "/home/smilhey", "")
-	local buf_number = 0
-	for _, buf_info in ipairs(vim.fn.getbufinfo({ buflisted = true })) do
-		if vim.fn.match(buf_info.name, "term://") ~= -1 and vim.fn.match(buf_info.name, path) ~= -1 then
-			term_buf_exists = true
-			buf_number = buf_info.bufnr
-			break
-		end
-	end
-
-	if term_buf_exists then
-		if direction == "down" then
-			vim.cmd("botright 10new | b " .. tonumber(buf_number))
-		elseif direction == "right" then
-			vim.cmd("vertical rightb 30new | b" .. tonumber(buf_number))
-		end
-	else
-		if direction == "down" then
-			vim.cmd("lcd %:p:h | botright 10new +term")
-		elseif direction == "right" then
-			vim.cmd("lcd %:p:h | vertical rightb 30new +term")
-		end
-	end
-end
-
-vim.keymap.set("n", "<C-w>[", function()
-	open_term("down")
-end, { desc = "Open terminal below" })
-vim.keymap.set("n", "<C-w>]", function()
-	open_term("right")
-end, { desc = "Open terminal right" })
-
 -- vim.keymap.set("n", "<leader>pv", vim.cmd.Ex)
 
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move line up" })

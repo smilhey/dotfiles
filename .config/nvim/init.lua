@@ -20,8 +20,5 @@ if vim.g.neovide then
 end
 
 require("functions")
+require("config")
 require("ui")
-require("config.set")
-require("config.remap")
-require("config.lazy")
-require("config.autocmd")

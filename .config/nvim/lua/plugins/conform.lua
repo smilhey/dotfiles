@@ -4,7 +4,7 @@ return {
 		require("conform").setup({
 			formatters_by_ft = {
 				lua = { "stylua" },
-				python = not Git() and { "black" } or nil,
+				python = vim.fs.root(0, ".git") == nil and { "black" } or nil,
 				c = { "clang_format" },
 				rust = { "rustfmt" },
 				-- zig = { "zig fmt" },

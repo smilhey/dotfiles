@@ -1,5 +1,6 @@
 return {
 	"neovim/nvim-lspconfig",
+	opts = { inlay_hints = { enable = true } },
 	dependencies = {
 		"folke/neodev.nvim",
 		{
@@ -31,13 +32,21 @@ return {
 	config = function()
 		vim.api.nvim_create_autocmd("LspAttach", {
 			desc = "LSP actions",
-			callback = function(client, bufnr)
+			callback = function(args)
+				local buf, data = args.buf, args.data
+				local client = vim.lsp.get_client_by_id(data.client_id)
+				if client and client.server_capabilities.inlayHintProvider then
+					-- vim.lsp.inlay_hint.enable(true, { buffer = buf })
+					vim.api.nvim_buf_create_user_command(buf, "LspInlayHint", function()
+						vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ buf }), { buffer = true })
+					end, {})
+				end
 				vim.keymap.set("n", "gd", function()
 					vim.lsp.buf.definition()
-				end, { buffer = bufnr, remap = false, desc = "LSP go to def" })
+				end, { buffer = buf, remap = false, desc = "LSP go to def" })
 				vim.keymap.set("n", "<leader>ws", function()
 					vim.lsp.buf.workspace_symbol()
-				end, { buffer = bufnr, remap = false, desc = "LSP workspace wymbol" })
+				end, { buffer = buf, remap = false, desc = "LSP workspace wymbol" })
 			end,
 		})
 
@@ -52,11 +61,11 @@ return {
 		local lspconfig = require("lspconfig")
 		local lsp_capabilities = require("cmp_nvim_lsp").default_capabilities()
 
-		local orig_util_open_floating_preview = vim.lsp.util.open_floating_preview
+		local open_floating_preview = vim.lsp.util.open_floating_preview
 		function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
 			opts = opts or {}
 			opts.border = opts.border or "single"
-			return orig_util_open_floating_preview(contents, syntax, opts, ...)
+			return open_floating_preview(contents, syntax, opts, ...)
 		end
 
 		require("mason-lspconfig").setup_handlers({
@@ -65,26 +74,29 @@ return {
 					capabilities = lsp_capabilities,
 				})
 			end,
-		})
-
-		lspconfig.lua_ls.setup({
-			capabilities = lsp_capabilities,
-			settings = {
-				Lua = {
-					runtime = { version = "LuaJIT" },
-					diagnostics = {
-						globals = { "vim" },
+			["lua_ls"] = function()
+				lspconfig.lua_ls.setup({
+					capabilities = lsp_capabilities,
+					settings = {
+						Lua = {
+							hint = { enable = true },
+							runtime = { version = "LuaJIT" },
+							diagnostics = {
+								globals = { "vim" },
+							},
+						},
 					},
-				},
-			},
-		})
-
-		lspconfig.clangd.setup({
-			capabilities = lsp_capabilities,
-			cmd = {
-				"clangd",
-				"--offset-encoding=utf-16",
-			},
+				})
+			end,
+			["clangd"] = function()
+				lspconfig.clangd.setup({
+					capabilities = lsp_capabilities,
+					cmd = {
+						"clangd",
+						"--offset-encoding=utf-16",
+					},
+				})
+			end,
 		})
 
 		local cmp = require("cmp")

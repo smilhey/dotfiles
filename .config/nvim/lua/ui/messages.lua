@@ -5,6 +5,9 @@ local M = {
 	split_height = 7,
 }
 
+--- Convert message content to lines
+---@param content table
+---@return string[]
 function M.content_to_lines(content)
 	local message = ""
 	for _, chunk in ipairs(content) do
@@ -14,6 +17,7 @@ function M.content_to_lines(content)
 	return vim.split(message, "\n")
 end
 
+---@param display string : history|output
 function M.clear_buffer(display)
 	if vim.api.nvim_buf_is_loaded(M[display].buffer) then
 		vim.bo[M[display].buffer].modifiable = true

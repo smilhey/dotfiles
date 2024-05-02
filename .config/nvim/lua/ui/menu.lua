@@ -24,7 +24,7 @@ local function win_menu(items, tostring, actions, opts)
 				vim.api.nvim_win_close(0, true)
 			end
 			action.fn(current_item)
-		end, { nowait = true, noremap = true, silent = true, buffer = buf })
+		end, { nowait = true, noremap = true, silent = true, buffer = true })
 	end
 
 	local default_win_opts = {

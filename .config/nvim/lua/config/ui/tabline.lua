@@ -24,7 +24,9 @@ function _G.Tabline_Getbuffers()
 			end
 			buf_name = "[No Name]"
 		else
-			buf_name = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(buf), ":t")
+			if buf_name ~= "health://" then
+				buf_name = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(buf), ":t")
+			end
 		end
 		if buf == vim.api.nvim_get_current_buf() then
 			str = str .. "%#TabLineSel# " .. buf_name .. " %#TabLine#"
