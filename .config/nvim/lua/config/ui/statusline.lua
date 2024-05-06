@@ -65,15 +65,15 @@ function _G.Statusline_Getcwd()
 	end
 end
 
+vim.api.nvim_create_autocmd({ "DirChanged", "VimEnter" }, {
+	callback = function()
+		local branch = vim.system({ "git", "branch", "--show-current" }, { text = true }):wait().stdout
+		vim.g.branch = string.sub(branch, 1, -2)
+	end,
+	desc = "Set cwd branch name",
+})
 function _G.StatusLine_Branch()
-	local branches = vim.fn.systemlist("git branch")
-	for _, branch in ipairs(branches) do
-		-- othewise it's not a branch or not even a git directory
-		if string.sub(branch, 1, 1) == "*" then
-			return string.sub(branch, 3)
-		end
-	end
-	return ""
+	return vim.g.branch
 end
 
 function _G.Statusline_Search()
@@ -89,7 +89,6 @@ end
 
 function _G.Statusline_MacroRecording()
 	local recording_register = vim.fn.reg_recording()
-
 	if recording_register == "" then
 		return ""
 	else
@@ -97,22 +96,6 @@ function _G.Statusline_MacroRecording()
 	end
 end
 
-local TRUNCATOR_POSITION = "%<"
-local ALIGN_RHS = "%="
-local SEPARATOR = " "
-
--- LHS - Mode
-local statusline = "%{%v:lua.Statusline_Getmode()%}"
-
--- LHS - Cwd and git branch
-statusline = statusline .. TRUNCATOR_POSITION
-statusline = statusline .. "%{v:lua.Statusline_Getcwd()}"
-statusline = statusline .. SEPARATOR
-statusline = statusline .. " %{v:lua.StatusLine_Branch()}"
-
-statusline = statusline .. ALIGN_RHS
-
--- Middle
 vim.g.status_line_notify = {
 	message = "",
 	level = vim.log.levels.INFO,
@@ -131,6 +114,25 @@ function _G.StatusLine_notify()
 	end
 	return "%#" .. hi[vim.g.status_line_notify.level] .. "#" .. vim.g.status_line_notify.message .. "%#StatusLine#"
 end
+
+local TRUNCATOR_POSITION = "%<"
+local ALIGN_RHS = "%="
+local SEPARATOR = " "
+
+local statusline = ""
+
+-- LHS - Mode
+statusline = statusline .. "%{%v:lua.Statusline_Getmode()%}"
+
+-- LHS - Cwd and git branch
+statusline = statusline .. TRUNCATOR_POSITION
+statusline = statusline .. "%{v:lua.Statusline_Getcwd()}"
+statusline = statusline .. SEPARATOR
+statusline = statusline .. " %{v:lua.StatusLine_Branch()}"
+--
+statusline = statusline .. ALIGN_RHS
+
+-- Middle
 statusline = statusline .. "%{%v:lua.StatusLine_notify()%}"
 
 statusline = statusline .. ALIGN_RHS

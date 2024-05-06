@@ -1,5 +1,6 @@
 return {
 	"benlubas/molten-nvim",
+	keys = "<leader>-e",
 	build = ":UpdateRemotePlugins",
 	init = function()
 		vim.g.molten_virt_text_output = true
@@ -70,21 +71,9 @@ return {
 		function MoltenEvaluateAll()
 			local query
 			if vim.bo.filetype == "markdown" then
-				_, query = pcall(
-					vim.treesitter.query.parse,
-					"markdown",
-					[[
-                (code_fence_content)  @codeblock
-            ]]
-				)
+				_, query = pcall(vim.treesitter.query.parse, "markdown", [[ (code_fence_content)  @codeblock ]])
 			else
-				_, query = pcall(
-					vim.treesitter.query.parse,
-					"norg",
-					[[
-                (ranged_verbatim_tag_content)  @codeblock
-            ]]
-				)
+				_, query = pcall(vim.treesitter.query.parse, "norg", [[ (ranged_verbatim_tag_content)  @codeblock ]])
 			end
 			local bufnr = vim.api.nvim_get_current_buf()
 			local parser = vim.treesitter.get_parser(bufnr)

@@ -180,12 +180,12 @@ end
 function M.notify(msg, log_level, opts)
 	vim.g.status_line_notify = { message = msg, level = log_level }
 	vim.schedule(function()
-		vim.cmd("redrawstatus!")
+		vim.cmd("redrawstatus")
 	end)
 	vim.defer_fn(function()
 		vim.g.status_line_notify = { message = "", level = nil }
 		vim.schedule(function()
-			vim.cmd("redrawstatus!")
+			vim.cmd("redrawstatus")
 		end)
 	end, 3000)
 end
@@ -209,8 +209,7 @@ function M.init()
 	M.namespace = vim.api.nvim_create_namespace("CustomMsgArea")
 	M.attach()
 	-- Best way to get to see what you're typing without handling cmdline
-	-- messages the output in still handled our handler
-	-- ui.input and ui.select are overriden elsewhere
+	-- messages, ui.input and ui.select are overriden elsewhere
 	local fn_input = vim.fn.input
 	local fn_inputlist = vim.fn.inputlist
 	local fn_getchar = vim.fn.getchar

@@ -1,8 +1,9 @@
 local colorscheme = require("config.ui.colorscheme")
 colorscheme()
 
+vim.api.nvim_set_hl(0, "Cursor", { link = "Todo" })
+vim.opt.guicursor = "a:block-blinkon0,i:Cursor,r-cr-o:hor20"
 vim.g.mapleader = " "
-
 -- habamax colorscheme
 
 -- vim.cmd("colorscheme habamax")
@@ -83,7 +84,6 @@ vim.opt.wrap = true
 
 vim.opt.swapfile = false
 vim.opt.backup = false
-vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
 vim.opt.undofile = true
 
 vim.opt.hlsearch = false
@@ -93,8 +93,6 @@ vim.opt.inccommand = "nosplit"
 vim.opt.scrolloff = 8
 vim.opt.signcolumn = "yes"
 vim.opt.isfname:append("@-@")
-
-vim.opt.updatetime = 50
 
 vim.opt.clipboard = "unnamedplus"
 

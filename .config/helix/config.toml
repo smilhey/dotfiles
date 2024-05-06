@@ -1,0 +1,12 @@
+theme = "ayu_dark"
+
+[keys.insert]
+C-c = "normal_mode"
+
+[keys.select]
+C-c = "normal_mode"
+
+[keys.normal]
+V = ["select_mode", "extend_to_line_bounds"]
+C-c = "normal_mode"
+
