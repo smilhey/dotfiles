@@ -4,6 +4,7 @@ colorscheme()
 vim.api.nvim_set_hl(0, "Cursor", { link = "Todo" })
 vim.opt.guicursor = "a:block-blinkon0,i:Cursor,r-cr-o:hor20"
 vim.g.mapleader = " "
+
 -- habamax colorscheme
 
 -- vim.cmd("colorscheme habamax")

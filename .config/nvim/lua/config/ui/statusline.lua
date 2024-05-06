@@ -102,6 +102,7 @@ vim.g.status_line_notify = {
 }
 function _G.StatusLine_notify()
 	local hi = {
+		["special"] = "DiagnosticOk",
 		[vim.log.levels.DEBUG] = "Debug",
 		[vim.log.levels.ERROR] = "ErrorMsg",
 		[vim.log.levels.INFO] = "StatusLine",

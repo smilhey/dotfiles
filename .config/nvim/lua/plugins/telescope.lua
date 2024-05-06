@@ -1,4 +1,5 @@
 return {
+	event = "VeryLazy",
 	"nvim-telescope/telescope.nvim",
 	dependencies = {
 		{

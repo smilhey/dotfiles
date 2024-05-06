@@ -299,7 +299,7 @@ local function apply_colorscheme()
 	for group, hi in pairs(highlights_links) do
 		vim.api.nvim_set_hl(0, group, hi)
 	end
-	if vim.o.termguicolors or vim.api.nvim_get_option("guicursor") then
+	if vim.o.termguicolors or vim.o.guicursor then
 		local terminal_ansi_colors = {
 			base,
 			red,

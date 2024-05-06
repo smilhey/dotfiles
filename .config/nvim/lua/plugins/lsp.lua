@@ -1,5 +1,6 @@
 return {
 	"neovim/nvim-lspconfig",
+	event = "VeryLazy",
 	opts = { inlay_hints = { enable = true } },
 	dependencies = {
 		"folke/neodev.nvim",

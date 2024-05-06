@@ -10,7 +10,6 @@ return {
 		vim.g.molten_auto_open_output = false
 		vim.g.molten_auto_image_popup = false
 		-- vim.g.molten_output_win_max_height = 20
-		-- vim.g.molten_image_provider = "image.nvim"
 		if not vim.g.neovide then
 			vim.g.molten_image_provider = "image.nvim"
 		end
