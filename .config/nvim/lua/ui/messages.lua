@@ -2,22 +2,25 @@ local M = {
 	history = { window = -1, buffer = -1, messages = {} },
 	output = { window = -1, buffer = -1 },
 	confirm = { window = -1 },
-	split_height = 7,
+	split_height = 10,
 }
 
---- Convert message content to lines
----@param content table
----@return string[]
 function M.content_to_lines(content)
 	local message = ""
 	for _, chunk in ipairs(content) do
 		message = message .. chunk[2]
 	end
 	message = string.gsub(message, "\r", "")
-	return vim.split(message, "\n")
+	local lines = vim.split(message, "\n")
+	while #lines > 1 and lines[#lines] == "" do
+		table.remove(lines, #lines)
+	end
+	while #lines > 1 and lines[1] == "" do
+		table.remove(lines, 1)
+	end
+	return lines
 end
 
----@param display string : history|output
 function M.clear_buffer(display)
 	if vim.api.nvim_buf_is_loaded(M[display].buffer) then
 		vim.bo[M[display].buffer].modifiable = true
@@ -42,7 +45,7 @@ function M.init_buffer(display)
 	M[display].buffer = buf
 end
 
-function M.init_window(display)
+function M.init_window(display, height)
 	if vim.api.nvim_win_is_valid(M[display].window) then
 		return
 	end
@@ -50,13 +53,19 @@ function M.init_window(display)
 	M[display].window = vim.api.nvim_open_win(M[display].buffer, true, { split = "below" })
 	-- getting the split to show at the bottom
 	vim.cmd("wincmd J")
-	vim.api.nvim_win_set_height(M[display].window, M.split_height)
+	-- minimum height to avoid conflicting with the cmdwindow
+	if height < 4 then
+		height = 4
+	elseif height > M.split_height then
+		height = M.split_height
+	end
+	vim.api.nvim_win_set_height(M[display].window, height)
 	vim.wo[M[display].window].winfixbuf = true
 end
 
 function M.render_split(display, lines, clear)
 	M.init_buffer(display)
-	M.init_window(display)
+	M.init_window(display, #lines)
 	local start_line, end_line = 0, -1
 	if not clear then
 		local buf_lines = vim.api.nvim_buf_get_lines(M[display].buffer, 0, -1, true)
@@ -69,11 +78,11 @@ function M.render_split(display, lines, clear)
 end
 
 function M.on_usr_msg(show_kind, lines)
-	M.history.messages = vim.iter({ M.history.messages, lines }):flatten():totable()
 	local text = table.concat(lines, "\n")
 	if text == "" then
 		return
 	end
+	M.history.messages = vim.iter({ M.history.messages, lines }):flatten():totable()
 	if show_kind == "echo" then
 		vim.notify(text, vim.log.levels.INFO)
 	else
@@ -96,18 +105,19 @@ function M.on_confirm(kind, lines)
 	end, lines)
 	local win_opts = {
 		relative = "editor",
+		row = vim.o.lines / 2 - 1,
+		col = math.floor((vim.o.columns - 30) / 2),
 		width = math.max(unpack(vim.tbl_map(function(line)
 			return #line
 		end, text))),
 		height = #text,
-		row = vim.o.lines / 2 - 1,
-		col = math.floor((vim.o.columns - 30) / 2),
 		style = "minimal",
 		border = "single",
 	}
 	if kind == "confirm" then
 		win_opts.title = text[1]
 		win_opts.height = #text - 1
+		table.remove(text, 1)
 	elseif kind == "confirm_sub" then
 		if vim.api.nvim_win_is_valid(M.confirm.window) then
 			return
@@ -129,12 +139,17 @@ end
 
 function M.on_empty(lines)
 	if #lines == 1 then
+		if string.find(lines[1], "Type  :qa") then
+			vim.notify("", vim.log.levels.INFO)
+			return
+		end
+		-- check if the message is a terminal command output
+		if lines[1]:find("^:!") then
+			vim.notify("shell output", vim.log.levels.INFO)
+			return
+		end
 		M.on_usr_msg("echo", lines)
 		return
-	end
-	-- check if the message is a terminal command output
-	if lines[1]:find("^:!") then
-		table.remove(lines, 1)
 	end
 	vim.schedule(function()
 		M.render_split("output", lines, false)
@@ -178,16 +193,13 @@ function M.handler(event, ...)
 end
 
 function M.notify(msg, log_level, opts)
+	if msg == vim.g.status_line_notify.message then
+		return
+	end
 	vim.g.status_line_notify = { message = msg, level = log_level }
 	vim.schedule(function()
 		vim.cmd("redrawstatus")
 	end)
-	vim.defer_fn(function()
-		vim.g.status_line_notify = { message = "", level = nil }
-		vim.schedule(function()
-			vim.cmd("redrawstatus")
-		end)
-	end, 3000)
 end
 
 function M.attach()
