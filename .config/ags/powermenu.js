@@ -1,4 +1,4 @@
-import icons from "./icons.ts";
+import icons from "./icons.js";
 
 const WINDOW_NAME = "powermenu";
 
@@ -14,8 +14,8 @@ const SysButton = (action) =>
         on_clicked: () => Utils.exec(action.cmd),
         child: Widget.Box({
             expand: true,
-            hpack: 'center',
-            vpack: 'center',
+            hpack: "center",
+            vpack: "center",
             vertical: true,
             class_name: "system-button",
             children: [
@@ -38,10 +38,10 @@ export default () =>
             }),
         visible: false,
         keymode: "exclusive",
-        anchor: ['top', 'left', 'right', 'bottom'],
+        anchor: ["top", "left", "right", "bottom"],
         child: Widget.Box({
-            hpack: 'center',
-            vpack: 'center',
+            hpack: "center",
+            vpack: "center",
             spacing: 40,
             children: [
                 SysButton(sleep),

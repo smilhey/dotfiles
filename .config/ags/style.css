@@ -13,12 +13,14 @@
 .controlcenter scale highlight {
   background-color: white;
   border: none;
+  border-radius: 0px;
 }
 .controlcenter scale trough {
   background-image: none;
   background-color: transparent;
   min-height: 60px;
   min-width: 100px;
+  border: 0px;
 }
 
 .osd {
@@ -88,3 +90,15 @@
   background: white;
   color: black;
 }
+
+.overview scrollbar {
+  background-color: transparent;
+  color: transparent;
+}
+
+.overview scrollbar slider {
+  background-color: transparent;
+  box-shadow: none;
+  border: none;
+}
+
