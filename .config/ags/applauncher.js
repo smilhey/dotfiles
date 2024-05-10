@@ -31,17 +31,16 @@ const AppItem = (app) =>
 const Applauncher = ({ width = 100, height = 20, spacing = 12 }) => {
     let applications = query("").map(AppItem);
     const list = Widget.Box({
-        hpack: "center",
         vertical: false,
         children: applications,
-        spacing,
     });
     function repopulate() {
         applications = query("").map(AppItem);
         list.children = applications;
     }
     const entry = Widget.Entry({
-        css: `box-shadow: none;border: none; margin-bottom: ${spacing}px;`,
+        halign: 3,
+        css: `min-width: ${width / 2}px;box-shadow: none;border: none; margin-bottom: ${spacing}px;`,
         on_accept: () => {
             const results = applications.filter((item) => item.visible);
             if (results[0]) {

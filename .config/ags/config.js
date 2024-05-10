@@ -11,13 +11,13 @@ globalThis.Brightness = brightness;
 globalThis.Audio = audio;
 
 App.config({
-  style: App.configDir + "/style.css",
-  windows: [
-    applauncher(),
-    powermenu(),
-    controlcenter(),
-    osd(),
-    notifications(),
-    overview(),
-  ],
+    style: App.configDir + "/style.css",
+    windows: [
+        applauncher(),
+        powermenu(),
+        controlcenter(),
+        osd(),
+        notifications(),
+        overview(),
+    ],
 });
