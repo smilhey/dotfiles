@@ -12,8 +12,10 @@ const AppItem = (app) =>
             vertical: true,
             children: [
                 Widget.Icon({
+                    vpack: "center",
+                    hpack: "center",
                     icon: app.icon_name || "",
-                    size: 42,
+                    size: 52,
                 }),
                 Widget.Label({
                     css: "padding-top: 8px;",
@@ -40,7 +42,6 @@ const Applauncher = ({ width = 100, height = 20, spacing = 12 }) => {
     }
     const entry = Widget.Entry({
         css: `box-shadow: none;border: none; margin-bottom: ${spacing}px;`,
-        // to launch the first item on Enter
         on_accept: () => {
             const results = applications.filter((item) => item.visible);
             if (results[0]) {
@@ -55,11 +56,11 @@ const Applauncher = ({ width = 100, height = 20, spacing = 12 }) => {
     });
     return Widget.Box({
         vertical: true,
-        css: `margin: ${spacing * 2}px;`,
+        css: `background:rgba(0,0,0,0.6); padding: 20px`,
         children: [
             entry,
             Widget.Scrollable({
-                css: `min-width: ${width}px;` + `min-height: ${height}px;`,
+                css: `padding: 10px;min-width: ${width}px;` + `min-height: ${height}px;`,
                 child: list,
             }),
         ],
@@ -75,19 +76,25 @@ const Applauncher = ({ width = 100, height = 20, spacing = 12 }) => {
     });
 };
 
-export default () =>
-    Widget.Window({
-        class_name: "launcher",
-        name: WINDOW_NAME,
-        setup: (self) =>
-            self.keybind("Escape", () => {
-                App.closeWindow(WINDOW_NAME);
-            }),
-        visible: false,
-        keymode: "exclusive",
-        child: Applauncher({
-            width: 500,
-            height: 75,
-            spacing: 10,
+export default () => Widget.Window({
+    class_name: "launcher",
+    anchor: ["top"],
+    name: WINDOW_NAME,
+    setup: (self) =>
+        self.keybind("Escape", () => {
+            App.closeWindow(WINDOW_NAME);
         }),
-    });
+    visible: false,
+    layer: "overlay",
+    keymode: "exclusive",
+    child: Widget.Box({
+        css: "padding: 10px;",
+        vertical: true,
+        children: [
+            Applauncher({
+                width: 500,
+                height: 100,
+                spacing: 10,
+            })]
+    })
+})

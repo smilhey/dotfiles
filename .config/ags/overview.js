@@ -123,10 +123,6 @@ const workspace = (id) => {
 const Overview = () =>
     Widget.Scrollable({
         vscroll: "never",
-        setup: (self) => {
-            const ws = hyprland.workspaces.length <= 3 ? hyprland.workspaces.length : 3;
-            self.css = `min-width: ${DEF.w * SCALE * ws}px;` + `min-height: ${DEF.h * SCALE * 1.2}px;`
-        },
         child: Widget.Box({
             class_name: "overview horizontal",
             children: hyprland.workspaces
@@ -157,7 +153,7 @@ const Overview = () =>
         }),
     }).hook(hyprland, (self, w, id) => {
         const ws = hyprland.workspaces.length <= 3 ? hyprland.workspaces.length : 3;
-        self.css = `min-width: ${DEF.w * SCALE * ws}px;` + `min-height: ${DEF.h * SCALE * 1.1}px;`
+        self.css = `min-width: ${DEF.w * SCALE * ws * 1.1}px;` + `min-height: ${DEF.h * SCALE * 1.1}px;`
     });
 
 export default () =>

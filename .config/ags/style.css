@@ -53,6 +53,7 @@
 }
 
 .powermenu button {
+  border-radius: 0px;
   background: rgba(0, 0, 0, 0.6);
   color: white;
   border: none;
@@ -70,15 +71,15 @@
   font-size: 16px;
 }
 
-.launcher {
-  background-color: rgba(0, 0, 0, 0.6);
+.launcher entry {
+  border-radius: 0px;
 }
-
 .launcher button {
   background: transparent;
   color: white;
   border: none;
   box-shadow: none;
+  border-radius: 0px;
 }
 
 .launcher button:focus {
@@ -91,6 +92,17 @@
   color: black;
 }
 
+.launcher scrollbar {
+  background-color: transparent;
+  color: transparent;
+}
+
+.launcher scrollbar slider {
+  background-color: transparent;
+  box-shadow: none;
+  border: none;
+}
+
 .overview scrollbar {
   background-color: transparent;
   color: transparent;
@@ -101,4 +113,3 @@
   box-shadow: none;
   border: none;
 }
-
