@@ -28,8 +28,7 @@ return {
 					},
 					["core.integrations.otter"] = {},
 					["core.integrations.treesitter"] = {},
-					["core.latex.renderer"] = {},
-					["core.integrations.image"] = { config = { render_on_enter = true } },
+					-- ["core.integrations.image"] = {},
 				},
 			})
 		end,

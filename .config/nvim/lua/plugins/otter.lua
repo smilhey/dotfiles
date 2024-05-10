@@ -1,5 +1,4 @@
 return {
-	event = "VeryLazy",
 	"jmbuhr/otter.nvim",
 	dependencies = { "neovim/nvim-lspconfig", "hrsh7th/nvim-cmp" },
 	config = function()

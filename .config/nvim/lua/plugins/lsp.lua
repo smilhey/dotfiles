@@ -1,7 +1,5 @@
 return {
 	"neovim/nvim-lspconfig",
-	event = "VeryLazy",
-	opts = { inlay_hints = { enable = true } },
 	dependencies = {
 		"folke/neodev.nvim",
 		{
@@ -24,11 +22,15 @@ return {
 			end,
 		},
 		"williamboman/mason-lspconfig.nvim",
-		"hrsh7th/nvim-cmp",
-		"hrsh7th/cmp-nvim-lsp",
-		"hrsh7th/cmp-buffer",
-		"hrsh7th/cmp-path",
-		"onsails/lspkind-nvim",
+		{
+			"hrsh7th/nvim-cmp",
+			dependencies = {
+				"hrsh7th/cmp-nvim-lsp",
+				"hrsh7th/cmp-buffer",
+				"hrsh7th/cmp-path",
+				"onsails/lspkind-nvim",
+			},
+		},
 	},
 	config = function()
 		vim.api.nvim_create_autocmd("LspAttach", {
@@ -36,8 +38,7 @@ return {
 			callback = function(args)
 				local buf, data = args.buf, args.data
 				local client = vim.lsp.get_client_by_id(data.client_id)
-				if client and client.server_capabilities.inlayHintProvider then
-					-- vim.lsp.inlay_hint.enable(true, { buffer = buf })
+				if client and client.supports_method("textDocument/inlayHint") then
 					vim.api.nvim_buf_create_user_command(buf, "LspInlayHint", function()
 						vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ buf }), { buffer = true })
 					end, {})
@@ -80,6 +81,15 @@ return {
 					capabilities = lsp_capabilities,
 					settings = {
 						Lua = {
+							workspace = {
+								checkThirdParty = false,
+							},
+							codeLens = {
+								enable = true,
+							},
+							completion = {
+								callSnippet = "Replace",
+							},
 							hint = { enable = true },
 							runtime = { version = "LuaJIT" },
 							diagnostics = {

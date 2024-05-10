@@ -1,6 +1,5 @@
 return {
 	"benlubas/molten-nvim",
-	keys = "<leader>e",
 	build = ":UpdateRemotePlugins",
 	init = function()
 		vim.g.molten_virt_text_output = true
