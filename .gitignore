@@ -15,3 +15,5 @@
 .config/dconf
 .config/nomacs
 .config/starter/
+.config/systemd
+.config/debug
