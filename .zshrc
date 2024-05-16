@@ -164,3 +164,7 @@ export PATH
 # <<< juliaup initialize <<<
 
 export JULIA_PROJECT='@.'
+
+#lsp for helix 
+
+path+=('/home/smilhey/lsp')
