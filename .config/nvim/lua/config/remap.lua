@@ -1,6 +1,8 @@
 -- some utils
 vim.keymap.set("n", "<leader><leader>l", "<cmd>luafile %<CR>", { desc = "Run with lua current file" })
+
 vim.keymap.set("n", "<leader><leader>s", "<cmd>source<CR>", { desc = "Source current file" })
+
 vim.keymap.set("n", "<C-e>", function()
 	local result = vim.inspect_pos()
 	local hl_ts = unpack(result.treesitter) and vim.inspect(unpack(result.treesitter).hl_group) or "nil"
@@ -77,7 +79,7 @@ vim.keymap.set({ "n", "v" }, "q/", "/", { desc = "Switching cmdwin and cmdline",
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move line up" })
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move line down" })
 
-vim.keymap.set("n", "J", "mzJ`z", { desc = "Join line" })
+vim.keymap.set("n", "J", "mzJ`z", { desc = "Join line without moving cursor" })
 vim.keymap.set("n", "<C-d>", "<C-d>zz", { desc = "Scroll down half screen and center" })
 vim.keymap.set("n", "<C-u>", "<C-u>z.", { desc = "Scroll up half screen and center" })
 vim.keymap.set("n", "<C-f>", "<C-f>zz", { desc = "Scroll down full screen and center" })
@@ -86,7 +88,6 @@ vim.keymap.set("n", "n", "nzzzv", { desc = "Move to next search and center" })
 vim.keymap.set("n", "N", "Nzzzv", { desc = "Move to previous search and center" })
 
 -- Remapping esc
--- vim.keymap.set("t", "<Esc>", "<C-\\><C-n>")
 vim.keymap.set("i", "<C-c>", "<Esc>", { desc = "Remap <C-c> to <Esc>" })
 
 vim.keymap.set(
@@ -97,5 +98,3 @@ vim.keymap.set(
 )
 
 vim.keymap.set("n", "<A-Tab>", "gt", { desc = "Switch to next tab" })
--- vim.g.copilot_no_tab_map = true
--- vim.g.copilot_assume_mapped = true

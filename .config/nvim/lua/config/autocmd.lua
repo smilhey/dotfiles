@@ -141,12 +141,24 @@ vim.api.nvim_create_autocmd("Filetype", {
 
 vim.api.nvim_create_autocmd("CmdwinEnter", {
 	callback = function()
-		vim.opt.hlsearch = true
+		local type = vim.fn.getcmdwintype()
+		if type == "/" or type == "?" then
+			vim.o.hlsearch = true
+			vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "TextChangedP" }, {
+				buffer = 0,
+				callback = function()
+					vim.fn.setreg("/", vim.fn.getline("."))
+				end,
+			})
+		end
 	end,
 })
 
 vim.api.nvim_create_autocmd("CmdwinLeave", {
 	callback = function()
-		vim.opt.hlsearch = false
+		local type = vim.fn.getcmdwintype()
+		if type == "/" or type == "?" then
+			vim.o.hlsearch = false
+		end
 	end,
 })
