@@ -67,22 +67,22 @@ return {
 		end,
 	},
 	{
-		"zbirenbaum/copilot.lua",
-		cmd = "Copilot",
+		"zbirenbaum/copilot-cmp",
 		config = function()
-			require("copilot").setup({
-				-- suggestion = { enabled = true, keymap = { accept = "<M-;>" } },
-				suggestion = { enabled = false },
-				panel = { enabled = false },
-				filetypes = {
-					markdown = true,
-				},
-			})
+			require("copilot_cmp").setup()
 		end,
 		dependencies = {
-			"zbirenbaum/copilot-cmp",
+			"zbirenbaum/copilot.lua",
+			cmd = "Copilot",
 			config = function()
-				require("copilot_cmp").setup()
+				require("copilot").setup({
+					-- suggestion = { enabled = true, keymap = { accept = "<M-;>" } },
+					suggestion = { enabled = false },
+					panel = { enabled = false },
+					filetypes = {
+						markdown = true,
+					},
+				})
 			end,
 		},
 	},
