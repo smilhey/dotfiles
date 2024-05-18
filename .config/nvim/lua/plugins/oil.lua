@@ -41,6 +41,16 @@ return {
 				["<C-c>"] = false,
 				["<C-l>"] = false,
 			},
+			float = {
+				-- Padding around the floating window
+				padding = 2,
+				max_width = math.floor(vim.o.columns / 1.5),
+				max_height = math.floor(vim.o.lines / 1.5),
+				border = "single",
+				win_options = {
+					winblend = 0,
+				},
+			},
 		})
 		vim.api.nvim_create_autocmd("FileType", {
 			pattern = "oil",
@@ -48,6 +58,6 @@ return {
 				vim.keymap.set("n", "q", require("oil").close, { buffer = 0, desc = "Close Oil", nowait = true })
 			end,
 		})
-		vim.keymap.set("n", "<leader>pv", "<cmd>Oil<CR>", { desc = "Navigate project with Oil" })
+		vim.keymap.set("n", "-", require("oil").open_float, { desc = "Navigate project with Oil" })
 	end,
 }

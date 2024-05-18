@@ -65,14 +65,14 @@ vim.keymap.set(
 )
 
 -- using cmdwindow as default
-vim.keymap.set({ "n", "v" }, ":", "q:", { desc = "Switching cmdwin and cmdline", silent = true })
-vim.keymap.set({ "n", "v" }, "?", "q?", { desc = "Switching cmdwin and cmdline", silent = true })
-vim.keymap.set({ "n", "v" }, "/", "q/", { desc = "Switching cmdwin and cmdline", silent = true })
+vim.keymap.set({ "n", "v" }, ":", "q:", { desc = "Switching cmdwin and cmdline" })
+vim.keymap.set({ "n", "v" }, "?", "q?", { desc = "Switching cmdwin and cmdline" })
+vim.keymap.set({ "n", "v" }, "/", "q/", { desc = "Switching cmdwin and cmdline" })
 vim.keymap.set({ "n", "v" }, "!", "!<C-f>", { desc = "Switching cmdwin and cmdline" })
 
-vim.keymap.set({ "n", "v" }, "q:", ":", { desc = "Switching cmdwin and cmdline", silent = true })
-vim.keymap.set({ "n", "v" }, "q?", "?", { desc = "Switching cmdwin and cmdline", silent = true })
-vim.keymap.set({ "n", "v" }, "q/", "/", { desc = "Switching cmdwin and cmdline", silent = true })
+vim.keymap.set({ "n", "v" }, "q:", ":", { desc = "Switching cmdwin and cmdline" })
+vim.keymap.set({ "n", "v" }, "q?", "?", { desc = "Switching cmdwin and cmdline" })
+vim.keymap.set({ "n", "v" }, "q/", "/", { desc = "Switching cmdwin and cmdline" })
 
 -- vim.keymap.set("n", "<leader>pv", vim.cmd.Ex)
 

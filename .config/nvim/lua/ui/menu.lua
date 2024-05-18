@@ -82,24 +82,30 @@ function Menu:create_window()
 		title = "Menu",
 		style = "minimal",
 	}
+	default_win_opts.width = math.max(default_win_opts.width, self.legend_size)
 	default_win_opts.col = math.ceil((vim.o.columns - default_win_opts.width) / 2)
 	default_win_opts.row = math.ceil((vim.o.lines - default_win_opts.height) / 2)
-	default_win_opts.width = math.max(default_win_opts.width, self.legend_size)
 	default_win_opts = vim.tbl_deep_extend("force", default_win_opts, self.opts.win_opts)
 	self.win = vim.api.nvim_open_win(self.buf, true, default_win_opts)
 	vim.wo[self.win].winfixbuf = true
 end
 
 function Menu:resize_window()
-	if self.opts.resize.horizontal then
-		vim.api.nvim_win_set_height(self.win, #self.string_items + #self.legend)
-	end
+	local height, width = vim.api.nvim_win_get_height(self.win), vim.api.nvim_win_get_width(self.win)
+	print('height: "' .. height .. '" width: "' .. width .. '"')
 	if self.opts.resize.vertical then
+		height = #self.string_items + #self.legend
+	end
+	if self.opts.resize.horizontal then
 		local max_string_items = math.max(unpack(vim.tbl_map(function(str)
 			return #str
 		end, self.string_items)))
-		vim.api.nvim_win_set_width(self.win, math.max(max_string_items, self.legend_size))
+		width = math.max(max_string_items, self.legend_size)
 	end
+	local row, col = unpack(vim.api.nvim_win_get_position(self.win))
+	row = math.ceil((vim.o.lines - height) / 2)
+	col = math.ceil((vim.o.columns - width) / 2)
+	vim.api.nvim_win_set_config(self.win, { relative = "editor", row = row, col = col, width = width, height = height })
 end
 
 function Menu:set_keymaps()

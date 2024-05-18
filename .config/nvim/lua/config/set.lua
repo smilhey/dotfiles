@@ -1,27 +1,8 @@
-local colorscheme = require("config.ui.colorscheme")
-colorscheme()
+require("config.ui.colorscheme")()
 
 vim.api.nvim_set_hl(0, "Cursor", { link = "Todo" })
 vim.opt.guicursor = "a:block-blinkon0,i:Cursor,r-cr-o:hor20"
 vim.g.mapleader = " "
-
--- habamax colorscheme
-
--- vim.cmd("colorscheme habamax")
--- -- vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
--- vim.api.nvim_set_hl(0, "Function", { ctermfg = 109, fg = "#87afaf" })
--- vim.api.nvim_set_hl(0, "Module", { ctermfg = 109, fg = "#87afaf" })
--- vim.api.nvim_set_hl(0, "Identifier", { fg = "none" })
--- vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
--- vim.api.nvim_set_hl(0, "FloatBorder", { bg = "none" })
--- vim.api.nvim_set_hl(0, "NormalNC", { bg = "none" })
--- vim.api.nvim_set_hl(0, "SignColumn", { bg = "none" })
--- vim.api.nvim_set_hl(0, "LineNr", { bg = "none" })
--- vim.api.nvim_set_hl(0, "WinSeparator", { bg = "none", fg = "none" })
--- vim.api.nvim_set_hl(0, "MsgSeparator", { bg = "none", fg = "none", underline = true })
--- vim.api.nvim_set_hl(0, "Statusline", { bg = "none" })
--- -- vim.api.nvim_set_hl(0, "@variable", {})
--- -- vim.api.nvim_set_hl(0, "@lsp.type.variable", {})
 
 vim.opt.termguicolors = true
 vim.opt.pumblend = 0
@@ -69,10 +50,11 @@ vim.env.PATH = vim.env.PATH
 vim.opt.autochdir = false
 vim.opt.smartcase = true
 vim.opt.ignorecase = true
-vim.opt.nu = true
+vim.opt.number = true
+vim.opt.relativenumber = true
 vim.opt.cursorline = true
 vim.opt.cursorlineopt = "number"
-vim.opt.relativenumber = true
+
 vim.opt.mouse = ""
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
@@ -80,7 +62,6 @@ vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
 vim.opt.smartindent = true
 -- vim.opt.smoothscroll = true
-
 vim.opt.wrap = true
 
 vim.opt.swapfile = false
@@ -89,7 +70,7 @@ vim.opt.undofile = true
 
 vim.opt.hlsearch = false
 vim.opt.incsearch = true
-vim.opt.inccommand = "nosplit"
+vim.opt.inccommand = "split"
 
 vim.opt.scrolloff = 8
 vim.opt.signcolumn = "yes"
@@ -97,8 +78,23 @@ vim.opt.isfname:append("@-@")
 
 vim.opt.clipboard = "unnamedplus"
 
--- vim.opt.colorcolumn = "80"
--- vim.cmd([[hi ColorColumn ctermbg=lightgrey guibg=#ebdbb2]])
-
 vim.opt.spelllang = "en_us,fr"
 vim.opt.spell = false
+
+-- habamax colorscheme
+
+-- vim.cmd("colorscheme habamax")
+-- -- vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+-- vim.api.nvim_set_hl(0, "Function", { ctermfg = 109, fg = "#87afaf" })
+-- vim.api.nvim_set_hl(0, "Module", { ctermfg = 109, fg = "#87afaf" })
+-- vim.api.nvim_set_hl(0, "Identifier", { fg = "none" })
+-- vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
+-- vim.api.nvim_set_hl(0, "FloatBorder", { bg = "none" })
+-- vim.api.nvim_set_hl(0, "NormalNC", { bg = "none" })
+-- vim.api.nvim_set_hl(0, "SignColumn", { bg = "none" })
+-- vim.api.nvim_set_hl(0, "LineNr", { bg = "none" })
+-- vim.api.nvim_set_hl(0, "WinSeparator", { bg = "none", fg = "none" })
+-- vim.api.nvim_set_hl(0, "MsgSeparator", { bg = "none", fg = "none", underline = true })
+-- vim.api.nvim_set_hl(0, "Statusline", { bg = "none" })
+-- -- vim.api.nvim_set_hl(0, "@variable", {})
+-- -- vim.api.nvim_set_hl(0, "@lsp.type.variable", {})

@@ -62,7 +62,7 @@ vim.keymap.set("n", "<leader>m", function()
 		},
 		{
 			legend = { include = true, style = "vertical" },
-			resize = { horizontal = true, vertical = false },
+			resize = { horizontal = true, vertical = true },
 			win_opts = { title = "Global Marks" },
 		}
 	)

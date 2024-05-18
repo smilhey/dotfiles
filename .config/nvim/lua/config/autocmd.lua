@@ -141,6 +141,17 @@ vim.api.nvim_create_autocmd("Filetype", {
 
 vim.api.nvim_create_autocmd("CmdwinEnter", {
 	callback = function()
+		vim.keymap.set(
+			"n",
+			"<C-c>",
+			"<cmd>close<CR>",
+			{ desc = "Close no file/temporary windows", silent = true, nowait = true, buffer = true }
+		)
+	end,
+})
+
+vim.api.nvim_create_autocmd("CmdwinEnter", {
+	callback = function()
 		local type = vim.fn.getcmdwintype()
 		if type == "/" or type == "?" then
 			vim.o.hlsearch = true
