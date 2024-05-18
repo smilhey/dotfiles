@@ -1,10 +1,14 @@
 local M = {
-	history = { window = -1, buffer = -1, messages = {} },
-	output = { window = -1, buffer = -1 },
-	confirm = { window = -1 },
+	history = { win = -1, buf = -1, messages = {} },
+	output = { win = -1, buf = -1 },
+	confirm = { win = -1 },
 	split_height = 10,
 	log = {},
 }
+
+function M.add_to_history(lines)
+	M.history.messages = vim.iter({ M.history.messages, lines }):flatten():totable()
+end
 
 function M.content_to_lines(content)
 	local message = ""
@@ -23,15 +27,15 @@ function M.content_to_lines(content)
 end
 
 function M.clear_buffer(display)
-	if vim.api.nvim_buf_is_loaded(M[display].buffer) then
-		vim.bo[M[display].buffer].modifiable = true
-		vim.api.nvim_buf_set_lines(M[display].buffer, 0, -1, false, {})
-		vim.bo[M[display].buffer].modifiable = false
+	if vim.api.nvim_buf_is_loaded(M[display].buf) then
+		vim.bo[M[display].buf].modifiable = true
+		vim.api.nvim_buf_set_lines(M[display].buf, 0, -1, false, {})
+		vim.bo[M[display].buf].modifiable = false
 	end
 end
 
 function M.init_buffer(display)
-	if vim.api.nvim_buf_is_loaded(M[display].buffer) then
+	if vim.api.nvim_buf_is_loaded(M[display].buf) then
 		return
 	end
 	local buf = vim.api.nvim_create_buf(false, true)
@@ -40,18 +44,18 @@ function M.init_buffer(display)
 	vim.api.nvim_buf_set_name(buf, "[MsgArea - " .. display .. "]")
 	vim.bo[buf].modifiable = false
 	vim.keymap.set("n", "q", function()
-		vim.api.nvim_win_close(M[display].window, true)
-		M[display].window = -1
+		vim.api.nvim_win_close(M[display].win, true)
+		M[display].win = -1
 	end, { buffer = buf, nowait = true, silent = true })
-	M[display].buffer = buf
+	M[display].buf = buf
 end
 
 function M.init_window(display, height)
-	if vim.api.nvim_win_is_valid(M[display].window) then
+	if vim.api.nvim_win_is_valid(M[display].win) then
 		return
 	end
 	M.clear_buffer(display)
-	M[display].window = vim.api.nvim_open_win(M[display].buffer, true, { split = "below" })
+	M[display].win = vim.api.nvim_open_win(M[display].buf, true, { split = "below" })
 	-- getting the split to show at the bottom
 	vim.cmd("wincmd J")
 	-- minimum height to avoid conflicting with the cmdwindow
@@ -60,8 +64,8 @@ function M.init_window(display, height)
 	elseif height > M.split_height then
 		height = M.split_height
 	end
-	vim.api.nvim_win_set_height(M[display].window, height)
-	vim.wo[M[display].window].winfixbuf = true
+	vim.api.nvim_win_set_height(M[display].win, height)
+	vim.wo[M[display].win].winfixbuf = true
 end
 
 function M.render_split(display, lines, clear)
@@ -69,13 +73,13 @@ function M.render_split(display, lines, clear)
 	M.init_window(display, #lines)
 	local start_line, end_line = 0, -1
 	if not clear then
-		local buf_lines = vim.api.nvim_buf_get_lines(M[display].buffer, 0, -1, true)
+		local buf_lines = vim.api.nvim_buf_get_lines(M[display].buf, 0, -1, true)
 		start_line = vim.deep_equal(buf_lines, { "" }) and 0 or #buf_lines
 		end_line = -1
 	end
-	vim.bo[M[display].buffer].modifiable = true
-	vim.api.nvim_buf_set_lines(M[display].buffer, start_line, end_line, false, lines)
-	vim.bo[M[display].buffer].modifiable = false
+	vim.bo[M[display].buf].modifiable = true
+	vim.api.nvim_buf_set_lines(M[display].buf, start_line, end_line, false, lines)
+	vim.bo[M[display].buf].modifiable = false
 end
 
 function M.on_usr_msg(show_kind, lines)
@@ -83,7 +87,7 @@ function M.on_usr_msg(show_kind, lines)
 	if text == "" then
 		return
 	end
-	M.history.messages = vim.iter({ M.history.messages, lines }):flatten():totable()
+	M.add_to_history(lines)
 	if show_kind == "echo" then
 		vim.notify(text, vim.log.levels.INFO)
 	else
@@ -120,7 +124,7 @@ function M.on_confirm(kind, lines)
 		win_opts.height = #text - 1
 		table.remove(text, 1)
 	elseif kind == "confirm_sub" then
-		if vim.api.nvim_win_is_valid(M.confirm.window) then
+		if vim.api.nvim_win_is_valid(M.confirm.win) then
 			return
 		else
 			-- folke trick to get the highlight to show on first replace
@@ -129,10 +133,10 @@ function M.on_confirm(kind, lines)
 	end
 	local buf = vim.api.nvim_create_buf(false, true)
 	vim.bo[buf].bufhidden = "wipe"
-	M.confirm.window = vim.api.nvim_open_win(buf, false, win_opts)
+	M.confirm.win = vim.api.nvim_open_win(buf, false, win_opts)
 	vim.api.nvim_buf_set_lines(buf, 0, -1, false, text)
 	vim.schedule(function()
-		vim.api.nvim_win_close(M.confirm.window, true)
+		vim.api.nvim_win_close(M.confirm.win, true)
 		M.confirm_window = -1
 	end)
 	vim.cmd("redraw")
@@ -231,29 +235,8 @@ end
 
 function M.init()
 	vim.notify = M.notify
-	M.namespace = vim.api.nvim_create_namespace("CustomMsgArea")
+	M.namespace = vim.api.nvim_create_namespace("Msg")
 	M.attach()
-	-- Best way to get to see what you're typing without handling cmdline
-	-- messages, ui.input and ui.select are overriden elsewhere
-	local fn_input = vim.fn.input
-	local fn_inputlist = vim.fn.inputlist
-	local fn_getchar = vim.fn.getchar
-	local fn_getcharstr = vim.fn.getcharstr
-	local wrap = function(fn)
-		local wrapped_fn = function(...)
-			M.detach()
-			vim.cmd("redraw")
-			local input = fn(...)
-			M.attach()
-			vim.cmd("redraw")
-			return input
-		end
-		return wrapped_fn
-	end
-	vim.fn.input = wrap(fn_input)
-	vim.fn.inputlist = wrap(fn_inputlist)
-	vim.fn.getchar = wrap(fn_getchar)
-	vim.fn.getcharstr = wrap(fn_getcharstr)
 end
 
 return M
