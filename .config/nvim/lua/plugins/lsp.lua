@@ -1,7 +1,6 @@
 return {
 	"neovim/nvim-lspconfig",
 	dependencies = {
-		"folke/neodev.nvim",
 		{
 			"williamboman/mason.nvim",
 			build = function()
@@ -25,7 +24,7 @@ return {
 	},
 	config = function()
 		vim.api.nvim_create_autocmd("LspAttach", {
-			desc = "LSP actions",
+			desc = "LSP keymaps",
 			callback = function(args)
 				local buf, data = args.buf, args.data
 				local client = vim.lsp.get_client_by_id(data.client_id)
@@ -49,7 +48,6 @@ return {
 				"lua_ls",
 			},
 		})
-		require("neodev").setup({})
 
 		local lspconfig = require("lspconfig")
 		local lsp_capabilities = require("cmp_nvim_lsp").default_capabilities()
@@ -68,12 +66,16 @@ return {
 				})
 			end,
 			["lua_ls"] = function()
+				local runtime_path = vim.split(package.path, ";")
+				table.insert(runtime_path, "lua/?.lua")
+				table.insert(runtime_path, "lua/?/init.lua")
 				lspconfig.lua_ls.setup({
 					capabilities = lsp_capabilities,
 					settings = {
 						Lua = {
 							workspace = {
 								checkThirdParty = false,
+								library = vim.api.nvim_get_runtime_file("", true),
 							},
 							codeLens = {
 								enable = true,
@@ -82,7 +84,10 @@ return {
 								callSnippet = "Replace",
 							},
 							hint = { enable = true },
-							runtime = { version = "LuaJIT" },
+							telemetry = {
+								enable = false,
+							},
+							runtime = { version = "LuaJIT", path = runtime_path },
 							diagnostics = {
 								globals = { "vim" },
 							},

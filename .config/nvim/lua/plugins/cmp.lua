@@ -9,7 +9,6 @@ return {
 	config = function()
 		local cmp = require("cmp")
 		local lspkind = require("lspkind")
-
 		local cmp_select = { behavior = cmp.SelectBehavior.Select }
 		local cmp_mappings = cmp.mapping.preset.insert({
 			["<C-p>"] = cmp.mapping.select_prev_item(cmp_select),
@@ -17,23 +16,6 @@ return {
 			["<C-y>"] = cmp.mapping.confirm({ select = true }),
 			["<C-Space>"] = cmp.mapping.complete(),
 		})
-		cmp_mappings["<Tab>"] = nil
-		cmp_mappings["<S-Tab>"] = nil
-		vim.keymap.set({ "i", "s" }, "<Tab>", function()
-			if vim.snippet.active({ direction = 1 }) then
-				return "<cmd>lua vim.snippet.jump(1)<cr>"
-			else
-				return "<Tab>"
-			end
-		end, { expr = true, desc = "Jump to next snippet placeholder" })
-		vim.keymap.set({ "i", "s" }, "<S-Tab>", function()
-			if vim.snippet.active({ direction = -1 }) then
-				return "<cmd>lua vim.snippet.jump(-1)<cr>"
-			else
-				return "<S-Tab>"
-			end
-		end, { expr = true, desc = "Jump to previous snippet placeholder" })
-
 		cmp.setup({
 			snippet = {
 				expand = function(args)
