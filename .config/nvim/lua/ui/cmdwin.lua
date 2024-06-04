@@ -114,7 +114,7 @@ end
 function M.render()
 	M.init_buf()
 	local linenr = vim.api.nvim_buf_line_count(M.buf)
-	local cmd_prompt = (" "):rep(M.indent) .. M.firstc .. M.prompt
+	local cmd_prompt = M.firstc .. (" "):rep(M.indent) .. M.prompt
 	if not vim.api.nvim_win_is_valid(M.win) then
 		if M.firstc then
 			M.set_history()
@@ -213,6 +213,12 @@ function M.on_cmdline_pos(...)
 	M.render()
 end
 
+function M.on_cmdline_special_char(...)
+	local c, shift, level = ...
+	M.cmd = M.cmd:sub(1, M.pos) .. c .. M.cmd:sub(M.pos + 1)
+	M.render()
+end
+
 function M.on_cmdline_hide()
 	if M.mode == "edit" then
 		return
@@ -230,6 +236,8 @@ function M.handler(event, ...)
 		M.on_cmdline_pos(...)
 	elseif event == "cmdline_hide" then
 		M.on_cmdline_hide()
+	elseif event == "cmdline_special_char" then
+		M.on_cmdline_special_char(...)
 	else
 		-- TODO: (cmdline_special_char, cmdline_block_show, cmdline_block_append and cmdline_block_hide)
 		return
