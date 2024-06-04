@@ -1,4 +1,5 @@
 local M = {
+	attached = false,
 	history = { win = -1, buf = -1, messages = {} },
 	output = { win = -1, buf = -1 },
 	confirm = { win = -1 },
@@ -6,17 +7,13 @@ local M = {
 	log = {},
 }
 
-function M.add_to_history(lines)
-	M.history.messages = vim.iter({ M.history.messages, lines }):flatten():totable()
-end
-
 function M.content_to_lines(content)
-	local message = ""
+	local msg = ""
 	for _, chunk in ipairs(content) do
-		message = message .. chunk[2]
+		msg = msg .. chunk[2]
 	end
-	message = string.gsub(message, "\r", "")
-	local lines = vim.split(message, "\n")
+	msg = string.gsub(msg, "\r", "")
+	local lines = vim.split(msg, "\n")
 	while #lines > 1 and lines[#lines] == "" do
 		table.remove(lines, #lines)
 	end
@@ -26,7 +23,7 @@ function M.content_to_lines(content)
 	return lines
 end
 
-function M.clear_buffer(display)
+function M.clear_buf(display)
 	if vim.api.nvim_buf_is_loaded(M[display].buf) then
 		vim.bo[M[display].buf].modifiable = true
 		vim.api.nvim_buf_set_lines(M[display].buf, 0, -1, false, {})
@@ -34,15 +31,15 @@ function M.clear_buffer(display)
 	end
 end
 
-function M.init_buffer(display)
+function M.init_buf(display)
 	if vim.api.nvim_buf_is_loaded(M[display].buf) then
 		return
 	end
 	local buf = vim.api.nvim_create_buf(false, true)
-	vim.bo[buf].filetype = "MsgArea"
+	-- vim.bo[buf].filetype = "MsgArea"
 	vim.bo[buf].bufhidden = "wipe"
-	vim.api.nvim_buf_set_name(buf, "[MsgArea - " .. display .. "]")
 	vim.bo[buf].modifiable = false
+	vim.api.nvim_buf_set_name(buf, "[MsgArea - " .. display .. "]")
 	vim.keymap.set("n", "q", function()
 		vim.api.nvim_win_close(M[display].win, true)
 		M[display].win = -1
@@ -50,11 +47,11 @@ function M.init_buffer(display)
 	M[display].buf = buf
 end
 
-function M.init_window(display, height)
+function M.init_win(display, height)
 	if vim.api.nvim_win_is_valid(M[display].win) then
 		return
 	end
-	M.clear_buffer(display)
+	M.clear_buf(display)
 	M[display].win = vim.api.nvim_open_win(M[display].buf, true, { split = "below" })
 	-- getting the split to show at the bottom
 	vim.cmd("wincmd J")
@@ -69,8 +66,8 @@ function M.init_window(display, height)
 end
 
 function M.render_split(display, lines, clear)
-	M.init_buffer(display)
-	M.init_window(display, #lines)
+	M.init_buf(display)
+	M.init_win(display, #lines)
 	local start_line, end_line = 0, -1
 	if not clear then
 		local buf_lines = vim.api.nvim_buf_get_lines(M[display].buf, 0, -1, true)
@@ -83,25 +80,23 @@ function M.render_split(display, lines, clear)
 end
 
 function M.on_usr_msg(show_kind, lines)
-	local text = table.concat(lines, " ")
-	if text == "" then
+	local msg = table.concat(lines, "\n")
+	if msg == "" then
 		return
 	end
-	M.add_to_history(lines)
 	if show_kind == "echo" then
-		vim.notify(text, vim.log.levels.INFO)
+		vim.notify(msg, vim.log.levels.INFO)
 	else
-		vim.notify(text, vim.log.levels.ERROR)
+		vim.notify(msg, vim.log.levels.ERROR)
 	end
 end
 
 function M.on_history_show()
-	vim.api.nvim_input("<cr>")
 	if #M.history.messages == 0 then
-		vim.notify("Messages history is emtpy", vim.log.levels.INFO)
+		vim.notify("Messages history is empty", vim.log.levels.INFO)
 		return
 	end
-	M.render_split("history", M.history.messages, false)
+	M.render_split("history", M.history.messages, true)
 end
 
 function M.on_confirm(kind, lines)
@@ -137,9 +132,9 @@ function M.on_confirm(kind, lines)
 	vim.api.nvim_buf_set_lines(buf, 0, -1, false, text)
 	vim.schedule(function()
 		vim.api.nvim_win_close(M.confirm.win, true)
-		M.confirm_window = -1
+		M.confirm.win = -1
 	end)
-	vim.cmd("redraw")
+	vim.api.nvim__redraw({ flush = true, cursor = true })
 end
 
 function M.on_empty(lines)
@@ -181,14 +176,7 @@ function M.on_show(...)
 		return
 	elseif kind == "return_prompt" then
 		return vim.api.nvim_input("<cr>")
-	elseif
-		kind == "echo"
-		or kind == "emsg"
-		or kind == "echomsg"
-		or kind == "echoerr"
-		or kind == "lua_error"
-		or kind == "rpc_error"
-	then
+	elseif vim.tbl_contains({ "rpc_error", "lua_error", "echoerr", "echomsg", "emsg", "echo" }, kind) then
 		M.on_usr_msg(kind, lines)
 		return
 	elseif kind == "confirm" or kind == "confirm_sub" then
@@ -203,20 +191,14 @@ function M.handler(event, ...)
 		M.on_show(...)
 	elseif event == "msg_history_show" then
 		M.on_history_show()
-	else
-		-- ignore (showcmd, showmode, showruler, history_clear and msg_clear)
+	else -- ignore (showcmd, showmode, showruler, history_clear and msg_clear)
 		return
 	end
 end
 
-function M.notify(msg, log_level, opts)
-	if msg == vim.g.status_line_notify.message then
-		return
-	end
-	vim.g.status_line_notify = { message = msg, level = log_level }
-	vim.schedule(function()
-		vim.cmd("redrawstatus")
-	end)
+function M.add_to_history(msg)
+	local lines = vim.fn.split(msg, "\n")
+	M.history.messages = vim.iter({ M.history.messages, lines }):flatten():totable()
 end
 
 function M.attach()
@@ -229,14 +211,23 @@ function M.attach()
 	end)
 end
 
-function M.detach()
+function M.disable()
 	vim.ui_detach(M.namespace)
+	M.attached = false
 end
 
-function M.init()
-	vim.notify = M.notify
-	M.namespace = vim.api.nvim_create_namespace("Msg")
+function M.setup()
+	M.namespace = vim.api.nvim_create_namespace("messages")
 	M.attach()
+	M.attached = true
+end
+
+function M.toggle()
+	if M.attached then
+		M.disable()
+	else
+		M.setup()
+	end
 end
 
 return M
