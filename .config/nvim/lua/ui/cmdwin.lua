@@ -186,7 +186,7 @@ function M.reemit(mode)
 	M.mode = mode
 end
 
-function M.on_cmdline_show(...)
+function M.on_show(...)
 	if M.mode == "edit" then
 		M.render()
 		M.reemit("cmd")
@@ -207,19 +207,19 @@ function M.on_cmdline_show(...)
 	end
 end
 
-function M.on_cmdline_pos(...)
+function M.on_pos(...)
 	local pos, _ = ...
 	M.pos = pos
 	M.render()
 end
 
-function M.on_cmdline_special_char(...)
+function M.on_special_char(...)
 	local c, shift, level = ...
 	M.cmd = M.cmd:sub(1, M.pos) .. c .. M.cmd:sub(M.pos + 1)
 	M.render()
 end
 
-function M.on_cmdline_hide()
+function M.on_hide()
 	if M.mode == "edit" then
 		return
 	elseif M.mode == "cmd" or M.mode == "exit" then
@@ -231,15 +231,15 @@ end
 
 function M.handler(event, ...)
 	if event == "cmdline_show" then
-		M.on_cmdline_show(...)
+		M.on_show(...)
 	elseif event == "cmdline_pos" then
-		M.on_cmdline_pos(...)
+		M.on_pos(...)
 	elseif event == "cmdline_hide" then
-		M.on_cmdline_hide()
+		M.on_hide()
 	elseif event == "cmdline_special_char" then
-		M.on_cmdline_special_char(...)
+		M.on_special_char(...)
 	else
-		-- TODO: (cmdline_special_char, cmdline_block_show, cmdline_block_append and cmdline_block_hide)
+		-- ignore: (cmdline_block_show, cmdline_block_append and cmdline_block_hide)
 		return
 	end
 end
