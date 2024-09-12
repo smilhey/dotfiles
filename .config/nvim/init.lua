@@ -20,5 +20,5 @@ if vim.g.neovide then
 end
 
 require("functions")
-require("config")
 require("ui")
+require("config")
