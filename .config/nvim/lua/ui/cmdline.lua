@@ -60,8 +60,11 @@ end
 function M.resize_win()
 	local width = math.max(M.size, M.win_opts.width)
 	local col = math.ceil((vim.o.columns - width) / 2)
-	if width ~= M.win_opts.width or col ~= M.win_opts.col then
-		vim.api.nvim_win_set_config(M.win, { relative = "editor", width = width, col = col, row = M.win_opts.row })
+	if width ~= M.win_opts.width or col ~= M.win_opts.col or M.block ~= 0 then
+		vim.api.nvim_win_set_config(
+			M.win,
+			{ relative = "editor", width = width, height = M.block, col = col, row = M.win_opts.row }
+		)
 	end
 end
 
@@ -86,8 +89,8 @@ end
 
 function M.render()
 	M.init_buf()
-	local cmd_prompt = (" "):rep(M.indent) .. M.firstc .. M.prompt
-	vim.api.nvim_buf_set_lines(M.buf, 0, -1, false, { M.cmd })
+	local cmd_prompt = M.firstc .. (" "):rep(M.indent) .. M.prompt
+	vim.api.nvim_buf_set_lines(M.buf, -2, -1, false, { M.cmd })
 	if not vim.api.nvim_win_is_valid(M.win) then
 		vim.api.nvim_buf_set_extmark(
 			M.buf,
@@ -125,8 +128,27 @@ function M.on_cmdline_pos(...)
 	M.render()
 end
 
+function M.on_cmdline_special_char(...)
+	local c, shift, level = ...
+	M.cmd = M.cmd:sub(1, M.pos) .. c .. M.cmd:sub(M.pos + 1)
+	M.render()
+end
+
 function M.on_cmdline_hide()
 	M.exit()
+end
+
+function M.on_cmdline_block_show(...)
+	local lines = unpack(...)
+	M.block = #lines + 1
+end
+
+function M.on_cmdline_block_append(...)
+	M.block = M.block + 1
+end
+
+function M.on_cmdline_block_hide()
+	M.block = 1
 end
 
 function M.handler(event, ...)
@@ -136,9 +158,14 @@ function M.handler(event, ...)
 		M.on_cmdline_pos(...)
 	elseif event == "cmdline_hide" then
 		M.on_cmdline_hide()
-	else
-		-- ignore (cmdline_special_char, cmdline_block_show, cmdline_block_append and cmdline_block_hide)
-		return
+	elseif event == "cmdline_special_char" then
+		M.on_cmdline_special_char(...)
+	elseif event == "cmdline_block_show" then
+		M.on_cmdline_block_show(...)
+	elseif event == "cmdline_block_append" then
+		M.on_cmdline_block_append(...)
+	elseif event == "cmdline_block_hide" then
+		M.on_cmdline_block_hide()
 	end
 end
 

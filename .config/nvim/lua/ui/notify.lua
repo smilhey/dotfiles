@@ -47,7 +47,8 @@ function M.init_win()
 			focusable = false,
 			style = "minimal",
 			-- border = { "┏", "━", "┓", "┃", "┛", "━", "┗", "┃" },
-			border = { "┏", "━", "━", " ", " ", " ", "┃", "┃" },
+			-- border = { "┏", "━", "━", " ", " ", " ", "┃", "┃" },
+			border = "single",
 			zindex = 60,
 		})
 	end
@@ -90,6 +91,7 @@ function M.clear()
 end
 
 function M.notify(msg, log_level, opts)
+	log_level = log_level and log_level or 3
 	if msg == "" then
 		M.clear()
 		return
