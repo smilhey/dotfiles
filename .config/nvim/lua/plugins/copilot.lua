@@ -18,6 +18,7 @@ return {
 						height = 0.85,
 						row = 1,
 						col = 90,
+						zindex = 50,
 					},
 				})
 			end, { desc = "Launch Copilot Chat" })

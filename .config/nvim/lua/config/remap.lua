@@ -3,20 +3,6 @@ vim.keymap.set("n", "<leader><leader>l", "<cmd>luafile %<CR>", { desc = "Run wit
 
 vim.keymap.set("n", "<leader><leader>s", "<cmd>source<CR>", { desc = "Source current file" })
 
-vim.keymap.set("n", "<C-e>", function()
-	local result = vim.inspect_pos()
-	local hl_ts = unpack(result.treesitter) and vim.inspect(unpack(result.treesitter).hl_group) or "nil"
-	local hl_sx = unpack(result.syntax) and vim.inspect(unpack(result.syntax).hl_group) or "nil"
-	local hl_st = unpack(result.semantic_tokens) and vim.inspect(unpack(result.semantic_tokens).opts.hl_group) or "nil"
-	local print_result = ""
-	for k, v in pairs({ ["Treesitter: "] = hl_ts, ["Syntax: "] = hl_sx, ["Semantic :"] = hl_st }) do
-		print_result = v ~= "nil" and print_result .. k .. v .. " " or print_result
-	end
-	print_result = print_result ~= "" and print_result or "No highlight group found"
-	print(print_result)
-end, { noremap = true, silent = true, desc = "Get hl group at cursor" })
-vim.keymap.set("i", "<A-BS>", "<C-w>", { desc = "Delete previous word in Insert mode ", silent = true })
-
 -- wezterm integration
 local function switch_pane(direction)
 	local current_window = vim.api.nvim_get_current_win()
@@ -65,16 +51,20 @@ vim.keymap.set(
 )
 
 -- using cmdwindow as default
-vim.keymap.set({ "n", "v" }, ":", "q:", { desc = "Switching cmdwin and cmdline" })
-vim.keymap.set({ "n", "v" }, "?", "q?", { desc = "Switching cmdwin and cmdline" })
-vim.keymap.set({ "n", "v" }, "/", "q/", { desc = "Switching cmdwin and cmdline" })
-vim.keymap.set({ "n", "v" }, "!", "!<C-f>", { desc = "Switching cmdwin and cmdline" })
-
-vim.keymap.set({ "n", "v" }, "q:", ":", { desc = "Switching cmdwin and cmdline" })
-vim.keymap.set({ "n", "v" }, "q?", "?", { desc = "Switching cmdwin and cmdline" })
-vim.keymap.set({ "n", "v" }, "q/", "/", { desc = "Switching cmdwin and cmdline" })
-
--- vim.keymap.set("n", "<leader>pv", vim.cmd.Ex)
+-- vim.keymap.set({ "n", "v" }, ":", "q:", { desc = "Switching cmdwin and cmdline" })
+-- vim.keymap.set({ "n", "v" }, "?", "q?", { desc = "Switching cmdwin and cmdline" })
+-- vim.keymap.set({ "n", "v" }, "/", "q/", { desc = "Switching cmdwin and cmdline" })
+-- vim.keymap.set({ "n", "v" }, "!", "!<C-f>", { desc = "Switching cmdwin and cmdline" })
+--
+-- vim.keymap.set({ "n", "v" }, "q:", ":", { desc = "Switching cmdwin and cmdline" })
+-- vim.keymap.set({ "n", "v" }, "q?", "?", { desc = "Switching cmdwin and cmdline" })
+-- vim.keymap.set({ "n", "v" }, "q/", "/", { desc = "Switching cmdwin and cmdline" })
+vim.keymap.set("n", "<leader>:", function()
+	vim.api.nvim_input(":")
+	vim.api.nvim_input("=")
+	-- vim.api.nvim_feedkeys(":", "n", true)
+	-- vim.api.nvim_feedkeys("=", "n", true)
+end, { desc = "Switching cmdwin and cmdline" })
 
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move line up" })
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move line down" })
@@ -98,3 +88,17 @@ vim.keymap.set(
 )
 
 vim.keymap.set("n", "<A-Tab>", "gt", { desc = "Switch to next tab" })
+
+vim.keymap.set("n", "<C-e>", function()
+	local result = vim.inspect_pos()
+	local hl_ts = unpack(result.treesitter) and vim.inspect(unpack(result.treesitter).hl_group) or "nil"
+	local hl_sx = unpack(result.syntax) and vim.inspect(unpack(result.syntax).hl_group) or "nil"
+	local hl_st = unpack(result.semantic_tokens) and vim.inspect(unpack(result.semantic_tokens).opts.hl_group) or "nil"
+	local print_result = ""
+	for k, v in pairs({ ["Treesitter: "] = hl_ts, ["Syntax: "] = hl_sx, ["Semantic :"] = hl_st }) do
+		print_result = v ~= "nil" and print_result .. k .. v .. " " or print_result
+	end
+	print_result = print_result ~= "" and print_result or "No highlight group found"
+	print(print_result)
+end, { noremap = true, silent = true, desc = "Get hl group at cursor" })
+vim.keymap.set("i", "<A-BS>", "<C-w>", { desc = "Delete previous word in Insert mode ", silent = true })

@@ -1,7 +1,7 @@
 require("config.ui.colorscheme")()
 
 vim.api.nvim_set_hl(0, "Cursor", { link = "Todo" })
-vim.opt.guicursor = "a:block-blinkon0,i:Cursor,r-cr-o:hor20"
+vim.opt.guicursor = "a:block-blinkon0,i:Cursor,r-cr-o:hor20,c:Cursor,ci:Cursor,cr:Cursor"
 vim.g.mapleader = " "
 
 vim.opt.termguicolors = true
@@ -22,8 +22,9 @@ vim.opt.fillchars = {
 	vertleft = "┫",
 	vertright = "┣",
 }
+vim.opt.list = true
 
-vim.opt.wildoptions = "tagfile"
+-- vim.opt.wildoptions = "tagfile"
 vim.opt.laststatus = 3
 vim.opt.cmdheight = 0
 vim.opt.cmdwinheight = 2
@@ -45,7 +46,6 @@ vim.env.PATH = vim.env.PATH
 	.. ":/home/smilhey/.local/bin"
 	.. ":/home/smilhey/.zig"
 	.. ":/home/smilhey/.cargo/bin"
-	.. ":/home/smilhey/.emacs.d/bin/"
 
 vim.opt.autochdir = false
 vim.opt.smartcase = true
@@ -61,7 +61,7 @@ vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
 vim.opt.smartindent = true
--- vim.opt.smoothscroll = true
+vim.opt.smoothscroll = true
 vim.opt.wrap = true
 
 vim.opt.swapfile = false
@@ -70,7 +70,7 @@ vim.opt.undofile = true
 
 vim.opt.hlsearch = false
 vim.opt.incsearch = true
-vim.opt.inccommand = "split"
+vim.opt.inccommand = "nosplit"
 
 vim.opt.scrolloff = 8
 vim.opt.signcolumn = "yes"
@@ -81,6 +81,7 @@ vim.opt.clipboard = "unnamedplus"
 vim.opt.spelllang = "en_us,fr"
 vim.opt.spell = false
 
+vim.opt.completeopt = "menuone,popup,noinsert,fuzzy"
 -- habamax colorscheme
 
 -- vim.cmd("colorscheme habamax")

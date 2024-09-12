@@ -7,13 +7,13 @@ local RIGHT_BRACE = "›"
 
 function _G.Statusline_Getmode()
 	local mode_table = {
-		n = { mode = "NORMAL", highlight = "StatusLine" },
+		n = { mode = "NORMAL", highlight = "Search" },
 		v = { mode = "VISUAL", highlight = "Visual" },
 		V = { mode = "VISUAL", highlight = "Visual" },
 		["\22"] = { mode = "VISUAL", highlight = "Visual" },
 		s = { mode = "SELECT", highlight = "HighlightSelect" },
 		i = { mode = "INSERT", highlight = "Todo" },
-		R = { mode = "REPLACE", highlight = "Search" },
+		R = { mode = "REPLACE", highlight = "Keyword" },
 		t = { mode = "TERMINAL", highlight = "Cursor" },
 		c = { mode = "COMMAND", highlight = "FloatShadow" },
 	}
@@ -33,7 +33,7 @@ function _G.Statusline_Getmode()
 end
 
 function _G.Statusline_DiagnosticStatus()
-	if not vim.diagnostic.is_disabled() then
+	if vim.diagnostic.is_enabled() then
 		local diagnostics_counts = {}
 		for prefix, severity in pairs({
 			E = vim.diagnostic.severity.ERROR,
