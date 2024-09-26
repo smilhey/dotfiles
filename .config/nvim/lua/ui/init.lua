@@ -21,7 +21,7 @@ popupmenu.setup({})
 cmdwin.setup()
 scrollbar.setup()
 notify.setup()
-lsp_progress.setup()
+-- lsp_progress.setup()
 -- cmdline.setup()
 
 local function ui_cmd(args)

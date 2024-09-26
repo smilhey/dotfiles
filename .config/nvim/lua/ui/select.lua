@@ -26,6 +26,7 @@ local function win_select(items, opts, on_choice, win_opts)
 	}
 	win_opts = vim.tbl_deep_extend("force", default_win_opts, win_opts)
 	local win = vim.api.nvim_open_win(buf, true, win_opts)
+	vim.cmd("stopinsert")
 	vim.wo[win].winhighlight = "lCursor:"
 	vim.wo[win].signcolumn = "no"
 	vim.wo[win].cursorline = true
@@ -36,8 +37,10 @@ local function win_select(items, opts, on_choice, win_opts)
 	vim.keymap.set("n", "q", "<cmd>close!<CR>", { noremap = true, nowait = true, buffer = buf })
 	vim.keymap.set("n", "<CR>", function()
 		local choice = items[vim.api.nvim_win_get_cursor(win)[1]]
-		on_choice(choice)
 		vim.api.nvim_win_close(win, true)
+		vim.schedule(function()
+			on_choice(choice)
+		end)
 	end, { buffer = buf, noremap = true, nowait = true })
 end
 
