@@ -39,7 +39,7 @@
 
 vim.api.nvim_create_autocmd("BufEnter", {
 	group = vim.api.nvim_create_augroup("codeblocks_namespace", { clear = true }),
-	pattern = { "*.md", "*.Rmd" },
+	pattern = { "*.md", "*.Rmd", "*.ipynb" },
 	callback = function()
 		local _, code_query = pcall(
 			vim.treesitter.query.parse,
@@ -54,9 +54,10 @@ vim.api.nvim_create_autocmd("BufEnter", {
 			local syntax_tree = language_tree:parse()
 			local root = syntax_tree[1]:root()
 			for _, match in query:iter_matches(root, bufnr) do
-				for id, node in pairs(match) do
+				for id, nodes in pairs(match) do
 					local capture = query.captures[id]
 					if capture == "codeblock" then
+						local node = nodes[#nodes]
 						local start_row, _, end_row, _ = node:range()
 						vim.api.nvim_buf_set_extmark(
 							bufnr,

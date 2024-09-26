@@ -78,9 +78,10 @@ return {
 			local tree = parser:parse()
 			local root = tree[1]:root()
 			for _, match in query:iter_matches(root, bufnr) do
-				for id, node in pairs(match) do
-					local capture = query.captures[id]
-					if capture == "codeblock" then
+				for id, nodes in pairs(match) do
+					local name = query.captures[id]
+					if name == "codeblock" then
+						local node = nodes[#nodes]
 						local start_row, _, end_row, _ = node:range()
 						vim.fn.MoltenEvaluateRange(start_row + 1, end_row)
 					end
