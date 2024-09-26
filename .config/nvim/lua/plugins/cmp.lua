@@ -31,7 +31,6 @@ return {
 				format = lspkind.cmp_format({
 					with_text = true,
 					menu = {
-						otter = "[LSPo]",
 						path = "[path]",
 						copilot = "",
 						buffer = "[buf]",
@@ -40,7 +39,6 @@ return {
 				}),
 			},
 			sources = {
-				{ name = "otter" },
 				{ name = "nvim_lsp" },
 				{ name = "copilot" },
 				{ name = "path" },
