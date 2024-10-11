@@ -1,3 +1,4 @@
+local tabline = require("ui.tab")
 local messages = require("ui.messages")
 local cmdwin = require("ui.cmdwin")
 local cmdline = require("ui.cmdline")
@@ -16,17 +17,19 @@ vim.ui.select = function(items, opts, on_choice)
 	win_select(items, opts, on_choice, {})
 end
 
+tabline.setup()
 messages.setup()
 popupmenu.setup({})
 cmdwin.setup()
+-- cmdline.setup()
 scrollbar.setup()
 notify.setup()
 -- lsp_progress.setup()
--- cmdline.setup()
 
 local function ui_cmd(args)
 	local ui_element = args.fargs[1]
 	if ui_element == "cmdline" then
+		-- cmdline.toggle()
 		cmdwin.toggle()
 	elseif ui_element == "popupmenu" then
 		popupmenu.toggle()
@@ -36,13 +39,15 @@ local function ui_cmd(args)
 		scrollbar.toggle()
 	elseif ui_element == "notify" then
 		notify.toggle()
+	elseif ui_element == "tabline" then
+		tabline.toggle()
 	else
 		vim.notify("No function arguments provided", vim.log.levels.WARN)
 	end
 end
 
 local function ui_cmd_complete(ArgLead, _)
-	local items = { "cmdline", "popupmenu", "messages", "scrollbar", "notify" }
+	local items = { "cmdline", "popupmenu", "messages", "scrollbar", "notify", "tabline" }
 	local completion_list = vim.tbl_filter(function(v)
 		return string.find(v, "^" .. ArgLead) ~= nil
 	end, items)
