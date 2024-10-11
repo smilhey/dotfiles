@@ -25,15 +25,25 @@ local function zen()
 	local current_window = vim.api.nvim_get_current_win()
 	local scratch_buffer = vim.api.nvim_create_buf(false, true)
 	vim.bo[scratch_buffer].filetype = "Zen"
+	vim.bo[scratch_buffer].modifiable = false
+	vim.bo[scratch_buffer].buftype = "nofile"
+	vim.bo[scratch_buffer].bufhidden = "wipe"
+	vim.bo[scratch_buffer].swapfile = false
+	vim.bo[scratch_buffer].buflisted = false
+	vim.bo[scratch_buffer].undolevels = -1
 	local left_pane = vim.api.nvim_open_win(scratch_buffer, true, {
 		split = "left",
 		style = "minimal",
+		focusable = false,
 	})
 	vim.api.nvim_set_current_win(current_window)
 	local right_pane = vim.api.nvim_open_win(scratch_buffer, true, {
 		split = "right",
 		style = "minimal",
+		focusable = false,
 	})
+	vim.wo[right_pane].signcolumn = "no"
+	vim.wo[left_pane].signcolumn = "no"
 	vim.api.nvim_set_current_win(current_window)
 	vim.api.nvim_win_set_width(left_pane, 30)
 	vim.api.nvim_win_set_width(right_pane, 30)
