@@ -1,4 +1,4 @@
-local M = { scrollbars = {}, ns = nil }
+local M = { scrollbars = {}, ns = nil, opts = { debounce = 100 } }
 
 function M.bwin_get_config(win)
 	local win_config = vim.api.nvim_win_get_config(win)
@@ -25,8 +25,6 @@ end
 
 function M.bbuf_create()
 	local bbuf = vim.api.nvim_create_buf(false, true)
-	vim.bo[bbuf].bufhidden = "wipe"
-	vim.bo[bbuf].buftype = "nofile"
 	local fill = {}
 	for _ = 1, vim.o.lines do
 		table.insert(fill, " ")
@@ -50,28 +48,20 @@ function M.sb_render(ns, win, bwin)
 	local thumb_size = math.ceil(bwin_height / total_lines * bwin_height)
 	thumb_pos = math.max(1, math.min(thumb_pos, bwin_height - thumb_size + 1))
 	vim.api.nvim_buf_clear_namespace(bbuf, ns, 0, -1)
-	for i = 1, bwin_height do
-		-- local hl_group = (i >= thumb_pos and i < thumb_pos + thumb_size) and "SbarThumb" or "Sbar"
-		local hl_group = (i >= thumb_pos and i < thumb_pos + thumb_size) and "PmenuThumb" or "PmenuSbar"
-		vim.api.nvim_buf_set_extmark(bbuf, ns, i - 1, 0, {
-			virt_text = { { " ", hl_group } },
-			virt_text_pos = "overlay",
-		})
-	end
+	vim.highlight.range(bbuf, ns, "PmenuSbar", { 0, 0 }, { thumb_pos - 1, 0 })
+	vim.highlight.range(bbuf, ns, "PmenuThumb", { thumb_pos - 1, 0 }, { thumb_pos + thumb_size - 1, 0 })
+	vim.highlight.range(bbuf, ns, "PmenuSbar", { thumb_pos + thumb_size - 1, 0 }, { total_lines, 0 })
 end
 
 function M.sb_show(win)
-	local buf = vim.api.nvim_win_get_buf(win)
-	if vim.bo[buf].buftype == "help" then
-		return true
-	end
-	if vim.bo[buf].buftype == "prompt" then
+	local buf
+	if vim.api.nvim_win_is_valid(win) then
+		buf = vim.api.nvim_win_get_buf(win)
+	else
 		return false
 	end
-	if vim.bo[buf].buftype == "nofile" then
-		return false
-	end
-	if vim.fn.win_gettype(win) ~= "" then
+	local buftype = vim.bo[buf].buftype
+	if buftype:match("nofile") or buftype:match("prompt") or vim.fn.win_gettype(win) ~= "" then
 		return false
 	end
 	return true
@@ -90,12 +80,9 @@ function M.sb_create(win)
 end
 
 function M.sb_update(ns, win, bwin)
-	if not vim.api.nvim_win_is_valid(bwin) or not vim.api.nvim_win_is_valid(win) then
+	if not vim.api.nvim_win_is_valid(bwin) or not M.sb_show(win) then
 		M.sb_del(bwin)
-		return
-	end
-	if not M.sb_show(win) then
-		M.sb_del(bwin)
+		M.scrollbars[win] = nil
 		return
 	end
 	local bwin_config = M.bwin_get_config(win)
@@ -105,17 +92,26 @@ end
 
 function M.update()
 	local wins = vim.tbl_filter(function(win)
-		return M.sb_show(win) and not M.scrollbars[win] and not vim.tbl_contains(M.scrollbars, win)
+		return M.sb_show(win) and not M.scrollbars[win]
 	end, vim.api.nvim_list_wins())
 	for _, win in ipairs(wins) do
 		M.scrollbars[win] = M.sb_create(win)
 	end
 	for win, bwin in pairs(M.scrollbars) do
 		M.sb_update(M.ns, win, bwin)
-		local valid = vim.api.nvim_win_is_valid(win) and vim.api.nvim_win_is_valid(bwin)
-		if not valid then
-			M.scrollbars[win] = nil
-		end
+	end
+end
+
+function M.debounced_update()
+	if M.timer then
+		return
+	else
+		M.timer = vim.uv.new_timer()
+		M.timer:start(M.opts.debounce, 0, function()
+			M.timer:close()
+			M.timer = nil
+			vim.schedule(M.update)
+		end)
 	end
 end
 
@@ -137,7 +133,7 @@ function M.setup()
 	M.augroup = vim.api.nvim_create_augroup("scrollbar", { clear = true })
 	vim.api.nvim_create_autocmd({ "WinScrolled" }, {
 		group = M.augroup,
-		callback = vim.schedule_wrap(M.update),
+		callback = M.debounced_update,
 	})
 	M.enabled = true
 end
