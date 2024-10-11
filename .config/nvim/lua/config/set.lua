@@ -1,4 +1,5 @@
-require("config.ui.colorscheme")()
+local apply_colorscheme = require("config.ui.colorscheme")
+-- apply_colorscheme()
 
 vim.api.nvim_set_hl(0, "Cursor", { link = "Todo" })
 vim.opt.guicursor = "a:block-blinkon0,i:Cursor,r-cr-o:hor20,c:Cursor,ci:Cursor,cr:Cursor"
@@ -26,7 +27,7 @@ vim.opt.list = true
 
 -- vim.opt.wildoptions = "tagfile"
 vim.opt.laststatus = 3
-vim.opt.cmdheight = 0
+vim.opt.cmdheight = 1
 vim.opt.cmdwinheight = 2
 vim.opt.showcmd = false
 vim.opt.showcmdloc = "statusline"
@@ -80,8 +81,11 @@ vim.opt.clipboard = "unnamedplus"
 
 vim.opt.spelllang = "en_us,fr"
 vim.opt.spell = false
-
 vim.opt.completeopt = "menuone,popup,noinsert,fuzzy"
+
+vim.opt.jumpoptions = { "clean", "stack" }
+vim.opt.conceallevel = 2
+
 -- habamax colorscheme
 
 -- vim.cmd("colorscheme habamax")

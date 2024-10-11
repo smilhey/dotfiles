@@ -37,18 +37,6 @@ end, { desc = "Move to the right pane", silent = true })
 
 vim.keymap.set("n", "L", "<cmd>bnext<CR>", { desc = "Next Buffer", silent = true })
 vim.keymap.set("n", "H", "<cmd>bprev<CR>", { desc = "Previous Buffer", silent = true })
-vim.keymap.set(
-	"n",
-	"]q",
-	"<cmd>try | cnext | catch | cfirst | catch | endtry<CR><CR>",
-	{ desc = "quickfix next", silent = true }
-)
-vim.keymap.set(
-	"n",
-	"[q",
-	"<cmd>try | cprev | catch | clast | catch | endtry<CR><CR>",
-	{ desc = "quickfix previous", silent = true }
-)
 
 -- using cmdwindow as default
 -- vim.keymap.set({ "n", "v" }, ":", "q:", { desc = "Switching cmdwin and cmdline" })
@@ -64,7 +52,7 @@ vim.keymap.set("n", "<leader>:", function()
 	vim.api.nvim_input("=")
 	-- vim.api.nvim_feedkeys(":", "n", true)
 	-- vim.api.nvim_feedkeys("=", "n", true)
-end, { desc = "Switching cmdwin and cmdline" })
+end, { desc = "lua evaluate" })
 
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move line up" })
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move line down" })
@@ -87,8 +75,6 @@ vim.keymap.set(
 	{ desc = "Substitute word under cursor" }
 )
 
-vim.keymap.set("n", "<A-Tab>", "gt", { desc = "Switch to next tab" })
-
 vim.keymap.set("n", "<C-e>", function()
 	local result = vim.inspect_pos()
 	local hl_ts = unpack(result.treesitter) and vim.inspect(unpack(result.treesitter).hl_group) or "nil"
@@ -101,4 +87,5 @@ vim.keymap.set("n", "<C-e>", function()
 	print_result = print_result ~= "" and print_result or "No highlight group found"
 	print(print_result)
 end, { noremap = true, silent = true, desc = "Get hl group at cursor" })
+
 vim.keymap.set("i", "<A-BS>", "<C-w>", { desc = "Delete previous word in Insert mode ", silent = true })

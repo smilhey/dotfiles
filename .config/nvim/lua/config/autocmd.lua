@@ -37,46 +37,46 @@
 -- 	end,
 -- })
 
-vim.api.nvim_create_autocmd("BufEnter", {
-	group = vim.api.nvim_create_augroup("codeblocks_namespace", { clear = true }),
-	pattern = { "*.md", "*.Rmd", "*.ipynb" },
-	callback = function()
-		local _, code_query = pcall(
-			vim.treesitter.query.parse,
-			"markdown",
-			[[
-                (code_fence_content)  @codeblock
-            ]]
-		)
-
-		local function dim_codeblocks(bufnr, query)
-			local language_tree = vim.treesitter.get_parser(bufnr, "markdown")
-			local syntax_tree = language_tree:parse()
-			local root = syntax_tree[1]:root()
-			for _, match in query:iter_matches(root, bufnr) do
-				for id, nodes in pairs(match) do
-					local capture = query.captures[id]
-					if capture == "codeblock" then
-						local node = nodes[#nodes]
-						local start_row, _, end_row, _ = node:range()
-						vim.api.nvim_buf_set_extmark(
-							bufnr,
-							vim.api.nvim_create_namespace("codeblocks_namespace"),
-							start_row,
-							0,
-							{
-								end_row = end_row,
-								hl_group = "CursorColumn",
-								hl_eol = true,
-							}
-						)
-					end
-				end
-			end
-		end
-		dim_codeblocks(0, code_query)
-	end,
-})
+-- vim.api.nvim_create_autocmd("BufEnter", {
+-- 	group = vim.api.nvim_create_augroup("codeblocks_namespace", { clear = true }),
+-- 	pattern = { "*.md", "*.Rmd", "*.ipynb" },
+-- 	callback = function()
+-- 		local _, code_query = pcall(
+-- 			vim.treesitter.query.parse,
+-- 			"markdown",
+-- 			[[
+--                 (code_fence_content)  @codeblock
+--             ]]
+-- 		)
+--
+-- 		local function dim_codeblocks(bufnr, query)
+-- 			local language_tree = vim.treesitter.get_parser(bufnr, "markdown")
+-- 			local syntax_tree = language_tree:parse()
+-- 			local root = syntax_tree[1]:root()
+-- 			for _, match in query:iter_matches(root, bufnr) do
+-- 				for id, nodes in pairs(match) do
+-- 					local capture = query.captures[id]
+-- 					if capture == "codeblock" then
+-- 						local node = nodes[#nodes]
+-- 						local start_row, _, end_row, _ = node:range()
+-- 						vim.api.nvim_buf_set_extmark(
+-- 							bufnr,
+-- 							vim.api.nvim_create_namespace("codeblocks_namespace"),
+-- 							start_row,
+-- 							0,
+-- 							{
+-- 								end_row = end_row,
+-- 								hl_group = "CursorColumn",
+-- 								hl_eol = true,
+-- 							}
+-- 						)
+-- 					end
+-- 				end
+-- 			end
+-- 		end
+-- 		dim_codeblocks(0, code_query)
+-- 	end,
+-- })
 
 vim.api.nvim_create_autocmd("TextYankPost", {
 	group = vim.api.nvim_create_augroup("HighlightOnYank", { clear = true }),
@@ -104,10 +104,7 @@ vim.api.nvim_create_autocmd({ "TermEnter" }, {
 	end,
 })
 
-local status_group = vim.api.nvim_create_augroup("StatusDisappear", { clear = true })
-
 vim.api.nvim_create_autocmd("CmdwinEnter", {
-	group = status_group,
 	callback = function()
 		vim.cmd("startinsert")
 	end,
@@ -140,13 +137,32 @@ vim.api.nvim_create_autocmd("Filetype", {
 	end,
 })
 
+vim.api.nvim_create_autocmd("CmdlineEnter", {
+	pattern = "/,?",
+	callback = function()
+		local cmdtype = vim.fn.getcmdtype()
+		if cmdtype:match("/") or cmdtype:match("?") then
+			vim.opt.hlsearch = true
+		end
+	end,
+})
+
+vim.api.nvim_create_autocmd("CmdlineLeave", {
+	callback = function()
+		local cmdtype = vim.fn.getcmdtype()
+		if cmdtype:match("/") or cmdtype:match("?") then
+			vim.opt.hlsearch = false
+		end
+	end,
+})
+
 vim.api.nvim_create_autocmd("CmdwinEnter", {
 	callback = function()
 		vim.keymap.set(
 			"n",
 			"<C-c>",
 			"<cmd>close<CR>",
-			{ desc = "Close no file/temporary windows", silent = true, nowait = true, buffer = true }
+			{ desc = "Close cmdwin windows", silent = true, nowait = true, buffer = true }
 		)
 	end,
 })

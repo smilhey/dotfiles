@@ -29,7 +29,7 @@ end
 
 -- local timer = vim.uv.new_timer()
 -- timer:start(0, 500, vim.schedule_wrap(refresh_buf_marks))
-vim.api.nvim_create_autocmd("CursorMoved", { callback = refresh_buf_marks })
+vim.api.nvim_create_autocmd("CursorMoved", { callback = refresh_buf_marks, desc = "Putting marks in the gutter" })
 
 -- Now for global marks we want some visualisation
 
