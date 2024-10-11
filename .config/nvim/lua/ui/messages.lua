@@ -119,11 +119,10 @@ function M.on_confirm(kind, lines)
 		win_opts.height = #text - 1
 		table.remove(text, 1)
 	elseif kind == "confirm_sub" then
+		vim.opt.hlsearch = true
+		vim.api.nvim__redraw({ flush = true, cursor = true })
 		if vim.api.nvim_win_is_valid(M.confirm.win) then
 			return
-		else
-			-- folke trick to get the highlight to show on first replace
-			vim.api.nvim_input(" <bs>")
 		end
 	end
 	local buf = vim.api.nvim_create_buf(false, true)
@@ -133,6 +132,7 @@ function M.on_confirm(kind, lines)
 	vim.schedule(function()
 		vim.api.nvim_win_close(M.confirm.win, true)
 		M.confirm.win = -1
+		vim.opt.hlsearch = false
 	end)
 	vim.api.nvim__redraw({ flush = true, cursor = true })
 end
@@ -176,7 +176,7 @@ function M.on_show(...)
 		return
 	elseif kind == "return_prompt" then
 		return vim.api.nvim_input("<cr>")
-	elseif vim.tbl_contains({ "rpc_error", "lua_error", "echoerr", "echomsg", "emsg", "echo" }, kind) then
+	elseif vim.tbl_contains({ "rpc_error", "lua_error", "echoerr", "echomsg", "emsg", "echo", "wmsg" }, kind) then
 		M.on_usr_msg(kind, lines)
 		return
 	elseif kind == "confirm" or kind == "confirm_sub" then
@@ -203,11 +203,12 @@ end
 
 function M.attach()
 	vim.ui_attach(M.namespace, { ext_messages = true }, function(event, ...)
-		M.handler(event, ...)
 		if event:match("msg") ~= nil then
+			M.handler(event, ...)
 			return true
+		else
+			return false
 		end
-		return false
 	end)
 end
 

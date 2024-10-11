@@ -129,11 +129,12 @@ end
 
 function M.attach()
 	vim.ui_attach(M.namespace, { ext_popupmenu = true }, function(event, ...)
-		M.handler(event, ...)
 		if event:match("pop") ~= nil then
+			M.handler(event, ...)
 			return true
+		else
+			return false
 		end
-		return false
 	end)
 end
 

@@ -113,6 +113,9 @@ end
 
 function M.render()
 	M.init_buf()
+	if not M.firstc or not M.prompt then
+		return
+	end
 	local linenr = vim.api.nvim_buf_line_count(M.buf)
 	local cmd_prompt = M.firstc .. (" "):rep(M.indent) .. M.prompt
 	if not vim.api.nvim_win_is_valid(M.win) then
@@ -220,7 +223,11 @@ function M.on_special_char(...)
 end
 
 function M.on_hide()
-	if M.mode == "edit" then
+	-- You can't go to edit mode when in a prompt
+	if M.prompt and M.prompt ~= "" then
+		M.exit()
+		return
+	elseif M.mode == "edit" then
 		return
 	elseif M.mode == "cmd" or M.mode == "exit" then
 		M.exit()
@@ -239,18 +246,19 @@ function M.handler(event, ...)
 	elseif event == "cmdline_special_char" then
 		M.on_special_char(...)
 	else
-		-- ignore: (cmdline_block_show, cmdline_block_append and cmdline_block_hide)
+		-- ignore: (cmdline_block_show, cmdline_block_append and cmdline_block_hide)cmd
 		return
 	end
 end
 
 function M.attach()
 	vim.ui_attach(M.namespace, { ext_cmdline = true }, function(event, ...)
-		M.handler(event, ...)
 		if event:match("cmd") ~= nil then
+			M.handler(event, ...)
 			return true
+		else
+			return false
 		end
-		return false
 	end)
 end
 

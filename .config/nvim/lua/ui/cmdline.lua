@@ -171,11 +171,12 @@ end
 
 function M.attach()
 	vim.ui_attach(M.namespace, { ext_cmdline = true }, function(event, ...)
-		M.handler(event, ...)
 		if event:match("cmd") ~= nil then
+			M.handler(event, ...)
 			return true
+		else
+			return false
 		end
-		return false
 	end)
 end
 
