@@ -9,41 +9,57 @@ return {
 		vim.g.molten_auto_open_output = false
 		vim.g.molten_auto_image_popup = false
 		-- vim.g.molten_output_win_max_height = 20
+		vim.g.molten_enter_output_behavior = "open_and_enter"
 		if not vim.g.neovide then
 			vim.g.molten_image_provider = "image.nvim"
 		end
 	end,
 	config = function()
 		-- vim.api.nvim_set_hl(0, "MoltenVirtualText", { link = "Normal" })
-		vim.keymap.set(
-			"n",
-			"<space>ip",
-			":MoltenImagePopup<CR>",
-			{ silent = true, noremap = true, desc = "image popup molten" }
-		)
+		vim.keymap.set("n", "<space>ip", ":MoltenImagePopup<CR>", { silent = true, desc = "Open image with xdg-open" })
 		vim.keymap.set(
 			"v",
-			"<space>r",
+			"<space>e",
 			":<C-u>MoltenEvaluateVisual<CR>gv",
-			{ silent = true, noremap = true, desc = "evaluate visual selection" }
+			{ silent = true, desc = "Evaluate visual selection" }
 		)
+		-- vim.keymap.set(
+		-- 	"n",
+		-- 	"<space>e",
+		-- 	":MoltenEvaluateOperator<CR>",
+		-- 	{ silent = true, noremap = true, desc = "Evaluate operator" }
+		-- )
+		vim.keymap.set("n", "<space>e", function()
+			local curpos = vim.fn.getpos(".")
+			vim.cmd("MoltenEvaluateOperator")
+			vim.api.nvim_input("ib")
+			vim.schedule(function()
+				vim.fn.setpos(".", curpos)
+			end)
+		end, { silent = true, noremap = true, desc = "evaluate cell" })
 		vim.keymap.set(
 			"n",
 			"<space>rr",
 			":MoltenEvaluateLine<CR>",
-			{ silent = true, noremap = true, desc = "evaluate line" }
-		)
-		vim.keymap.set(
-			"n",
-			"<space>rc",
-			":MoltenReevaluateCell<CR>",
-			{ silent = true, noremap = true, desc = "re-evaluate cell" }
+			{ silent = true, noremap = true, desc = "Evaluate line" }
 		)
 		vim.keymap.set(
 			"n",
 			"<space>rd",
 			":MoltenDelete<CR>",
 			{ silent = true, noremap = true, desc = "molten delete cell" }
+		)
+		vim.keymap.set(
+			"n",
+			"<space>ri",
+			":MoltenInterrupt<CR>",
+			{ silent = true, noremap = true, desc = "molten insert cell" }
+		)
+		vim.keymap.set(
+			"n",
+			"<space>ra",
+			":MoltenEvaluateAll<CR>",
+			{ silent = true, noremap = true, desc = "Evaluate all code blocks" }
 		)
 		vim.keymap.set(
 			"n",
@@ -57,14 +73,6 @@ return {
 			":noautocmd MoltenEnterOutput<CR>",
 			{ silent = true, noremap = true, desc = "show/enter output" }
 		)
-		vim.keymap.set("n", "<space>e", function()
-			local curpos = vim.fn.getpos(".")
-			vim.cmd("MoltenEvaluateOperator")
-			vim.api.nvim_input("ib")
-			vim.schedule(function()
-				vim.fn.setpos(".", curpos)
-			end)
-		end, { silent = true, noremap = true, desc = "evaluate cell" })
 
 		function MoltenEvaluateAll()
 			local query

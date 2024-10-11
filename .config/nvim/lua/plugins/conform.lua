@@ -21,5 +21,16 @@ return {
 			},
 			-- format_after_save = { lsp_fallback = true },
 		})
+		require("conform").formatters.injected = {
+			options = {
+				ignore_errors = false,
+				lang_to_ext = {
+					latex = "tex",
+					markdown = "md",
+					python = "py",
+					lua = "lua",
+				},
+			},
+		}
 	end,
 }
