@@ -128,7 +128,7 @@ function M.render()
 		vim.api.nvim_buf_set_extmark(M.buf, M.namespace, linenr - 1, 0, {
 			right_gravity = false,
 			virt_text_pos = "inline",
-			virt_text = { { cmd_prompt, "Normal" } },
+			virt_text = { { cmd_prompt, "NormalFloat" } },
 		})
 	end
 	vim.api.nvim_buf_set_lines(M.buf, -2, -1, false, { M.cmd })
@@ -263,8 +263,8 @@ function M.attach()
 end
 
 function M.disable()
-	vim.keymap.del("c", "<esc>", { buffer = M.buf })
-	vim.keymap.del("c", "<c-c>", { buffer = M.buf })
+	vim.keymap.del("c", "<esc>")
+	vim.keymap.del("c", "<c-c>")
 	vim.ui_detach(M.namespace)
 	M.attached = false
 end
@@ -281,7 +281,7 @@ function M.toggle()
 	if M.attached then
 		M.disable()
 	else
-		M.attach()
+		M.setup()
 	end
 end
 

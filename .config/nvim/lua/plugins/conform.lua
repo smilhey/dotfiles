@@ -1,9 +1,11 @@
 return {
 	"stevearc/conform.nvim",
 	config = function()
-		require("conform").setup({
+		local conform = require("conform")
+		conform.setup({
 			formatters_by_ft = {
-				python = vim.fs.root(0, ".git") == nil and { "black" } or nil,
+				-- python = vim.fs.root(0, ".git") == nil and { "black" } or nil,
+				python = { "black" },
 				lua = { "stylua" },
 				c = { "clang_format" },
 				rust = { "rustfmt" },
@@ -13,6 +15,7 @@ return {
 				json = { "prettier" },
 				typst = { "typstfmt" },
 				markdown = { "prettier" },
+				["*"] = { "injected" },
 			},
 			format_on_save = {
 				-- These options will be passed to conform.format()
@@ -21,15 +24,9 @@ return {
 			},
 			-- format_after_save = { lsp_fallback = true },
 		})
-		require("conform").formatters.injected = {
+		conform.formatters.injected = {
 			options = {
 				ignore_errors = false,
-				lang_to_ext = {
-					latex = "tex",
-					markdown = "md",
-					python = "py",
-					lua = "lua",
-				},
 			},
 		}
 	end,

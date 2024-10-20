@@ -1,23 +1,23 @@
 return {
+	-- {
+	-- 	"zbirenbaum/copilot-cmp",
+	-- 	config = function()
+	-- 		require("copilot_cmp").setup()
+	-- 	end,
+	-- },
 	{
-		"zbirenbaum/copilot-cmp",
+		"zbirenbaum/copilot.lua",
+		cmd = "Copilot",
 		config = function()
-			require("copilot_cmp").setup()
+			require("copilot").setup({
+				-- suggestion = { enabled = true, keymap = { accept = "<M-;>" } },
+				suggestion = { enabled = false },
+				panel = { enabled = false },
+				filetypes = {
+					markdown = true,
+				},
+			})
 		end,
-		dependencies = {
-			"zbirenbaum/copilot.lua",
-			cmd = "Copilot",
-			config = function()
-				require("copilot").setup({
-					-- suggestion = { enabled = true, keymap = { accept = "<M-;>" } },
-					suggestion = { enabled = false },
-					panel = { enabled = false },
-					filetypes = {
-						markdown = true,
-					},
-				})
-			end,
-		},
 	},
 	{
 		"olimorris/codecompanion.nvim",
@@ -64,18 +64,28 @@ return {
 					},
 					chat = {
 						window = {
-							layout = "float",
-							relative = "editor",
+							layout = "buffer", -- float|vertical|horizontal|buffer
+							border = "single",
+							height = 0.8,
 							width = 0.45,
-							height = 0.85,
-							row = 1,
-							col = 90,
-							zindex = 50,
+							relative = "editor",
+							-- layout = "split",
+							-- relative = "editor",
+							-- width = 0.45,
+							-- height = 0.85,
+							-- row = 1,
+							-- col = 90,
+							-- zindex = 50,
 						},
 					},
 				},
 			})
-			vim.keymap.set({ "n", "v" }, "<leader>a", "<cmd>CodeCompanionToggle<cr>", { noremap = true, silent = true })
+			vim.keymap.set(
+				{ "n", "v" },
+				"<leader>a",
+				"<cmd>CodeCompanionChat Toggle<cr>",
+				{ noremap = true, silent = true }
+			)
 		end,
 	},
 }

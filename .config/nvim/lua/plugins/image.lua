@@ -29,5 +29,8 @@ return {
 		window_overlap_clear_ft_ignore = { "cmp_menu", "cmp_docs", "" },
 		hijack_file_patterns = { "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp" }, -- render image files as images when opened
 		kitty_method = "normal",
+
+		editor_only_render_when_focused = true,
+		tmux_show_only_in_active_window = true,
 	},
 }

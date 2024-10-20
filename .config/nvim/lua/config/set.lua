@@ -1,7 +1,6 @@
 local apply_colorscheme = require("config.ui.colorscheme")
 -- apply_colorscheme()
 
-vim.api.nvim_set_hl(0, "Cursor", { link = "Todo" })
 vim.opt.guicursor = "a:block-blinkon0,i:Cursor,r-cr-o:hor20,c:Cursor,ci:Cursor,cr:Cursor"
 vim.g.mapleader = " "
 
@@ -85,6 +84,7 @@ vim.opt.completeopt = "menuone,popup,noinsert,fuzzy"
 
 vim.opt.jumpoptions = { "clean", "stack" }
 vim.opt.conceallevel = 2
+vim.opt.splitright = true
 
 -- habamax colorscheme
 

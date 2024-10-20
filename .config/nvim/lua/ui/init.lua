@@ -2,7 +2,7 @@ local tabline = require("ui.tab")
 local messages = require("ui.messages")
 local cmdwin = require("ui.cmdwin")
 local cmdline = require("ui.cmdline")
-local popupmenu = require("ui.popupmenu")
+local pumenu = require("ui.pumenu")
 local win_input = require("ui.input")
 local win_select = require("ui.select")
 local scrollbar = require("ui.scrollbar")
@@ -19,11 +19,11 @@ end
 
 tabline.setup()
 messages.setup()
-popupmenu.setup({})
+pumenu.setup({})
 cmdwin.setup()
--- cmdline.setup()
 scrollbar.setup()
 notify.setup()
+-- cmdline.setup()
 -- lsp_progress.setup()
 
 local function ui_cmd(args)
@@ -32,7 +32,7 @@ local function ui_cmd(args)
 		-- cmdline.toggle()
 		cmdwin.toggle()
 	elseif ui_element == "popupmenu" then
-		popupmenu.toggle()
+		pumenu.toggle()
 	elseif ui_element == "messages" then
 		messages.toggle()
 	elseif ui_element == "scrollbar" then
