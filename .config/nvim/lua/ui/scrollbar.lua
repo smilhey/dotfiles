@@ -12,7 +12,7 @@ function M.bwin_get_config(win)
 		style = "minimal",
 		-- border = "single",
 		focusable = false,
-		zindex = 40,
+		zindex = 10,
 	}
 	return bwin_config
 end

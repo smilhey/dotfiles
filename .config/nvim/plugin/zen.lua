@@ -1,74 +1,56 @@
--- Function to create two vertical splits on each side of the current window with scratch buffers in them
-local state = {
-	opt = {
-		tabline = vim.opt.tabline,
-		laststatus = vim.opt.laststatus,
-		showtabline = vim.opt.showtabline,
-		number = vim.opt.number,
-		relativenumber = vim.opt.relativenumber,
-		signcolumn = vim.opt.signcolumn,
-		fillchars = vim.opt.fillchars,
-	},
-	opt_local = { winbar = vim.opt_local.winbar },
-	panes = {},
-	on = false,
-}
+local M = { enabled = false }
 
 local function zen()
-	if not vim.tbl_isempty(state.panes) then
-		for _, pane in ipairs(state.panes) do
-			vim.api.nvim_win_close(pane, true)
-		end
-		state.panes = {}
-		return
+	local zen_width = math.floor(vim.o.columns * 0.7)
+	local zen_col = math.floor(vim.o.columns * 0.15)
+	if not M.enabled then
+		local curr_buf = vim.api.nvim_get_current_buf()
+		M.bg_buf = vim.api.nvim_create_buf(false, true)
+		vim.bo[M.bg_buf].modifiable = false
+		vim.bo[M.bg_buf].buftype = "nofile"
+		vim.bo[M.bg_buf].bufhidden = "wipe"
+		M.bg_win = vim.api.nvim_open_win(M.bg_buf, false, {
+			relative = "editor",
+			width = vim.o.columns,
+			height = vim.o.lines,
+			col = 1,
+			row = 1,
+			style = "minimal",
+			zindex = 20,
+			focusable = false,
+		})
+		M.zen_win = vim.api.nvim_open_win(curr_buf, true, {
+			relative = "editor",
+			width = zen_width,
+			height = vim.o.lines,
+			col = zen_col,
+			row = 1,
+			style = "minimal",
+			zindex = 20,
+		})
+		M.autocmd = vim.api.nvim_create_autocmd("WinEnter", {
+			desc = "Zen",
+			callback = function()
+				local new_win = vim.api.nvim_get_current_win()
+				local is_float = vim.api.nvim_win_get_config(new_win).relative ~= ""
+				if is_float then
+					return
+				else
+					vim.api.nvim_del_autocmd(M.autocmd)
+					vim.api.nvim_win_close(M.bg_win, true)
+					if vim.api.nvim_win_is_valid(M.zen_win) then
+						vim.api.nvim_win_close(M.zen_win, true)
+					end
+					M.enabled = not M.enabled
+				end
+			end,
+		})
+	else
+		vim.api.nvim_del_autocmd(M.autocmd)
+		vim.api.nvim_win_close(M.bg_win, true)
+		vim.api.nvim_win_close(M.zen_win, true)
 	end
-	local current_window = vim.api.nvim_get_current_win()
-	local scratch_buffer = vim.api.nvim_create_buf(false, true)
-	vim.bo[scratch_buffer].filetype = "Zen"
-	vim.bo[scratch_buffer].modifiable = false
-	vim.bo[scratch_buffer].buftype = "nofile"
-	vim.bo[scratch_buffer].bufhidden = "wipe"
-	vim.bo[scratch_buffer].swapfile = false
-	vim.bo[scratch_buffer].buflisted = false
-	vim.bo[scratch_buffer].undolevels = -1
-	local left_pane = vim.api.nvim_open_win(scratch_buffer, true, {
-		split = "left",
-		style = "minimal",
-		focusable = false,
-	})
-	vim.api.nvim_set_current_win(current_window)
-	local right_pane = vim.api.nvim_open_win(scratch_buffer, true, {
-		split = "right",
-		style = "minimal",
-		focusable = false,
-	})
-	vim.wo[right_pane].signcolumn = "no"
-	vim.wo[left_pane].signcolumn = "no"
-	vim.api.nvim_set_current_win(current_window)
-	vim.api.nvim_win_set_width(left_pane, 30)
-	vim.api.nvim_win_set_width(right_pane, 30)
-	state.panes = { left_pane, right_pane }
+	M.enabled = not M.enabled
 end
 
-vim.api.nvim_create_user_command("Zen", zen, {})
-vim.keymap.set("n", "<leader>z", function()
-	zen()
-	if state.on then
-		for opt, value in pairs(state.opt) do
-			vim.opt[opt] = value
-		end
-		for opt, value in pairs(state.opt_local) do
-			vim.opt_local[opt] = value
-		end
-	else
-		vim.opt.signcolumn = "no"
-		vim.opt.number = false
-		vim.opt.relativenumber = false
-		vim.opt.tabline = ""
-		vim.opt.laststatus = 0
-		vim.opt.showtabline = 0
-		vim.opt_local.winbar = ""
-		vim.opt.fillchars = "eob: ,vert: "
-	end
-	state.on = not state.on
-end, { desc = "Zen" })
+vim.keymap.set("n", "<leader>z", zen, { desc = "Zen" })
