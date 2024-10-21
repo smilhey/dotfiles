@@ -29,7 +29,7 @@ local function auto_complete(buf, client_id)
 				return
 			else
 				timer = vim.uv.new_timer()
-				timer:start(10, 0, function()
+				timer:start(30, 0, function()
 					timer:stop()
 					timer:close()
 					vim.schedule(function()
@@ -76,7 +76,7 @@ local function show_complete_documentation(client, buf)
 					row = row,
 					col = col + width,
 					width = win_config.width < vim.o.columns - width - col and win_config.width
-						or vim.o.columns - width - col,
+						or vim.o.columns - width - col - 1,
 				})
 				if not vim.api.nvim_buf_is_valid(winData.bufnr) then
 					return
@@ -160,6 +160,7 @@ return {
 			Operator = "󰆕",
 			TypeParameter = "",
 		}
+
 		for kind, symbol in pairs(kind_symbols) do
 			local index = vim.lsp.protocol.CompletionItemKind[kind]
 			vim.lsp.protocol.CompletionItemKind[index] = symbol
