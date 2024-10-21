@@ -81,7 +81,7 @@ function M.init_win()
 		M.win = vim.api.nvim_open_win(M.buf, false, M.win_opts)
 		vim.wo[M.win].winfixbuf = true
 		vim.wo[M.win].virtualedit = "all,onemore"
-		vim.api.nvim_win_set_hl_ns(M.win, M.namespace)
+		vim.api.nvim_win_set_hl_ns(M.win, M.ns)
 		vim.api.nvim__redraw({ cursor = true, flush = true })
 	end
 	M.resize_win()
@@ -103,7 +103,7 @@ function M.set_history()
 	local history = M.get_history()
 	vim.api.nvim_buf_set_lines(M.buf, 0, -1, false, history)
 	for i = 1, #history do
-		vim.api.nvim_buf_set_extmark(M.buf, M.namespace, i - 1, 0, {
+		vim.api.nvim_buf_set_extmark(M.buf, M.ns, i - 1, 0, {
 			right_gravity = false,
 			virt_text_pos = "inline",
 			virt_text = { { M.firstc, "Normal" } },
@@ -125,7 +125,7 @@ function M.render()
 		-- empty line for extmark
 		vim.api.nvim_buf_set_lines(M.buf, -1, -1, false, { "" })
 		linenr = vim.api.nvim_buf_line_count(M.buf)
-		vim.api.nvim_buf_set_extmark(M.buf, M.namespace, linenr - 1, 0, {
+		vim.api.nvim_buf_set_extmark(M.buf, M.ns, linenr - 1, 0, {
 			right_gravity = false,
 			virt_text_pos = "inline",
 			virt_text = { { cmd_prompt, "NormalFloat" } },
@@ -252,7 +252,7 @@ function M.handler(event, ...)
 end
 
 function M.attach()
-	vim.ui_attach(M.namespace, { ext_cmdline = true }, function(event, ...)
+	vim.ui_attach(M.ns, { ext_cmdline = true }, function(event, ...)
 		if event:match("cmd") ~= nil then
 			M.handler(event, ...)
 			return true
@@ -265,12 +265,13 @@ end
 function M.disable()
 	vim.keymap.del("c", "<esc>")
 	vim.keymap.del("c", "<c-c>")
-	vim.ui_detach(M.namespace)
+	vim.ui_detach(M.ns)
 	M.attached = false
 end
 
 function M.setup()
-	M.namespace = vim.api.nvim_create_namespace("cmdline")
+	M.ns = vim.api.nvim_create_namespace("cmdline")
+	vim.api.nvim_set_hl(M.ns, "NormalFloat", { link = "MsgArea" })
 	vim.keymap.set("c", "<esc>", M.enter_edit, { desc = "Enter cmdline edit mode" })
 	vim.keymap.set("c", "<c-c>", M.enter_edit, { desc = "Enter cmdline edit mode" })
 	M.attach()

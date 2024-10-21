@@ -187,6 +187,7 @@ end
 
 function M.setup()
 	M.namespace = vim.api.nvim_create_namespace("cmdline")
+	vim.api.nvim_set_hl(M.ns, "NormalFloat", { link = "MsgArea" })
 	M.attach()
 	M.attached = true
 end
