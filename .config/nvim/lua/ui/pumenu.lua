@@ -89,6 +89,43 @@ function M.render_scrollbar()
 	end
 end
 
+function M.render_selected_line()
+	if M.selected == -1 then
+		return
+	end
+	if cmdwin.win ~= -1 then
+		vim.api.nvim_buf_set_extmark(M.buf, M.ns, M.selected, 0, { line_hl_group = "PmenuSel" })
+	else
+		local word, kind, menu = unpack(M.items[M.selected + 1])
+		vim.api.nvim_buf_set_extmark(
+			M.buf,
+			M.ns,
+			M.selected,
+			0,
+			{ end_col = #word, strict = false, hl_group = "PmenuSel" }
+		)
+		local has_kind = kind:sub(1, 1) ~= " "
+		local has_menu = menu:sub(1, 1) ~= " "
+		local hl_kind_sel = has_kind and "PmenuKindSel" or "PmenuSel"
+		local hl_menu_sel = has_menu and "PmenuExtraSel" or "PmenuSel"
+		vim.api.nvim_buf_set_extmark(
+			M.buf,
+			M.ns,
+			M.selected,
+			#word,
+			{ end_col = #kind + #word, hl_group = hl_kind_sel }
+		)
+		vim.api.nvim_buf_set_extmark(
+			M.buf,
+			M.ns,
+			M.selected,
+			#word + #kind,
+			{ end_col = #menu + #word + #kind, hl_group = hl_menu_sel }
+		)
+	end
+	vim.api.nvim_win_set_cursor(M.win, { M.selected + 1, 0 })
+end
+
 function M.render()
 	M.init_buffer()
 	M.init_window()
@@ -101,39 +138,7 @@ function M.render()
 			return item[1] .. item[2] .. item[3]
 		end, M.items)
 	)
-	if M.selected ~= -1 then
-		if cmdwin.win ~= -1 then
-			vim.api.nvim_buf_set_extmark(M.buf, M.ns, M.selected, 0, { line_hl_group = "PmenuSel" })
-		else
-			local word, kind, menu = unpack(M.items[M.selected + 1])
-			vim.api.nvim_buf_set_extmark(
-				M.buf,
-				M.ns,
-				M.selected,
-				0,
-				{ end_col = #word, strict = false, hl_group = "PmenuSel" }
-			)
-			local has_kind = kind:sub(1, 1) ~= " "
-			local has_menu = menu:sub(1, 1) ~= " "
-			local hl_kind_sel = has_kind and "PmenuKindSel" or "PmenuSel"
-			local hl_menu_sel = has_menu and "PmenuExtraSel" or "PmenuSel"
-			vim.api.nvim_buf_set_extmark(
-				M.buf,
-				M.ns,
-				M.selected,
-				#word,
-				{ end_col = #kind + #word, hl_group = hl_kind_sel }
-			)
-			vim.api.nvim_buf_set_extmark(
-				M.buf,
-				M.ns,
-				M.selected,
-				#word + #kind,
-				{ end_col = #menu + #word + #kind, hl_group = hl_menu_sel }
-			)
-		end
-		vim.api.nvim_win_set_cursor(M.win, { M.selected + 1, 0 })
-	end
+	M.render_selected_line()
 	M.render_scrollbar()
 end
 
