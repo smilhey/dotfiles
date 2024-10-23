@@ -86,58 +86,30 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	end,
 })
 
+local termgroup = vim.api.nvim_create_augroup("Term", { clear = true })
 vim.api.nvim_create_autocmd({ "TermOpen" }, {
-	group = vim.api.nvim_create_augroup("StartTerm", { clear = true }),
+	group = termgroup,
 	pattern = "*",
 	callback = function()
-		vim.cmd.startinsert()
-	end,
-})
-
-vim.api.nvim_create_autocmd({ "TermEnter" }, {
-	group = vim.api.nvim_create_augroup("TermVisuals", { clear = true }),
-	pattern = "*",
-	callback = function()
+		-- vim.cmd.startinsert()
 		vim.opt_local.signcolumn = "no"
 		vim.opt_local.number = false
 		vim.opt_local.relativenumber = false
 	end,
 })
 
+local cmdwingroup = vim.api.nvim_create_augroup("cmdwin", { clear = true })
+local cmdlinegroup = vim.api.nvim_create_augroup("cmdline", { clear = true })
+
 vim.api.nvim_create_autocmd("CmdwinEnter", {
+	group = cmdwingroup,
 	callback = function()
 		vim.cmd("startinsert")
 	end,
 })
 
-vim.api.nvim_create_autocmd("BufWinEnter", {
-	callback = function()
-		if vim.fn.win_gettype() ~= "" or vim.bo.filetype == "MsgArea" or vim.bo.filetype == "Zen" then
-			return
-		end
-		vim.opt_local.winbar = "%#StatusLine# %n %*%=%m %f"
-	end,
-})
-
-vim.api.nvim_create_autocmd("BufWinEnter", {
-	callback = function()
-		vim.cmd("silent! normal! g'\"")
-	end,
-})
-
-vim.api.nvim_create_autocmd("Filetype", {
-	pattern = { "help", "qf", "query" },
-	callback = function()
-		vim.keymap.set(
-			"n",
-			"q",
-			"<cmd>close<CR>",
-			{ desc = "Close no file/temporary windows", silent = true, nowait = true, buffer = true }
-		)
-	end,
-})
-
 vim.api.nvim_create_autocmd("CmdlineEnter", {
+	group = cmdlinegroup,
 	pattern = "/,?",
 	callback = function()
 		local cmdtype = vim.fn.getcmdtype()
@@ -148,6 +120,7 @@ vim.api.nvim_create_autocmd("CmdlineEnter", {
 })
 
 vim.api.nvim_create_autocmd("CmdlineLeave", {
+	group = cmdlinegroup,
 	callback = function()
 		local cmdtype = vim.fn.getcmdtype()
 		if cmdtype:match("/") or cmdtype:match("?") then
@@ -157,6 +130,7 @@ vim.api.nvim_create_autocmd("CmdlineLeave", {
 })
 
 vim.api.nvim_create_autocmd("CmdwinEnter", {
+	group = cmdwingroup,
 	callback = function()
 		vim.keymap.set(
 			"n",
@@ -168,6 +142,7 @@ vim.api.nvim_create_autocmd("CmdwinEnter", {
 })
 
 vim.api.nvim_create_autocmd("CmdwinEnter", {
+	group = cmdwingroup,
 	callback = function()
 		local type = vim.fn.getcmdwintype()
 		if type == "/" or type == "?" then
@@ -183,10 +158,43 @@ vim.api.nvim_create_autocmd("CmdwinEnter", {
 })
 
 vim.api.nvim_create_autocmd("CmdwinLeave", {
+	group = cmdwingroup,
 	callback = function()
 		local type = vim.fn.getcmdwintype()
 		if type == "/" or type == "?" then
 			vim.o.hlsearch = false
 		end
+	end,
+})
+
+local qol = vim.api.nvim_create_augroup("user_utils", { clear = true })
+
+vim.api.nvim_create_autocmd("BufWinEnter", {
+	group = qol,
+	callback = function()
+		if vim.fn.win_gettype() ~= "" or vim.bo.filetype == "MsgArea" then
+			return
+		end
+		vim.opt_local.winbar = "%#StatusLine# %n %*%=%m %f"
+	end,
+})
+
+vim.api.nvim_create_autocmd("BufWinEnter", {
+	group = qol,
+	callback = function()
+		vim.cmd("silent! normal! g'\"")
+	end,
+})
+
+vim.api.nvim_create_autocmd("Filetype", {
+	group = qol,
+	pattern = { "help", "qf", "query" },
+	callback = function()
+		vim.keymap.set(
+			"n",
+			"q",
+			"<cmd>close<CR>",
+			{ desc = "Close no file/temporary windows", silent = true, nowait = true, buffer = true }
+		)
 	end,
 })

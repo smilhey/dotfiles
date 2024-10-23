@@ -68,24 +68,18 @@ vim.keymap.set("n", "N", "Nzzzv", { desc = "Move to previous search and center" 
 -- Remapping esc
 vim.keymap.set("i", "<C-c>", "<Esc>", { desc = "Remap <C-c> to <Esc>" })
 
-vim.keymap.set(
-	"n",
-	"<leader>s",
-	[[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]],
-	{ desc = "Substitute word under cursor" }
-)
-
-vim.keymap.set("n", "<C-e>", function()
-	local result = vim.inspect_pos()
-	local hl_ts = unpack(result.treesitter) and vim.inspect(unpack(result.treesitter).hl_group) or "nil"
-	local hl_sx = unpack(result.syntax) and vim.inspect(unpack(result.syntax).hl_group) or "nil"
-	local hl_st = unpack(result.semantic_tokens) and vim.inspect(unpack(result.semantic_tokens).opts.hl_group) or "nil"
-	local print_result = ""
-	for k, v in pairs({ ["Treesitter: "] = hl_ts, ["Syntax: "] = hl_sx, ["Semantic :"] = hl_st }) do
-		print_result = v ~= "nil" and print_result .. k .. v .. " " or print_result
-	end
-	print_result = print_result ~= "" and print_result or "No highlight group found"
-	print(print_result)
-end, { noremap = true, silent = true, desc = "Get hl group at cursor" })
-
-vim.keymap.set("i", "<A-BS>", "<C-w>", { desc = "Delete previous word in Insert mode ", silent = true })
+-- Useful for colorscheme
+-- vim.keymap.set("n", "<C-e>", function()
+-- 	local result = vim.inspect_pos()
+-- 	local hl_ts = unpack(result.treesitter) and vim.inspect(unpack(result.treesitter).hl_group) or "nil"
+-- 	local hl_sx = unpack(result.syntax) and vim.inspect(unpack(result.syntax).hl_group) or "nil"
+-- 	local hl_st = unpack(result.semantic_tokens) and vim.inspect(unpack(result.semantic_tokens).opts.hl_group) or "nil"
+-- 	local print_result = ""
+-- 	for k, v in pairs({ ["Treesitter: "] = hl_ts, ["Syntax: "] = hl_sx, ["Semantic :"] = hl_st }) do
+-- 		print_result = v ~= "nil" and print_result .. k .. v .. " " or print_result
+-- 	end
+-- 	print_result = print_result ~= "" and print_result or "No highlight group found"
+-- 	print(print_result)
+-- end, { noremap = true, silent = true, desc = "Get hl group at cursor" })
+--
+-- vim.keymap.set("i", "<A-BS>", "<C-w>", { desc = "Delete previous word in Insert mode ", silent = true })

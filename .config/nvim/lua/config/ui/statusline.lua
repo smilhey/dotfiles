@@ -15,7 +15,7 @@ function _G.Statusline_Getmode()
 		i = { mode = "INSERT", highlight = "Todo" },
 		R = { mode = "REPLACE", highlight = "Keyword" },
 		t = { mode = "TERMINAL", highlight = "Cursor" },
-		c = { mode = "COMMAND", highlight = "FloatShadow" },
+		c = { mode = "COMMAND", highlight = "ModeMsg" },
 	}
 	local mode_current = vim.fn.mode()
 	if vim.fn.win_gettype() == "command" then

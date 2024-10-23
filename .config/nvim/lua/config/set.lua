@@ -1,5 +1,4 @@
 local apply_colorscheme = require("config.ui.colorscheme")
--- apply_colorscheme()
 
 vim.opt.guicursor = "a:block-blinkon0,i:Cursor,r-cr-o:hor20,c:Cursor,ci:Cursor,cr:Cursor"
 vim.g.mapleader = " "
@@ -85,6 +84,10 @@ vim.opt.completeopt = "menuone,popup,noinsert,fuzzy"
 vim.opt.jumpoptions = { "clean", "stack" }
 vim.opt.conceallevel = 2
 vim.opt.splitright = true
+
+vim.opt.foldmethod = "expr"
+vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+vim.opt.foldlevel = 99
 
 -- habamax colorscheme
 

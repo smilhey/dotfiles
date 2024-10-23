@@ -174,26 +174,22 @@ return {
 		})
 		local lspconfig = require("lspconfig")
 
-		local open_floating_preview = vim.lsp.util.open_floating_preview
-		function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
-			opts = opts or {}
-			opts.border = opts.border or "single"
-			return open_floating_preview(contents, syntax, opts, ...)
-		end
+		-- local open_floating_preview = vim.lsp.util.open_floating_preview
+		-- function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
+		-- 	opts = opts or {}
+		-- 	opts.border = opts.border or "single"
+		-- 	return open_floating_preview(contents, syntax, opts, ...)
+		-- end
 
 		require("mason-lspconfig").setup_handlers({
 			function(server_name)
 				lspconfig[server_name].setup({})
 			end,
 			["lua_ls"] = function()
-				local runtime_path = vim.split(package.path, ";")
-				table.insert(runtime_path, "lua/?.lua")
-				table.insert(runtime_path, "lua/?/init.lua")
 				lspconfig.lua_ls.setup({
 					settings = {
 						Lua = {
 							workspace = {
-								checkThirdParty = false,
 								library = vim.api.nvim_get_runtime_file("", true),
 							},
 							codeLens = {
@@ -207,7 +203,7 @@ return {
 							telemetry = {
 								enable = false,
 							},
-							runtime = { version = "LuaJIT", path = runtime_path },
+							runtime = { version = "LuaJIT" },
 							diagnostics = {
 								globals = { "vim" },
 							},
@@ -228,8 +224,8 @@ return {
 			underline = false,
 			virtual_text = true,
 			float = {
-				header = { "Diagnostics", "FloatTitle" },
-				border = "single",
+				-- header = { "Diagnostics", "FloatTitle" },
+				-- border = "single",
 				focusable = true,
 			},
 		})
