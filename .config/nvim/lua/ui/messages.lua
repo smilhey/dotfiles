@@ -66,6 +66,10 @@ function M.init_win(display, height)
 end
 
 function M.render_split(display, lines, clear)
+	if vim.api.nvim_win_get_config(0).relative ~= "" then
+		vim.notify(table.concat(lines, "\n"), vim.log.levels.INFO)
+		return
+	end
 	M.init_buf(display)
 	M.init_win(display, #lines)
 	local start_line, end_line = 0, -1

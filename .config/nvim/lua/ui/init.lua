@@ -3,14 +3,14 @@ local messages = require("ui.messages")
 local cmdwin = require("ui.cmdwin")
 local cmdline = require("ui.cmdline")
 local pumenu = require("ui.pumenu")
-local win_input = require("ui.input")
+local win_input = require("ui.input").win_input
 local win_select = require("ui.select")
 local scrollbar = require("ui.scrollbar")
 local notify = require("ui.notify")
 local lsp_progress = require("ui.lsp_progress")
 
 vim.ui.input = function(opts, on_confirm)
-	win_input(opts, on_confirm, { relative = "cursor", row = 1, col = 1 })
+	win_input(opts, on_confirm, {})
 end
 
 vim.ui.select = function(items, opts, on_choice)
