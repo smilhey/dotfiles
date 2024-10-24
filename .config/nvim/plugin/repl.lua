@@ -28,6 +28,7 @@ function M.send_to_term(buf, data)
 	local chan = M.attached_buffers[buf].chan
 	vim.api.nvim_chan_send(chan, data)
 end
+
 function M.get_selection(type)
 	local selection
 	local _, start_row, start_col, _ = unpack(vim.fn.getpos("'["))
@@ -148,7 +149,6 @@ end
 Repl.send_operator = function(type)
 	local buf = vim.api.nvim_get_current_buf()
 	local selection = M.get_selection(type)
-
 	local _, start_row, start_col, _ = unpack(vim.fn.getpos("'["))
 	local _, end_row, end_col, _ = unpack(vim.fn.getpos("']"))
 	if type == "line" then
@@ -158,11 +158,12 @@ Repl.send_operator = function(type)
 	for _, mark in ipairs(marks) do
 		M.del_mark(buf, mark)
 	end
-	M.send_selection(selection, function()
+	local mark_before_send = function()
 		if type ~= "block" then
 			M.create_mark(buf, start_row - 1, start_col - 1, end_row - 1, end_col)
 		end
-	end)
+	end
+	M.send_selection(selection, mark_before_send)
 end
 
 vim.keymap.set({ "n", "v" }, "s", function()

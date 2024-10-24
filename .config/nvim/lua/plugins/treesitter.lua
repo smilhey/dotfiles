@@ -38,15 +38,6 @@ return {
 						["ab"] = { query = "@code_cell.outer", desc = "around block" },
 					},
 				},
-				swap = {
-					enable = true,
-					swap_next = {
-						["<leader>sbl"] = { query = "@code_cell.outer", desc = "swap next block" },
-					},
-					swap_previous = {
-						["<leader>sbh"] = { query = "@code_cell.outer", desc = "swap previous block" },
-					},
-				},
 			},
 		})
 	end,

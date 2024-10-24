@@ -84,6 +84,7 @@ vim.opt.completeopt = "menuone,popup,noinsert,fuzzy"
 vim.opt.jumpoptions = { "clean", "stack" }
 vim.opt.conceallevel = 2
 vim.opt.splitright = true
+vim.opt.splitbelow = true
 
 vim.opt.foldmethod = "expr"
 vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
