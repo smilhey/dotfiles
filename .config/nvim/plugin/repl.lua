@@ -3,9 +3,9 @@ local M = {
 	chans = {},
 	outputs = {},
 	output_queue = {},
-	is_running = {},
 	jobs = {},
-	opts = { display = { mode = "virt", height = 8 } },
+	opts = { display = { mode = "virt", height = 8, row_offset = 0 } },
+	run = {},
 }
 
 M.autogroup = vim.api.nvim_create_augroup("repl", { clear = true })
@@ -17,7 +17,7 @@ M.ns_outputs = vim.api.nvim_create_namespace("repl-outputs")
 M.supported_repls = { "ipython", "python", "luajit" }
 
 M.commentstring = {
-	luajit = "-",
+	luajit = "--",
 	python = "#",
 	ipython = "#",
 }
@@ -65,8 +65,12 @@ M.format_output = {
 	luajit = function(data)
 		local lines = {}
 		for _, line in ipairs(data) do
-			line = line:gsub("\r", "")
-			lines[#lines + 1] = line ~= "" and line or nil
+			line = line:gsub("> ", "")
+			line = line:gsub("[>\r]", "")
+			local is_output = line:find(M.commentstring.luajit .. "IN") == nil
+				and line:find("[MARK ", 1, true) == nil
+				and line ~= ""
+			lines[#lines + 1] = is_output and line or nil
 		end
 		return lines
 	end,
@@ -75,6 +79,7 @@ M.format_output = {
 		for _, line in ipairs(data) do
 			line = line:gsub("\r", "")
 			local is_input = line:find(M.commentstring.python .. "IN") ~= nil or line:find("[MARK ", 1, true) ~= nil
+
 			lines[#lines + 1] = not is_input and line or nil
 		end
 		return lines
@@ -84,12 +89,12 @@ M.format_output = {
 		for _, line in ipairs(data) do
 			line = line:gsub("\27%[[0-9;?]*[a-zA-Z]", "")
 			line = line:gsub("\r", "")
-			local is_input = line:find("In %[") == 1
-				or line:find("   ...:") ~= nil
-				or line:find(M.commentstring.python .. "IN") ~= nil
-				or line:find("[MARK ", 1, true) ~= nil
-			line = not is_input and line or ""
-			lines[#lines + 1] = line ~= "" and line or nil
+			local is_output = line:find("In %[") == nil
+				and line:find("   ...:") == nil
+				and line:find(M.commentstring.python .. "IN") == nil
+				and line:find("[MARK ", 1, true) == nil
+				and line ~= ""
+			lines[#lines + 1] = is_output and line or nil
 		end
 		return lines
 	end,
@@ -156,7 +161,7 @@ function M.attach(buf, chan)
 	if M.is_job(chan) then
 		M.outputs[buf] = {}
 		M.output_queue[chan] = M.output_queue[chan] and M.output_queue[chan] or {}
-		M.is_running[chan] = M.is_running[chan] and M.is_running[chan] or false
+		M.run[chan] = M.run[chan] and M.run[chan] or false
 	end
 	M.chans[buf] = chan
 end
@@ -213,9 +218,9 @@ function M.display_output(buf, mark, mode)
 	local row = vim.api.nvim_buf_get_extmark_by_id(buf, M.ns, mark, { details = true })[3].end_row
 	local repl = M.get_repl(M.chans[buf])
 	local lines = M.format_output[repl](M.outputs[buf][mark].data)
+	local len = M.opts.display.height > #lines and #lines or M.opts.display.height
 	if mode == "virt" then
 		local virt_lines = {}
-		local len = M.opts.display.height > #lines and #lines or M.opts.display.height
 		for i = 1, len do
 			virt_lines[#virt_lines + 1] = { { lines[i], "Comment" } }
 		end
@@ -226,7 +231,7 @@ function M.display_output(buf, mark, mode)
 		vim.api.nvim_buf_set_extmark(buf, M.ns_outputs, row, 0, { id = mark, virt_lines = virt_lines })
 	elseif mode == "float" then
 		local virt_pad = {}
-		for i = 1, #lines + 2 do
+		for i = 1, len + 2 do
 			virt_pad[i] = { { "" } }
 		end
 		if #lines > 0 then
@@ -248,9 +253,18 @@ function M.display_output(buf, mark, mode)
 	end
 end
 
-function M.is_end_signal(data)
-	for _, str in ipairs(data) do
+function M.check_end(data)
+	for i, str in ipairs(data) do
 		if str:find("[MARK END]", 1, true) then
+			return i
+		end
+	end
+	return 0
+end
+
+function M.check_start(data)
+	for _, str in ipairs(data) do
+		if str:find("[MARK START]", 1, true) then
 			return true
 		end
 	end
@@ -258,12 +272,20 @@ function M.is_end_signal(data)
 end
 
 function M.on_output(chan, data)
-	if M.is_running[chan] then
+	if M.check_start(data) then
+		M.run[chan] = true
+	end
+	if M.run[chan] then
 		local buf, mark = unpack(M.output_queue[chan][1])
-		if M.is_end_signal(data) then
-			M.is_running[chan] = false
-			M.display_output(buf, mark, M.opts.display.mode)
+		local end_signal_index = M.check_end(data)
+		if end_signal_index > 0 then
 			table.remove(M.output_queue[chan], 1)
+			if end_signal_index > 1 then
+				data = vim.iter(data):take(end_signal_index - 1):totable()
+				M.outputs[buf][mark].data = vim.iter({ M.outputs[buf][mark].data, data }):flatten():totable()
+			end
+			M.display_output(buf, mark, M.opts.display.mode)
+			M.run[chan] = false
 		else
 			M.outputs[buf][mark].data = vim.iter({ M.outputs[buf][mark].data, data }):flatten():totable()
 		end
@@ -288,13 +310,6 @@ function M.job_launch(cmd)
 	vim.api.nvim_win_close(win, true)
 	M.jobs[#M.jobs + 1] = chan
 	return chan
-	-- return vim.fn.jobstart(cmd, {
-	-- 	on_stdout = M.on_output,
-	-- 	on_exit = function()
-	-- 		vim.notify("Job over", vim.log.levels.INFO)
-	-- 	end,
-	-- 	pty = true,
-	-- })
 end
 
 function M.send_selection(buf, selection)
@@ -339,13 +354,11 @@ function M.send_mark(buf, mark)
 			(" "):rep(40) .. M.commentstring[M.get_repl(chan)] .. "[MARK START] : " .. buf .. " - " .. mark
 		)
 		M.set_output_info(buf, mark)
-		M.is_running[chan] = true
 	end
 	M.send_selection(buf, selection)
 	if M.is_job(chan) then
-		vim.schedule(function()
-			M.send_selection(buf, { (" "):rep(40) .. M.commentstring[M.get_repl(chan)] .. "[MARK END]" })
-		end)
+		vim.wait(10, function() end)
+		M.send_selection(buf, { (" "):rep(40) .. M.commentstring[M.get_repl(chan)] .. "[MARK END]" })
 	end
 end
 
@@ -386,6 +399,17 @@ function M.get_cursor_mark()
 	end
 end
 
+function M.send_range(buf, start_row, end_row, start_col, end_col)
+	start_col = start_col and start_col or 0
+	end_col = end_col and end_col or vim.fn.col({ end_row + 1, "$" }) - 1
+	local marks = M.get_marks(buf, start_row, start_col, end_row, end_col)
+	for _, mark in ipairs(marks) do
+		M.del_mark(buf, mark)
+	end
+	local mark = M.create_mark(buf, start_row, start_col, end_row, end_col)
+	M.send_mark(buf, mark)
+end
+
 Repl.send_operator = function(type)
 	local buf = vim.api.nvim_get_current_buf()
 	if not M.is_attached(buf) then
@@ -395,14 +419,10 @@ Repl.send_operator = function(type)
 	local _, start_row, start_col, _ = unpack(vim.fn.getpos("'["))
 	local _, end_row, end_col, _ = unpack(vim.fn.getpos("']"))
 	if type == "line" then
-		end_col = vim.fn.col({ end_row, "$" }) - 1
+		M.send_range(buf, start_row - 1, end_row - 1)
+	else
+		M.send_range(buf, start_row - 1, end_row - 1, start_col - 1, end_col)
 	end
-	local marks = M.get_marks(buf, start_row - 1, start_col - 1, end_row - 1, end_col)
-	for _, mark in ipairs(marks) do
-		M.del_mark(buf, mark)
-	end
-	local mark = M.create_mark(buf, start_row - 1, start_col - 1, end_row - 1, end_col)
-	M.send_mark(buf, mark)
 end
 
 vim.keymap.set({ "n", "v" }, "s", function()
@@ -436,3 +456,26 @@ vim.keymap.set("n", "<leader>c", function()
 		M.del_mark(vim.api.nvim_get_current_buf(), mark)
 	end
 end, { desc = "clear mark under cursor" })
+
+vim.keymap.set("n", "<leader>sa", function()
+	local query
+	if vim.bo.filetype == "markdown" then
+		_, query = pcall(vim.treesitter.query.parse, "markdown", [[ (code_fence_content)  @codeblock ]])
+	else
+		_, query = pcall(vim.treesitter.query.parse, "norg", [[ (ranged_verbatim_tag_content)  @codeblock ]])
+	end
+	local buf = vim.api.nvim_get_current_buf()
+	local parser = vim.treesitter.get_parser(buf)
+	local tree = parser:parse()
+	local root = tree[1]:root()
+	for _, match in query:iter_matches(root, buf) do
+		for id, nodes in pairs(match) do
+			local name = query.captures[id]
+			if name == "codeblock" then
+				local node = nodes[#nodes]
+				local start_row, _, end_row, _ = node:range()
+				M.send_range(buf, start_row, end_row - 1)
+			end
+		end
+	end
+end)
