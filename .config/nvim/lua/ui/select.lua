@@ -28,13 +28,13 @@ local function win_select(items, opts, on_choice, win_opts)
 	local win = vim.api.nvim_open_win(buf, true, win_opts)
 	vim.cmd("stopinsert")
 	vim.wo[win].winhighlight = "lCursor:"
-	vim.wo[win].signcolumn = "no"
+	vim.wo[win].winfixbuf = true
 	vim.wo[win].cursorline = true
 	vim.wo[win].cursorlineopt = "line"
 	vim.api.nvim_buf_set_lines(buf, 0, -1, false, string_items)
 	vim.bo[buf].modifiable = false
 
-	vim.keymap.set("n", "q", "<cmd>close!<CR>", { noremap = true, nowait = true, buffer = buf })
+	vim.keymap.set("n", "<C-C>", "<cmd>close!<CR>", { noremap = true, nowait = true, buffer = buf })
 	vim.keymap.set("n", "<CR>", function()
 		local choice = items[vim.api.nvim_win_get_cursor(win)[1]]
 		vim.api.nvim_win_close(win, true)

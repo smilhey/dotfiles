@@ -81,7 +81,7 @@ vim.opt.spelllang = "en_us,fr"
 vim.opt.spell = false
 vim.opt.completeopt = "menuone,popup,noinsert,fuzzy"
 
-vim.opt.jumpoptions = { "clean", "stack" }
+vim.opt.jumpoptions = "clean"
 vim.opt.conceallevel = 2
 vim.opt.splitright = true
 vim.opt.splitbelow = true

@@ -37,7 +37,7 @@ function M.win_input(opts, on_confirm, win_opts)
 	vim.wo[win].winfixbuf = true
 	-- vim.wo[win].virtualedit = "all,onemore"
 
-	vim.api.nvim_buf_set_lines(buf, -1, -1, false, { default_text })
+	vim.api.nvim_buf_set_lines(buf, 0, -1, false, { default_text })
 	vim.api.nvim_buf_set_extmark(
 		buf,
 		M.ns,
