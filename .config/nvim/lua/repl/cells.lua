@@ -1,9 +1,9 @@
 local output = require("repl.output")
 local format = require("repl.format")
 local utils = require("repl.utils")
-local M = { ns = vim.api.nvim_create_namespace("cell") }
+local M = { ns = vim.api.nvim_create_namespace("cells") }
 
-function M.create(buf, start_row, start_col, end_row, end_col)
+function M.set(buf, start_row, start_col, end_row, end_col)
 	return vim.api.nvim_buf_set_extmark(
 		buf,
 		M.ns,
@@ -21,38 +21,26 @@ end
 
 function M.send(chan, buf, mark)
 	local mark_info = vim.api.nvim_buf_get_extmark_by_id(buf, M.ns, mark, { details = true })
+	if vim.tbl_isempty(mark_info) then
+		vim.notify("Cell cleared", vim.log.levels.INFO)
+		return
+	end
 	local start_row, start_col, end_row, end_col =
 		mark_info[1], mark_info[2], mark_info[3].end_row, mark_info[3].end_col
 	local selection = vim.api.nvim_buf_get_text(buf, start_row, start_col, end_row, end_col, {})
-
 	local repl = utils.get_repl(chan)
 	if output.enabled[chan] then
-		vim.api.nvim_buf_set_extmark(buf, output.ns, end_row, 0, { id = mark, virt_lines = { { { "[*]" } } } })
-		if #output.queue[chan] > 0 then
-			if output.queue[chan] ~= { buf, mark } then
-				vim.defer_fn(function()
-					M.send(chan, buf, mark)
-				end, 200)
-				return
-			end
-		end
-		selection = vim.tbl_map(function(str)
-			return str .. " " .. format.commentstring[repl] .. "[IN]"
-		end, selection)
-		table.insert(
-			selection,
-			1,
-			(" "):rep(40) .. format.commentstring[repl] .. "[MARK START] : " .. buf .. " - " .. mark
-		)
 		output.add_to_queue(chan, buf, mark)
+		if not vim.deep_equal(output.queue[chan][1], { buf, mark }) then
+			vim.defer_fn(function()
+				M.send(chan, buf, mark)
+			end, 200)
+			return
+		end
+		selection = format.pad(selection, repl, buf, mark)
 	end
 
 	utils.send_selection(chan, selection)
-
-	if output.enabled[chan] then
-		vim.wait(10, function() end)
-		utils.send_selection(chan, { (" "):rep(40) .. format.commentstring[repl] .. "[MARK END]" })
-	end
 end
 
 function M.get(buf, start_row, start_col, end_row, end_col)

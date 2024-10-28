@@ -6,14 +6,25 @@ local M = {
 	queue = {},
 	enabled = {},
 	is_running = {},
-	opts = { display = { virt = true, float = false, output_height = 8, output_offset = true } },
+	opts = { display = { virt = true, float = false, output_height = 8, output_offset = false } },
 	float = { win = -1, buf = -1 },
 	ns = vim.api.nvim_create_namespace("output"),
 }
 
 function M.add_to_queue(chan, buf, mark)
+	if
+		vim.tbl_contains(M.queue[chan], function(v)
+			return vim.deep_equal(v, { buf, mark })
+		end, { predicate = true })
+	then
+		return
+	end
+	local cells_ns = vim.api.nvim_get_namespaces()["cells"]
+	local row = vim.api.nvim_buf_get_extmark_by_id(buf, cells_ns, mark, { details = true })[3].end_row
+	row = (M.opts.display.output_offset and row < vim.fn.getpos("$")[2] - 1) and row + 1 or row
 	M.data[buf][mark] = {}
 	M.queue[chan][#M.queue[chan] + 1] = { buf, mark }
+	vim.api.nvim_buf_set_extmark(buf, M.ns, row, 0, { id = mark, virt_lines = { { { "[ * ]" } } } })
 end
 
 function M.is_end(data)
@@ -58,6 +69,8 @@ function M.process(chan, data, name)
 				M.display_float(repl, buf, mark)
 			end
 			M.is_running[chan] = false
+			P(buf .. " - " .. mark)
+			P(data[buf][mark])
 		else
 			M.data[buf][mark] = vim.iter({ M.data[buf][mark], data }):flatten():totable()
 		end
@@ -65,10 +78,11 @@ function M.process(chan, data, name)
 end
 
 function M.display_virt(repl, buf, mark)
-	local cell_ns = vim.api.nvim_get_namespaces()["cell"]
-	local row = vim.api.nvim_buf_get_extmark_by_id(buf, cell_ns, mark, { details = true })[3].end_row
+	local cells_ns = vim.api.nvim_get_namespaces()["cells"]
+	local row = vim.api.nvim_buf_get_extmark_by_id(buf, cells_ns, mark, { details = true })[3].end_row
 	row = (M.opts.display.output_offset and row < vim.fn.getpos("$")[2] - 1) and row + 1 or row
 	local lines = format.output[repl](M.data[buf][mark])
+	lines = #lines == 0 and { "[ ✓ ]" } or lines
 	local len = M.opts.display.output_height > #lines and #lines or M.opts.display.output_height
 	local virt_lines = {}
 	for i = 1, len do
@@ -86,8 +100,8 @@ function M.clear_virt(buf, mark)
 end
 
 function M.display_float(repl, buf, mark)
-	local cell_ns = vim.api.nvim_get_namespaces()["cell"]
-	local row = vim.api.nvim_buf_get_extmark_by_id(buf, cell_ns, mark, { details = true })[3].end_row
+	local cells_ns = vim.api.nvim_get_namespaces()["cells"]
+	local row = vim.api.nvim_buf_get_extmark_by_id(buf, cells_ns, mark, { details = true })[3].end_row
 	row = M.opts.display.output_offset and row + 1 or row
 	local lines = format.output[repl](M.data[buf][mark])
 	local len = M.opts.display.output_height > #lines and #lines or M.opts.display.output_height
@@ -111,7 +125,7 @@ function M.display_float(repl, buf, mark)
 		or -1
 	vim.keymap.set("n", "q", function()
 		if M.opts.display.virt then
-			M.display_output_virt(buf, mark)
+			M.display_virt(repl, buf, mark)
 		end
 		vim.api.nvim_win_close(M.float.win, true)
 	end, { buffer = M.float.buf })

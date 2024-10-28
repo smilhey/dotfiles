@@ -1,13 +1,14 @@
 local format = require("repl.format")
 local output = require("repl.output")
-local cell = require("repl.cell")
+local cells = require("repl.cells")
 local utils = require("repl.utils")
 
 local M = {
 	chans = {},
 }
 
-M.autogroup = vim.api.nvim_create_augroup("repl", { clear = true })
+M.group = vim.api.nvim_create_augroup("repl", { clear = true })
+M.ns = vim.api.nvim_create_namespace("repl")
 
 function M.is_attached(buf)
 	return M.chans[buf] and not vim.tbl_isempty(vim.api.nvim_get_chan_info(M.chans[buf]))
@@ -17,8 +18,9 @@ function M.attach(buf, chan)
 	if output.enabled[chan] then
 		if output.opts.display.float then
 			vim.api.nvim_create_autocmd("BufWinEnter", {
+				group = M.group,
 				buffer = buf,
-				desc = "clearing repl output windows",
+				desc = "clear repl output float",
 				callback = function()
 					local entered_win = vim.api.nvim_get_current_win()
 					if vim.api.nvim_win_get_config(entered_win).relative ~= nil then
@@ -31,8 +33,9 @@ function M.attach(buf, chan)
 				end,
 			})
 			vim.api.nvim_create_autocmd({ "CursorMoved" }, {
+				group = M.group,
 				buffer = buf,
-				desc = "open output float",
+				desc = "open repl output float",
 				callback = function()
 					local mark = M.get_cursor_mark()
 					if mark then
@@ -53,6 +56,36 @@ function M.attach(buf, chan)
 		output.queue[chan] = output.queue[chan] and output.queue[chan] or {}
 		output.is_running[chan] = output.is_running[chan] and output.is_running[chan] or false
 	end
+	vim.api.nvim_create_autocmd({ "CursorMoved" }, {
+		group = M.group,
+		buffer = buf,
+		desc = "highlight mark under cursor",
+		callback = function()
+			local mark = M.get_cursor_mark()
+			if mark then
+				M.cur_mark = mark
+				local mark_info = vim.api.nvim_buf_get_extmark_by_id(buf, cells.ns, mark, { details = true })
+				vim.api.nvim_buf_set_extmark(
+					buf,
+					cells.ns,
+					mark_info[1],
+					mark_info[2],
+					{ id = mark, end_row = mark_info[3].end_row, end_col = mark_info[3].end_col, hl_group = "Visual" }
+				)
+			elseif M.cur_mark then
+				local mark_info = vim.api.nvim_buf_get_extmark_by_id(buf, cells.ns, M.cur_mark, { details = true })
+				if vim.tbl_isempty(mark_info) then
+					M.cur_mark = nil
+				else
+					vim.api.nvim_buf_set_extmark(buf, cells.ns, mark_info[1], mark_info[2], {
+						id = M.cur_mark,
+						end_row = mark_info[3].end_row,
+						end_col = mark_info[3].end_col,
+					})
+				end
+			end
+		end,
+	})
 	M.chans[buf] = chan
 end
 
@@ -119,10 +152,10 @@ function M.start_job(cmd)
 	return chan
 end
 
-function M.get_cursor_cell()
+function M.get_cursor_mark()
 	local buf = vim.api.nvim_get_current_buf()
 	local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-	local marks = cell.get(buf, row - 1, col, row - 1, col)
+	local marks = cells.get(buf, row - 1, col, row - 1, col)
 	if #marks == 1 then
 		return marks[1]
 	elseif #marks > 1 then
@@ -133,12 +166,12 @@ end
 function M.send_range(buf, start_row, end_row, start_col, end_col)
 	start_col = start_col and start_col or 0
 	end_col = end_col and end_col or vim.fn.col({ end_row + 1, "$" }) - 1
-	local marks = cell.get(buf, start_row, start_col, end_row, end_col)
+	local marks = cells.get(buf, start_row, start_col, end_row, end_col)
 	for _, mark in ipairs(marks) do
-		cell.del(buf, mark)
+		cells.del(buf, mark)
 	end
-	local mark = cell.create(buf, start_row, start_col, end_row, end_col)
-	cell.send(M.chans[buf], buf, mark)
+	local mark = cells.set(buf, start_row, start_col, end_row, end_col)
+	cells.send(M.chans[buf], buf, mark)
 end
 
 M.send_operator = function(type)
@@ -167,18 +200,18 @@ vim.keymap.set("n", "<leader>ss", function()
 		M.init_term(buf)
 		return
 	end
-	local mark = M.get_cursor_cell()
+	local mark = M.get_cursor_mark()
 	if mark then
-		cell.send(M.chans[buf], vim.api.nvim_get_current_buf(), mark)
+		cells.send(M.chans[buf], vim.api.nvim_get_current_buf(), mark)
 	else
 		vim.notify("No mark under cursor", vim.log.levels.INFO)
 	end
 end, { desc = "Send mark under cursor" })
 
 vim.keymap.set("n", "<leader>c", function()
-	local mark = M.get_cursor_cell()
+	local mark = M.get_cursor_mark()
 	if mark then
-		cell.del(vim.api.nvim_get_current_buf(), mark)
+		cells.del(vim.api.nvim_get_current_buf(), mark)
 	else
 		vim.notify("No mark under cursor", vim.log.levels.INFO)
 	end
@@ -186,13 +219,22 @@ end, { desc = "Clear mark under cursor" })
 
 vim.keymap.set("n", "<leader>si", function()
 	local buf = vim.api.nvim_get_current_buf()
-	utils.send_selection(M.chans[buf], { string.char(0x03) })
-end, { desc = "Send byte representation of <C-C>" })
+	local chan = M.chans[buf]
+	if output.enabled[chan] then
+		if not vim.tbl_isempty(output.queue) then
+			for _, cell in ipairs(output.queue[chan]) do
+				cells.del(cell.buf, cell.mark)
+			end
+		end
+		output.queue[chan] = {}
+	end
+	utils.send_selection(chan, { string.char(0x03) })
+end, { desc = "Send interrupt signal" })
 
 vim.keymap.set("n", "<leader>so", function()
 	local buf = vim.api.nvim_get_current_buf()
 	local repl = utils.get_repl(M.chans[buf])
-	local mark = M.get_cursor_cell()
+	local mark = M.get_cursor_mark()
 	if mark then
 		output.display_float(repl, buf, mark)
 	end
