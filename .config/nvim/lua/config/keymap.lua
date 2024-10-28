@@ -3,7 +3,7 @@ vim.keymap.set("n", "<leader><leader>l", "<cmd>luafile %<CR>", { desc = "Run wit
 
 vim.keymap.set("n", "<leader><leader>s", "<cmd>source<CR>", { desc = "Source current file" })
 
--- wezterm integration
+-- multiplexer integration
 local function switch_pane(direction)
 	local current_window = vim.api.nvim_get_current_win()
 	local direction_table = { Left = "h", Down = "j", Up = "k", Right = "l" }
@@ -50,8 +50,6 @@ vim.keymap.set("n", "H", "<cmd>bprev<CR>", { desc = "Previous Buffer", silent = 
 vim.keymap.set("n", "<leader>:", function()
 	vim.api.nvim_input(":")
 	vim.api.nvim_input("=")
-	-- vim.api.nvim_feedkeys(":", "n", true)
-	-- vim.api.nvim_feedkeys("=", "n", true)
 end, { desc = "lua evaluate" })
 
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move line up" })
@@ -65,8 +63,18 @@ vim.keymap.set("n", "<C-b>", "<C-b>zz", { desc = "Scroll up full screen and cent
 vim.keymap.set("n", "n", "nzzzv", { desc = "Move to next search and center" })
 vim.keymap.set("n", "N", "Nzzzv", { desc = "Move to previous search and center" })
 
--- Remapping esc
-vim.keymap.set("i", "<C-c>", "<Esc>", { desc = "Remap <C-c> to <Esc>" })
+vim.keymap.set("i", "<C-c>", function()
+	return vim.fn.pumvisible() == 1 and "<C-e>" or "<Esc>"
+end, { desc = "Remap <C-c> to <Esc>", expr = true })
+
+vim.keymap.set("i", "<C-y>", function()
+	local complete_info = vim.fn.complete_info({ "selected" })
+	if vim.fn.pumvisible() == 1 and complete_info.selected == -1 then
+		return "<C-n><C-y>"
+	else
+		return "<C-y>"
+	end
+end, { desc = "Better accept match completion", expr = true })
 
 -- Useful for colorscheme
 -- vim.keymap.set("n", "<C-e>", function()

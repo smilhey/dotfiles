@@ -79,7 +79,7 @@ vim.opt.clipboard = "unnamedplus"
 
 vim.opt.spelllang = "en_us,fr"
 vim.opt.spell = false
-vim.opt.completeopt = "menuone,popup,noinsert,fuzzy"
+vim.opt.completeopt = "menuone,popup,noinsert,noselect,fuzzy"
 
 vim.opt.jumpoptions = "clean"
 vim.opt.splitright = true
