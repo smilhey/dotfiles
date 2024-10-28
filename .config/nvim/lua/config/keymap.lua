@@ -63,9 +63,7 @@ vim.keymap.set("n", "<C-b>", "<C-b>zz", { desc = "Scroll up full screen and cent
 vim.keymap.set("n", "n", "nzzzv", { desc = "Move to next search and center" })
 vim.keymap.set("n", "N", "Nzzzv", { desc = "Move to previous search and center" })
 
-vim.keymap.set("i", "<C-c>", function()
-	return vim.fn.pumvisible() == 1 and "<C-e>" or "<Esc>"
-end, { desc = "Remap <C-c> to <Esc>", expr = true })
+vim.keymap.set("i", "<C-c>", "<Esc>", { desc = "Remap <C-c> to <Esc>" })
 
 vim.keymap.set("i", "<C-y>", function()
 	local complete_info = vim.fn.complete_info({ "selected" })
