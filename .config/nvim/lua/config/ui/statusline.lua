@@ -17,7 +17,7 @@ function _G.Statusline_Getmode()
 		t = { mode = "TERMINAL", highlight = "Cursor" },
 		c = { mode = "COMMAND", highlight = "ModeMsg" },
 	}
-	local mode_current = vim.fn.mode()
+	local _, mode_current = pcall(vim.fn.mode, {})
 	if vim.fn.win_gettype() == "command" then
 		return "%#FloatShadow# COMMAND %#StatusLine# "
 	end

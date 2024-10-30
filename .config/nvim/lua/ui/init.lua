@@ -94,5 +94,5 @@ local function ui_cmd_complete(ArgLead, _)
 	return completion_list
 end
 
-vim.api.nvim_create_user_command("Ui", ui_cmd, { desc = "ui command", nargs = "?", complete = ui_cmd_complete })
+vim.api.nvim_create_user_command("Ui", ui_cmd, { desc = "Toggle UI elements", nargs = "?", complete = ui_cmd_complete })
 attach()
