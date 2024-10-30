@@ -1,6 +1,5 @@
 local BS = vim.api.nvim_replace_termcodes("<bs>", true, true, true)
 local M = {
-	attached = false,
 	buf = -1,
 	win = -1,
 	cmd = nil,
@@ -169,35 +168,13 @@ function M.handler(event, ...)
 	end
 end
 
-function M.attach()
-	vim.ui_attach(M.namespace, { ext_cmdline = true }, function(event, ...)
-		if event:match("cmd") ~= nil then
-			M.handler(event, ...)
-			return true
-		else
-			return false
-		end
-	end)
-end
-
 function M.disable()
-	vim.ui_detach(M.namespace)
-	M.attached = false
+	M.exit()
 end
 
 function M.setup()
 	M.namespace = vim.api.nvim_create_namespace("cmdline")
 	vim.api.nvim_set_hl(M.ns, "NormalFloat", { link = "MsgArea" })
-	M.attach()
-	M.attached = true
-end
-
-function M.toggle()
-	if M.attached then
-		M.disable()
-	else
-		M.attach()
-	end
 end
 
 return M

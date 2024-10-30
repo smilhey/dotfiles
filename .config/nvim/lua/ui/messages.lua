@@ -1,5 +1,4 @@
 local M = {
-	attached = false,
 	history = { win = -1, buf = -1, messages = {} },
 	output = { win = -1, buf = -1 },
 	confirm = { win = -1 },
@@ -205,34 +204,8 @@ function M.add_to_history(msg)
 	M.history.messages = vim.iter({ M.history.messages, lines }):flatten():totable()
 end
 
-function M.attach()
-	vim.ui_attach(M.namespace, { ext_messages = true }, function(event, ...)
-		if event:match("msg") ~= nil then
-			M.handler(event, ...)
-			return true
-		else
-			return false
-		end
-	end)
-end
-
-function M.disable()
-	vim.ui_detach(M.namespace)
-	M.attached = false
-end
-
 function M.setup()
-	M.namespace = vim.api.nvim_create_namespace("messages")
-	M.attach()
-	M.attached = true
-end
-
-function M.toggle()
-	if M.attached then
-		M.disable()
-	else
-		M.setup()
-	end
+	M.ns = vim.api.nvim_create_namespace("messages")
 end
 
 return M

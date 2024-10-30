@@ -1,4 +1,4 @@
-local M = { attached = false, namespace = nil, win = -1, buf = -1 }
+local M = { ns = nil, win = -1, buf = -1 }
 
 function M.init_buf()
 	if vim.api.nvim_buf_is_loaded(M.buf) then
@@ -83,9 +83,9 @@ function M.render_tabline(curtab, tabs, curbuf, buffers)
 	local sep = string.rep(" ", vim.o.columns - string.len(b) - string.len(t))
 	local tabline = b .. sep .. t
 	vim.api.nvim_buf_set_lines(M.buf, 0, 1, false, { tabline })
-	vim.highlight.range(M.buf, M.namespace, "TabLine", { 0, 0 }, { 0, vim.o.columns })
-	vim.highlight.range(M.buf, M.namespace, "TabLineSel", { 0, b_hl_start }, { 0, b_hl_end })
-	vim.highlight.range(M.buf, M.namespace, "TabLineSel", { 0, t_hl_start + #b + #sep }, { 0, t_hl_end + #b + #sep })
+	vim.highlight.range(M.buf, M.ns, "TabLine", { 0, 0 }, { 0, vim.o.columns })
+	vim.highlight.range(M.buf, M.ns, "TabLineSel", { 0, b_hl_start }, { 0, b_hl_end })
+	vim.highlight.range(M.buf, M.ns, "TabLineSel", { 0, t_hl_start + #b + #sep }, { 0, t_hl_end + #b + #sep })
 end
 
 function M.on_update(...)
@@ -118,39 +118,16 @@ function M.handler(event, ...)
 	end
 end
 
-function M.attach()
-	vim.ui_attach(M.namespace, { ext_tabline = true }, function(event, ...)
-		if event:match("tabline") ~= nil then
-			M.handler(event, ...)
-			return true
-		else
-			return false
-		end
-	end)
-end
-
 function M.disable()
-	vim.ui_detach(M.namespace)
 	vim.api.nvim_win_close(M.win, true)
 	M.win = -1
 	M.buf = -1
-	M.attached = false
 end
 
 function M.setup()
-	M.namespace = vim.api.nvim_create_namespace("tabline")
+	M.ns = vim.api.nvim_create_namespace("tabline")
 	if vim.o.cmdheight == 0 then
 		vim.o.cmdheight = 1
-	end
-	M.attach()
-	M.attached = true
-end
-
-function M.toggle()
-	if M.attached then
-		M.disable()
-	else
-		M.setup()
 	end
 end
 

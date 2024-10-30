@@ -11,7 +11,6 @@ local ESC = vim.api.nvim_replace_termcodes("<esc>", true, true, true)
 -- 	height = 1,
 -- },
 local M = {
-	attached = false,
 	mode = "cmd",
 	buf = -1,
 	win = -1,
@@ -251,22 +250,10 @@ function M.handler(event, ...)
 	end
 end
 
-function M.attach()
-	vim.ui_attach(M.ns, { ext_cmdline = true }, function(event, ...)
-		if event:match("cmd") ~= nil then
-			M.handler(event, ...)
-			return true
-		else
-			return false
-		end
-	end)
-end
-
 function M.disable()
 	vim.keymap.del("c", "<esc>")
 	vim.keymap.del("c", "<c-c>")
-	vim.ui_detach(M.ns)
-	M.attached = false
+	M.exit()
 end
 
 function M.setup()
@@ -274,16 +261,6 @@ function M.setup()
 	vim.api.nvim_set_hl(M.ns, "NormalFloat", { link = "MsgArea" })
 	vim.keymap.set("c", "<esc>", M.enter_edit, { desc = "Enter cmdline edit mode" })
 	vim.keymap.set("c", "<c-c>", M.enter_edit, { desc = "Enter cmdline edit mode" })
-	M.attach()
-	M.attached = true
-end
-
-function M.toggle()
-	if M.attached then
-		M.disable()
-	else
-		M.setup()
-	end
 end
 
 return M

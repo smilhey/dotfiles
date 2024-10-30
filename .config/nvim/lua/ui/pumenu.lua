@@ -1,7 +1,6 @@
 local cmdwin = require("ui.cmdwin")
 
 local M = {
-	attached = false,
 	buf = -1,
 	win = -1,
 	win_opts = {
@@ -201,26 +200,14 @@ function M.handler(event, ...)
 	end
 end
 
-function M.attach()
-	vim.ui_attach(M.ns, { ext_popupmenu = true }, function(event, ...)
-		if event:match("pop") ~= nil then
-			M.handler(event, ...)
-		end
-	end)
-end
-
 function M.disable()
 	vim.fn.pum_getpos = M.old_pum_getpos
-	vim.ui_detach(M.ns)
-	M.attached = false
 end
 
 function M.setup(opts)
 	M.opts = vim.tbl_deep_extend("force", M.opts, opts)
 	M.ns = vim.api.nvim_create_namespace("pmenu")
 	vim.api.nvim_set_hl(M.ns, "Normal", { link = "Pmenu" })
-	M.attach()
-	M.attached = true
 	M.old_pum_getpos = vim.fn.pum_getpos
 	vim.fn.pum_getpos = function()
 		if M.win == -1 or not vim.api.nvim_win_is_valid(M.win) then
@@ -235,14 +222,6 @@ function M.setup(opts)
 				scrollbar = #M.items > M.height,
 			}
 		end
-	end
-end
-
-function M.toggle()
-	if M.attached then
-		M.disable()
-	else
-		M.attach()
 	end
 end
 
