@@ -40,7 +40,7 @@ function M.init_buf(display)
 	vim.bo[buf].modifiable = false
 	vim.api.nvim_buf_set_name(buf, "[MsgArea - " .. display .. "]")
 	vim.keymap.set("n", "q", function()
-		vim.api.nvim_win_close(M[display].win, true)
+		pcall(vim.api.nvim_win_close, M[display].win, true)
 		M[display].win = -1
 	end, { buffer = buf, nowait = true, silent = true })
 	M[display].buf = buf
