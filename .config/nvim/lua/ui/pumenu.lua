@@ -34,19 +34,17 @@ function M.update_window()
 	local width = M.width
 	local row = M.row
 	local col = M.col
-	if cmdwin.win == -1 then
-		if row == 0 then
-			row = vim.o.lines - vim.o.cmdheight - height
-		elseif height > vim.o.lines - row - 3 then
+	if M.grid == 1 then
+		if height > vim.o.lines - row - 3 then
 			row = row - height
 		else
 			row = row + 1
 		end
-		if M.row ~= 0 and M.col ~= 0 then
+		if M.col ~= 0 then
 			col = col - 1
 		end
 	end
-	if M.opts.type == "float" and cmdwin.win ~= -1 then
+	if M.opts.type == "float" and M.grid == -1 then
 		local config = vim.api.nvim_win_get_config(cmdwin.win)
 		width = config.width
 		row = config.row + 3
@@ -174,7 +172,7 @@ function M.format(items)
 end
 
 function M.on_show(...)
-	M.items, M.selected, M.row, M.col, _ = ...
+	M.items, M.selected, M.row, M.col, M.grid = ...
 	M.height = math.min(#M.items, M.opts.max_items, math.max(vim.o.lines - M.row - 3, M.row))
 	M.format(M.items)
 	M.width = vim.api.nvim_strwidth(table.concat(M.items[1]))
