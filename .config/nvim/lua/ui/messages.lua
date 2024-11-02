@@ -173,21 +173,17 @@ end
 
 function M.on_empty(lines)
 	if #lines == 1 then
-		if string.find(lines[1], "Type  :qa") then
-			vim.notify("", vim.log.levels.INFO)
-			return
-		end
 		-- check if the message is a terminal command output
 		if lines[1]:find("^:!") then
 			vim.notify("shell output", vim.log.levels.INFO)
-			return
+		else
+			M.on_usr_msg("echo", lines)
 		end
-		M.on_usr_msg("echo", lines)
-		return
+	else
+		vim.schedule(function()
+			M.render_split("output", lines, false)
+		end)
 	end
-	vim.schedule(function()
-		M.render_split("output", lines, false)
-	end)
 end
 
 function M.show_log()
@@ -203,16 +199,18 @@ vim.api.nvim_create_user_command("Mlog", M.show_log, { desc = "Log for messages"
 function M.on_show(...)
 	local kind, content, _ = ...
 	local lines = M.content_to_lines(content)
+	if #lines == 1 and string.find(lines[1], "Type  :qa") then
+		vim.notify("")
+		return
+	end
 	table.insert(M.log, vim.inspect(kind))
 	table.insert(M.log, table.concat(lines, "---"))
 	if kind == "" then
 		M.on_empty(lines)
-		return
 	elseif kind == "return_prompt" then
-		return vim.api.nvim_input("<cr>")
+		vim.api.nvim_input("<cr>")
 	elseif vim.tbl_contains({ "rpc_error", "lua_error", "echoerr", "echomsg", "emsg", "echo", "wmsg" }, kind) then
 		M.on_usr_msg(kind, lines)
-		return
 	elseif kind == "confirm" or kind == "confirm_sub" then
 		M.on_confirm(kind, lines)
 	elseif kind == "search_count" then
