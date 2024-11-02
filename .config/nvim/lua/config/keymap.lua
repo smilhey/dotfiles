@@ -64,6 +64,10 @@ vim.keymap.set("n", "n", "nzzzv", { desc = "Move to next search and center" })
 vim.keymap.set("n", "N", "Nzzzv", { desc = "Move to previous search and center" })
 
 vim.keymap.set("i", "<C-c>", "<Esc>", { desc = "Remap <C-c> to <Esc>" })
+vim.keymap.set("n", "<C-c>", function()
+	vim.opt.hlsearch = false
+	return "<C-C>"
+end, { desc = "Remap <C-c> to <Esc>", expr = true, noremap = true })
 
 vim.keymap.set("i", "<C-y>", function()
 	local complete_info = vim.fn.complete_info({ "selected" })

@@ -140,6 +140,37 @@ function M.on_confirm(kind, lines)
 	vim.api.nvim__redraw({ flush = true, cursor = true })
 end
 
+function M.clear_search_count()
+	vim.defer_fn(function()
+		if vim.v.hlsearch == 0 then
+			vim.api.nvim_buf_del_extmark(0, M.ns, M.search_mark)
+		else
+			M.clear_search_count()
+		end
+	end, 50)
+end
+
+function M.on_search_count(lines)
+	vim.opt.hlsearch = true
+	M.clear_search_count()
+	vim.schedule(function()
+		local search_count = lines[1]:sub(lines[1]:find("[", 1, true), -1)
+		local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+		if M.search_mark then
+			M.search_mark = vim.api.nvim_buf_set_extmark(
+				0,
+				M.ns,
+				line - 1,
+				col,
+				{ id = M.search_mark, virt_text = { { search_count, "Search" } } }
+			)
+		else
+			M.search_mark =
+				vim.api.nvim_buf_set_extmark(0, M.ns, line - 1, col, { virt_text = { { search_count, "Search" } } })
+		end
+	end)
+end
+
 function M.on_empty(lines)
 	if #lines == 1 then
 		if string.find(lines[1], "Type  :qa") then
@@ -184,7 +215,9 @@ function M.on_show(...)
 		return
 	elseif kind == "confirm" or kind == "confirm_sub" then
 		M.on_confirm(kind, lines)
-	elseif kind == "search_count" or kind == "quickfix" then
+	elseif kind == "search_count" then
+		M.on_search_count(lines)
+	elseif kind == "quickfix" then
 		return
 	end
 end

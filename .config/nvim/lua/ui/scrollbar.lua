@@ -48,9 +48,9 @@ function M.sb_render(ns, win, bwin)
 	local thumb_size = math.ceil(bwin_height / total_lines * bwin_height)
 	thumb_pos = math.max(1, math.min(thumb_pos, bwin_height - thumb_size + 1))
 	vim.api.nvim_buf_clear_namespace(bbuf, ns, 0, -1)
-	vim.highlight.range(bbuf, ns, "PmenuSbar", { 0, 0 }, { thumb_pos - 1, 0 })
-	vim.highlight.range(bbuf, ns, "PmenuThumb", { thumb_pos - 1, 0 }, { thumb_pos + thumb_size - 1, 0 })
-	vim.highlight.range(bbuf, ns, "PmenuSbar", { thumb_pos + thumb_size - 1, 0 }, { total_lines, 0 })
+	vim.hl.range(bbuf, ns, "PmenuSbar", { 0, 0 }, { thumb_pos - 1, 0 })
+	vim.hl.range(bbuf, ns, "PmenuThumb", { thumb_pos - 1, 0 }, { thumb_pos + thumb_size - 1, 0 })
+	vim.hl.range(bbuf, ns, "PmenuSbar", { thumb_pos + thumb_size - 1, 0 }, { total_lines, 0 })
 end
 
 function M.sb_show(win)

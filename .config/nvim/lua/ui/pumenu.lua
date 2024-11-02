@@ -44,6 +44,7 @@ function M.update_window()
 			col = col - 1
 		end
 	end
+	width = math.min(width, vim.o.columns - col)
 	if M.opts.type == "float" and M.grid == -1 then
 		local config = vim.api.nvim_win_get_config(cmdwin.win)
 		width = config.width
@@ -203,6 +204,7 @@ function M.disable()
 end
 
 function M.setup(opts)
+	opts = opts and opts or {}
 	M.opts = vim.tbl_deep_extend("force", M.opts, opts)
 	M.ns = vim.api.nvim_create_namespace("pmenu")
 	vim.api.nvim_set_hl(M.ns, "Normal", { link = "Pmenu" })

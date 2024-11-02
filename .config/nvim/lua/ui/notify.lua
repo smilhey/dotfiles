@@ -92,19 +92,21 @@ end
 
 function M.notify(msg, log_level, opts)
 	log_level = log_level and log_level or 3
-	if msg == "" then
+	if msg == "" or msg == nil then
 		M.clear()
 		return
 	else
+		M.timer:stop()
 		M.timer:start(M.opts.decay, 0, function()
 			M.timer:stop()
 			vim.schedule(M.clear)
 		end)
 	end
-	if M.msg == msg then
+	if M.msg and M.msg == msg then
 		return
+	else
+		M.msg = msg
 	end
-	M.msg = msg
 	M.init_buf()
 	M.render(msg, log_level)
 	M.init_win()

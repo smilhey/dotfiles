@@ -83,9 +83,13 @@ function M.render_tabline(curtab, tabs, curbuf, buffers)
 	local sep = string.rep(" ", vim.o.columns - string.len(b) - string.len(t))
 	local tabline = b .. sep .. t
 	vim.api.nvim_buf_set_lines(M.buf, 0, 1, false, { tabline })
-	vim.highlight.range(M.buf, M.ns, "TabLine", { 0, 0 }, { 0, vim.o.columns })
-	vim.highlight.range(M.buf, M.ns, "TabLineSel", { 0, b_hl_start }, { 0, b_hl_end })
-	vim.highlight.range(M.buf, M.ns, "TabLineSel", { 0, t_hl_start + #b + #sep }, { 0, t_hl_end + #b + #sep })
+	vim.hl.range(M.buf, M.ns, "TabLine", { 0, 0 }, { 0, vim.o.columns })
+	if b_hl_start < b_hl_end then
+		vim.hl.range(M.buf, M.ns, "TabLineSel", { 0, b_hl_start }, { 0, b_hl_end })
+	end
+	if t_hl_start < t_hl_end then
+		vim.hl.range(M.buf, M.ns, "TabLineSel", { 0, t_hl_start + #b + #sep }, { 0, t_hl_end + #b + #sep })
+	end
 end
 
 function M.on_update(...)
@@ -129,6 +133,71 @@ function M.setup()
 	if vim.o.cmdheight == 0 then
 		vim.o.cmdheight = 1
 	end
+end
+
+function M.get_tabs()
+	local tabs = vim.tbl_filter(vim.api.nvim_tabpage_is_valid, vim.api.nvim_list_tabpages())
+	local str = ""
+	for i, tab in ipairs(tabs) do
+		if tab == vim.api.nvim_get_current_tabpage() then
+			str = str .. "%#TabLineSel# " .. tostring(i) .. " %#TabLine#"
+		else
+			str = str .. " " .. tostring(i) .. " "
+		end
+	end
+	return str
+end
+
+-- tabline without ext_ui
+function M.get_bufs()
+	local buffers = vim.iter(vim.api.nvim_list_bufs())
+		:filter(function(buf)
+			return vim.bo[buf].buflisted and vim.api.nvim_buf_is_valid(buf)
+		end)
+		:totable()
+	local str = ""
+	local buffer_line_length = 0
+	local slices = { 0 }
+	local current_slice = 1
+	for _, buf in ipairs(buffers) do
+		local buf_name = vim.api.nvim_buf_get_name(buf)
+		if buf_name == "" then
+			if vim.fn.win_gettype() ~= "" then
+				break
+			end
+			buf_name = "[No Name]"
+		else
+			if buf_name ~= "health://" then
+				buf_name = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(buf), ":t")
+			end
+		end
+		buffer_line_length = buffer_line_length + #buf_name
+		if buf == vim.api.nvim_get_current_buf() then
+			current_slice = #slices
+			str = str .. "%#TabLineSel# " .. buf_name .. " %#TabLine#"
+		else
+			str = str .. " " .. buf_name .. " "
+		end
+		if buffer_line_length > 100 then
+			table.insert(slices, #str)
+			buffer_line_length = 0
+		end
+	end
+	table.insert(slices, #str)
+	local buffer_line = string.sub(str, slices[current_slice] + 1, slices[current_slice + 1])
+	if #slices == 2 then
+		return str
+	elseif current_slice == #slices - 1 then
+		return "... " .. buffer_line
+	elseif current_slice == 1 then
+		return buffer_line .. " ..."
+	else
+		return "... " .. buffer_line .. " ..."
+	end
+end
+
+function M.get()
+	return M.get_bufs .. "%=" .. M.get_tabs()
 end
 
 return M

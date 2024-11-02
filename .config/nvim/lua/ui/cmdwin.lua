@@ -10,6 +10,7 @@ local ESC = vim.api.nvim_replace_termcodes("<esc>", true, true, true)
 -- 	width = vim.o.columns,
 -- 	height = 1,
 -- },
+
 local M = {
 	mode = "cmd",
 	buf = -1,
@@ -22,10 +23,10 @@ local M = {
 	cmdheight = 0,
 	win_opts = {
 		relative = "editor",
-		row = math.floor(vim.o.lines / 5),
-		col = math.floor((2 * vim.o.columns / 6)),
-		height = 1,
 		width = math.ceil(vim.o.columns / 3),
+		row = math.floor(vim.o.lines * 0.2),
+		col = math.floor(vim.o.columns / 3),
+		height = 1,
 		style = "minimal",
 		border = "single",
 		zindex = 200,
@@ -257,10 +258,31 @@ function M.disable()
 end
 
 function M.setup()
+	M.augroup = vim.api.nvim_create_augroup("cmdline", { clear = true })
 	M.ns = vim.api.nvim_create_namespace("cmdline")
 	vim.api.nvim_set_hl(M.ns, "NormalFloat", { link = "MsgArea" })
 	vim.keymap.set("c", "<esc>", M.enter_edit, { desc = "Enter cmdline edit mode" })
 	vim.keymap.set("c", "<c-c>", M.enter_edit, { desc = "Enter cmdline edit mode" })
+	vim.api.nvim_create_autocmd("VimResized", {
+		desc = "ed-cmd keep its relative pos",
+		group = M.augroup,
+		callback = function()
+			M.win_opts = {
+				relative = "editor",
+				width = math.ceil(vim.o.columns / 3),
+				row = math.floor(vim.o.lines * 0.2),
+				col = math.floor(vim.o.columns / 3),
+				height = 1,
+				style = "minimal",
+				border = "single",
+				zindex = 200,
+			}
+			if vim.api.nvim_win_is_valid(M.win) then
+				vim.api.nvim_win_set_config(M.win, M.win_opts)
+				M.render()
+			end
+		end,
+	})
 end
 
 return M
