@@ -99,6 +99,24 @@ return {
 		"williamboman/mason-lspconfig.nvim",
 	},
 	config = function()
+		local function lsp_progress(err, progress, ctx)
+			if err then
+				return
+			end
+			local value = progress.value
+			local title = value.title and value.title or ""
+			local percentage = value.percentage and value.percentage or 0
+			local display = title == "Loading workspace" and percentage > 0
+			vim.g.statusline_lsp_progress = display and title .. " : " .. tostring(percentage) .. "/100" or ""
+		end
+		local old_handler = vim.lsp.handlers["$/progress"]
+		vim.lsp.handlers["$/progress"] = function(...)
+			if old_handler then
+				old_handler(...)
+			end
+			lsp_progress(...)
+			vim.cmd.redrawstatus()
+		end
 		vim.api.nvim_create_autocmd("LspAttach", {
 			desc = "LSP setup",
 			callback = function(args)

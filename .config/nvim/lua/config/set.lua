@@ -30,11 +30,11 @@ vim.opt.cmdwinheight = 2
 vim.opt.showcmd = false
 vim.opt.showcmdloc = "statusline"
 vim.opt.showmode = false
-vim.opt.statusline = require("config.ui.statusline")
-vim.opt.tabline = require("config.ui.tabline")
+vim.opt.statusline = "%{%v:lua.require'ui.statusline'.get()%}"
+vim.opt.tabline = "%{%v:lua.require'ui.tabline'.get()%}"
+-- vim.opt_local.winbar = "%#StatusLine# %n %*%=%m %f"
 vim.opt.showtabline = 2
-vim.opt_local.winbar = "%#StatusLine# %n %*%=%m %f"
-vim.opt.shortmess = "aoOstTIcCFqS"
+vim.opt.shortmess = "aoOstTIcCFq"
 
 vim.env.PATH = vim.env.PATH
 	.. ":/home/smilhey/miniforge3/condabin"

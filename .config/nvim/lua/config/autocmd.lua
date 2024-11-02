@@ -169,14 +169,23 @@ vim.api.nvim_create_autocmd("CmdwinLeave", {
 
 local qol = vim.api.nvim_create_augroup("user_utils", { clear = true })
 
-vim.api.nvim_create_autocmd("BufWinEnter", {
-	group = qol,
+-- vim.api.nvim_create_autocmd("BufWinEnter", {
+-- 	group = qol,
+-- 	callback = function()
+-- 		if vim.fn.win_gettype() ~= "" or vim.bo.filetype == "MsgArea" then
+-- 			return
+-- 		end
+-- 		vim.opt_local.winbar = "%#StatusLine# %n %*%=%m %f"
+-- 	end,
+-- })
+--
+
+vim.api.nvim_create_autocmd({ "DirChanged", "VimEnter" }, {
 	callback = function()
-		if vim.fn.win_gettype() ~= "" or vim.bo.filetype == "MsgArea" then
-			return
-		end
-		vim.opt_local.winbar = "%#StatusLine# %n %*%=%m %f"
+		local branch = vim.system({ "git", "branch", "--show-current" }, { text = true }):wait().stdout
+		vim.g.branch = branch and string.sub(branch, 1, -2) or ""
 	end,
+	desc = "Set cwd branch name",
 })
 
 vim.api.nvim_create_autocmd("BufWinEnter", {
