@@ -215,7 +215,7 @@ function M.setup(opts)
 		else
 			return {
 				height = M.height,
-				width = M.width,
+				width = math.min(M.width, vim.o.columns - M.pum_col),
 				row = M.pum_row,
 				col = M.pum_col,
 				size = #M.items,
