@@ -32,7 +32,7 @@ function M.resize_win()
 		return #line
 	end, vim.list_slice(buf_lines, #buf_lines - height + 1, #buf_lines))))
 	local col = vim.o.columns - width
-	local row = vim.o.lines - height - 3
+	local row = vim.o.lines - height - 1 - vim.o.cmdheight
 	vim.api.nvim_win_set_config(M.win, { relative = "editor", width = width, height = height, col = col, row = row })
 end
 
@@ -48,10 +48,11 @@ function M.init_win()
 			style = "minimal",
 			-- border = { "┏", "━", "┓", "┃", "┛", "━", "┗", "┃" },
 			-- border = { "┏", "━", "━", " ", " ", " ", "┃", "┃" },
-			border = "single",
+			-- border = "single",
 			zindex = 60,
 		})
 	end
+	vim.api.nvim_win_set_hl_ns(M.win, M.ns)
 	M.resize_win()
 end
 
@@ -71,6 +72,7 @@ function M.render(msg, log_level)
 	vim.bo[M.buf].modifiable = false
 	for i, line in ipairs(lines) do
 		-- vim.api.nvim_buf_set_extmark(M.buf, M.ns, i, 0, { line_hl_group = M.hl_table[log_level + 1] })
+		line = line:match("^(.-)%s*$")
 		vim.api.nvim_buf_set_extmark(
 			M.buf,
 			M.ns,
@@ -119,6 +121,7 @@ end
 function M.setup()
 	M.timer = vim.uv.new_timer()
 	M.ns = vim.api.nvim_create_namespace("notif")
+	vim.api.nvim_set_hl(M.ns, "NormalFloat", { link = "Normal" })
 	M.old_notify = vim.notify
 	vim.notify = M.notify
 	M.enabled = true
@@ -137,16 +140,5 @@ function M.toggle()
 		M.setup()
 	end
 end
-
--- function M.notify(msg, log_level, opts)
--- 	if msg == vim.g.status_line_notify.message then
--- 		return
--- 	end
--- 	vim.g.status_line_notify = { message = msg, level = log_level }
--- 	vim.schedule(function()
--- 		vim.cmd("redrawstatus")
--- 	end)
--- 	messages.add_to_history(msg)
--- end
 
 return M

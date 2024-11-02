@@ -1,4 +1,4 @@
-local tabline = require("ui.tab")
+local tabline = require("ui.tabline")
 local messages = require("ui.messages")
 local cmdwin = require("ui.cmdwin")
 -- local cmdline = require("ui.cmdline")
@@ -7,6 +7,7 @@ local win_input = require("ui.input").win_input
 local win_select = require("ui.select")
 local scrollbar = require("ui.scrollbar")
 local notify = require("ui.notify")
+-- local statusline = require("ui.statusline")
 -- local lsp_progress = require("ui.lsp_progress")
 
 vim.ui.input = function(opts, on_confirm)
@@ -27,7 +28,7 @@ M.setup = { cmdline = cmdwin.setup, tabline = tabline.setup, popupmenu = pumenu.
 
 tabline.setup()
 messages.setup()
-pumenu.setup({})
+pumenu.setup()
 cmdwin.setup()
 scrollbar.setup()
 notify.setup()
