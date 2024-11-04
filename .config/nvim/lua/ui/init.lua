@@ -26,15 +26,6 @@ M.disable =
 	{ cmdline = cmdwin.disable, tabline = tabline.disable, popupmenu = pumenu.disable, messages = function() end }
 M.setup = { cmdline = cmdwin.setup, tabline = tabline.setup, popupmenu = pumenu.setup, messages = messages.setup }
 
-tabline.setup()
-messages.setup()
-pumenu.setup()
-cmdwin.setup()
-scrollbar.setup()
-notify.setup()
--- cmdline.setup()
--- lsp_progress.setup()
-
 local function attach()
 	vim.ui_attach(
 		M.ns,
@@ -96,4 +87,13 @@ local function ui_cmd_complete(ArgLead, _)
 end
 
 vim.api.nvim_create_user_command("Ui", ui_cmd, { desc = "Toggle UI elements", nargs = "?", complete = ui_cmd_complete })
+
+tabline.setup()
+messages.setup()
+pumenu.setup()
+cmdwin.setup()
+scrollbar.setup()
+notify.setup()
+-- cmdline.setup()
+-- lsp_progress.setup()
 attach()

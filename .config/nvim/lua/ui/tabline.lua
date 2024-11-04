@@ -197,7 +197,7 @@ function M.get_bufs()
 end
 
 function M.get()
-	return M.get_bufs .. "%=" .. M.get_tabs()
+	return M.get_bufs() .. "%=" .. M.get_tabs()
 end
 
 return M
