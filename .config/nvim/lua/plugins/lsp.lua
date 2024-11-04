@@ -140,9 +140,6 @@ return {
 				vim.keymap.set("n", "gd", function()
 					vim.lsp.buf.definition()
 				end, { buffer = buf, remap = false, desc = "LSP go to def" })
-				vim.keymap.set("n", "<leader>ws", function()
-					vim.lsp.buf.workspace_symbol()
-				end, { buffer = buf, remap = false, desc = "LSP workspace wymbol" })
 			end,
 		})
 
@@ -205,14 +202,10 @@ return {
 							workspace = {
 								library = vim.api.nvim_get_runtime_file("", true),
 							},
-							codeLens = {
-								enable = true,
-							},
 							completion = {
 								callSnippet = "Replace",
 								showParams = false,
 							},
-							hint = { enable = true },
 							telemetry = {
 								enable = false,
 							},

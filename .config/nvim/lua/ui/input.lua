@@ -88,9 +88,6 @@ function M.completefunc(findstart, base)
 		else
 			local ok, result = pcall(vim.fn.getcompletion, base, M.completion)
 			if ok then
-				vim.schedule(function()
-					P("base : " .. base)
-				end)
 				if base:sub(-1) == " " then
 					return vim.tbl_map(function(item)
 						return base .. item

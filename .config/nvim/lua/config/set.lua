@@ -1,5 +1,3 @@
-local apply_colorscheme = require("config.ui.colorscheme")
-
 vim.opt.guicursor = "a:block-blinkon0,i:Cursor,r-cr-o:hor20,c:Cursor,ci:Cursor,cr:Cursor"
 vim.g.mapleader = " "
 
