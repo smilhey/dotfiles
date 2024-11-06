@@ -31,6 +31,7 @@ function M.init_win()
 		zindex = 200,
 	}
 	local win = vim.api.nvim_open_win(M.buf, false, config)
+	vim.api.nvim_win_set_hl_ns(win, M.ns)
 	vim.wo[win].winfixbuf = true
 	M.win = win
 end
@@ -130,6 +131,9 @@ end
 
 function M.setup()
 	M.ns = vim.api.nvim_create_namespace("tabline")
+	vim.api.nvim_set_hl(M.ns, "Search", { link = "none" })
+	vim.api.nvim_set_hl(M.ns, "CurSearch", { link = "none" })
+	vim.api.nvim_set_hl(M.ns, "Substitute", { link = "none" })
 	if vim.o.cmdheight == 0 then
 		vim.o.cmdheight = 1
 	end

@@ -15,7 +15,6 @@ local M = {
 		style = "minimal",
 	},
 	opts = {
-		max_items = 10,
 		type = "float",
 	},
 }
@@ -47,6 +46,7 @@ function M.update_window()
 	width = math.min(width, vim.o.columns - col)
 	if M.opts.type == "float" and M.grid == -1 then
 		local config = vim.api.nvim_win_get_config(cmdwin.win)
+		height = math.ceil(vim.o.lines * 0.25)
 		width = config.width
 		row = config.row + 3
 		col = config.col + 1
@@ -102,8 +102,8 @@ function M.render_selected_line()
 			0,
 			{ end_col = #word, strict = false, hl_group = "PmenuSel" }
 		)
-		local has_kind = kind:sub(1, 1) ~= " "
-		local has_menu = menu:sub(1, 1) ~= " "
+		local has_kind = kind ~= "" and kind:sub(1, 1) ~= " "
+		local has_menu = menu ~= "" and menu:sub(1, 1) ~= " "
 		local hl_kind_sel = has_kind and "PmenuKindSel" or "PmenuSel"
 		local hl_menu_sel = has_menu and "PmenuExtraSel" or "PmenuSel"
 		vim.api.nvim_buf_set_extmark(
@@ -120,6 +120,18 @@ function M.render_selected_line()
 			#word + #kind,
 			{ end_col = #menu + #word + #kind, hl_group = hl_menu_sel }
 		)
+		if M.width > #word + #kind + #menu then
+			local end_hl_group = "PmenuSel"
+			end_hl_group = has_kind and hl_kind_sel or end_hl_group
+			end_hl_group = has_menu and hl_menu_sel or end_hl_group
+			vim.api.nvim_buf_set_extmark(
+				M.buf,
+				M.ns,
+				M.selected,
+				#word + #kind + #menu,
+				{ end_row = M.selected + 1, end_col = 0, strict = false, hl_group = end_hl_group, hl_eol = true }
+			)
+		end
 	end
 	vim.api.nvim_win_set_cursor(M.win, { M.selected + 1, 0 })
 end
@@ -174,9 +186,10 @@ end
 
 function M.on_show(...)
 	M.items, M.selected, M.row, M.col, M.grid = ...
-	M.height = math.min(#M.items, M.opts.max_items, math.max(vim.o.lines - M.row - 3, M.row))
+	local height = vim.o.pumheight == 0 and 1000 or vim.o.pumheight
+	M.height = math.min(#M.items, height, math.max(vim.o.lines - M.row - 3, M.row))
 	M.format(M.items)
-	M.width = vim.api.nvim_strwidth(table.concat(M.items[1]))
+	M.width = math.max(vim.api.nvim_strwidth(table.concat(M.items[1])), vim.o.pumwidth)
 	M.render()
 end
 

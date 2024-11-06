@@ -86,6 +86,22 @@ function M.get_time()
 	return M.create_item(date)
 end
 
+function M.get_venv()
+	-- if vim.bo.filetype ~= "python" then
+	-- 	return ""
+	-- end
+	local venv = ""
+	local conda_env = os.getenv("CONDA_DEFAULT_ENV")
+	local venv_path = os.getenv("VIRTUAL_ENV")
+	if conda_env then
+		venv = string.format("  %s (conda)", conda_env)
+	elseif venv_path then
+		venv = vim.fn.fnamemodify(venv_path, ":t")
+		venv = string.format("  %s (venv)", venv)
+	end
+	return M.create_item(venv, "String")
+end
+
 function M.get()
 	local width = math.ceil(vim.o.columns * 0.4)
 	local truncator_position = "%<"
@@ -104,7 +120,19 @@ function M.get()
 		.. M.get_branch()
 		.. "%)"
 	local mid = M.get_diagnostics()
-	local rhs = "%" .. width .. "." .. width .. "(" .. M.get_macro() .. "%l/%L,%c %m " .. sep .. M.get_time() .. "%)"
+	local rhs = "%"
+		.. width
+		.. "."
+		.. width
+		.. "("
+		.. M.get_macro()
+		.. sep
+		.. M.get_venv()
+		.. sep
+		.. "%l/%L,%c %m "
+		.. sep
+		.. M.get_time()
+		.. "%)"
 	return lhs .. align_rhs .. mid .. align_rhs .. rhs
 end
 

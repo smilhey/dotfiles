@@ -4,7 +4,7 @@ local M = {
 	buf = -1,
 	msg = nil,
 	enabled = false,
-	opts = { decay = 4000, win_opts = {} },
+	timeout = 4000,
 }
 
 M.hl_table = {
@@ -22,7 +22,6 @@ function M.init_buf()
 	end
 	M.buf = vim.api.nvim_create_buf(false, true)
 	vim.bo[M.buf].bufhidden = "wipe"
-	vim.bo[M.buf].modifiable = false
 end
 
 function M.resize_win()
@@ -52,14 +51,17 @@ function M.init_win()
 			zindex = 60,
 		})
 	end
+	-- vim.wo[M.win].winblend = 100
 	vim.api.nvim_win_set_hl_ns(M.win, M.ns)
 	M.resize_win()
 end
 
 function M.render(msg, log_level)
 	local lines_count = vim.api.nvim_buf_line_count(M.buf)
-	vim.bo[M.buf].modifiable = true
 	local lines = vim.fn.split(msg, "\n")
+	lines = vim.tbl_map(function(line)
+		return vim.trim(line) .. " █"
+	end, lines)
 	local fill = vim.tbl_map(function(line)
 		return (" "):rep(#line)
 	end, lines)
@@ -69,10 +71,7 @@ function M.render(msg, log_level)
 	else
 		vim.api.nvim_buf_set_lines(M.buf, -1, -1, false, fill)
 	end
-	vim.bo[M.buf].modifiable = false
 	for i, line in ipairs(lines) do
-		-- vim.api.nvim_buf_set_extmark(M.buf, M.ns, i, 0, { line_hl_group = M.hl_table[log_level + 1] })
-		line = line:match("^(.-)%s*$")
 		vim.api.nvim_buf_set_extmark(
 			M.buf,
 			M.ns,
@@ -94,28 +93,24 @@ end
 
 function M.notify(msg, log_level, opts)
 	log_level = log_level and log_level or 3
-	if msg == "" or msg == nil then
+	if M.msg and M.msg == msg then
+		return
+	elseif msg == "" or msg == nil then
 		M.clear()
 		return
 	else
 		M.timer:stop()
-		M.timer:start(M.opts.decay, 0, function()
+		M.timer:start(M.timeout, 0, function()
 			M.timer:stop()
 			vim.schedule(M.clear)
 		end)
 	end
-	if M.msg and M.msg == msg then
-		return
-	else
-		M.msg = msg
-	end
+	messages.add_to_history(msg)
+	M.msg = msg
 	M.init_buf()
 	M.render(msg, log_level)
 	M.init_win()
 	vim.api.nvim_win_set_cursor(M.win, { vim.fn.line("$", M.win), 0 })
-	if opts == nil then
-		messages.add_to_history(msg)
-	end
 end
 
 function M.setup()

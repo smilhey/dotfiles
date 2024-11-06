@@ -258,9 +258,12 @@ function M.disable()
 end
 
 function M.setup()
-	M.augroup = vim.api.nvim_create_augroup("cmdline", { clear = true })
+	M.augroup = vim.api.nvim_create_augroup("cmdline-resize", { clear = true })
 	M.ns = vim.api.nvim_create_namespace("cmdline")
 	vim.api.nvim_set_hl(M.ns, "NormalFloat", { link = "MsgArea" })
+	vim.api.nvim_set_hl(M.ns, "Search", { link = "MsgArea" })
+	vim.api.nvim_set_hl(M.ns, "CurSearch", { link = "MsgArea" })
+	vim.api.nvim_set_hl(M.ns, "Substitute", { link = "MsgArea" })
 	vim.keymap.set("c", "<esc>", M.enter_edit, { desc = "Enter cmdline edit mode" })
 	vim.keymap.set("c", "<c-c>", M.enter_edit, { desc = "Enter cmdline edit mode" })
 	vim.api.nvim_create_autocmd("VimResized", {
