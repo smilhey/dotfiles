@@ -3,20 +3,6 @@ local cmdwin = require("ui.cmdwin")
 local M = {
 	buf = -1,
 	win = -1,
-	win_opts = {
-		zindex = 250,
-		relative = "editor",
-		width = 1,
-		height = 1,
-		row = 1,
-		col = 1,
-		focusable = false,
-		-- border = "single",
-		style = "minimal",
-	},
-	opts = {
-		type = "float",
-	},
 }
 
 function M.init_buffer()
@@ -28,41 +14,34 @@ function M.init_buffer()
 	vim.api.nvim_buf_set_name(M.buf, "popupmenu")
 end
 
-function M.update_window()
-	local height = M.height
-	local width = M.width
-	local row = M.row
-	local col = M.col
-	if M.grid == 1 then
-		if height > vim.o.lines - row - 3 then
-			row = row - height
-		else
-			row = row + 1
-		end
-		if M.col ~= 0 then
-			col = col - 1
-		end
-	end
-	width = math.min(width, vim.o.columns - col)
-	if M.opts.type == "float" and M.grid == -1 then
-		local config = vim.api.nvim_win_get_config(cmdwin.win)
-		height = math.ceil(vim.o.lines * 0.25)
-		width = config.width
-		row = config.row + 3
-		col = config.col + 1
-	end
-	M.pum_row = row
-	M.pum_col = col
-	vim.api.nvim_win_set_config(M.win, { relative = "editor", width = width, height = height, row = row, col = col })
-end
-
 function M.init_window()
-	if not vim.api.nvim_win_is_valid(M.win) then
-		M.win = vim.api.nvim_open_win(M.buf, false, M.win_opts)
-		vim.wo[M.win].wrap = false
+	if M.grid == -1 then
+		local config = vim.api.nvim_win_get_config(cmdwin.win)
+		M.height = math.min(#M.items, math.ceil(vim.o.lines * 0.25))
+		M.width = config.width
+		M.row = config.row + 3
+		M.col = config.col + 1
 	end
-	vim.api.nvim_win_set_hl_ns(M.win, M.ns)
-	M.update_window()
+	if not vim.api.nvim_win_is_valid(M.win) then
+		M.win = vim.api.nvim_open_win(M.buf, false, {
+			relative = "editor",
+			zindex = 250,
+			focusable = false,
+			style = "minimal",
+			width = M.width,
+			height = M.height,
+			row = M.row,
+			col = M.col,
+		})
+		vim.wo[M.win].wrap = false
+		vim.wo[M.win].cursorlineopt = "line"
+		vim.wo[M.win].winblend = vim.o.pumblend
+		vim.api.nvim_win_set_hl_ns(M.win, M.ns)
+	end
+	vim.api.nvim_win_set_config(
+		M.win,
+		{ relative = "editor", width = M.width, height = M.height, row = M.row, col = M.col }
+	)
 end
 
 function M.render_scrollbar()
@@ -89,49 +68,40 @@ end
 
 function M.render_selected_line()
 	if M.selected == -1 then
+		vim.wo[M.win].cursorline = false
 		return
 	end
-	if cmdwin.win ~= -1 then
-		vim.api.nvim_buf_set_extmark(M.buf, M.ns, M.selected, 0, { line_hl_group = "PmenuSel" })
-	else
-		local word, kind, menu = unpack(M.items[M.selected + 1])
-		vim.api.nvim_buf_set_extmark(
-			M.buf,
-			M.ns,
-			M.selected,
-			0,
-			{ end_col = #word, strict = false, hl_group = "PmenuSel" }
-		)
-		local has_kind = kind ~= "" and kind:sub(1, 1) ~= " "
-		local has_menu = menu ~= "" and menu:sub(1, 1) ~= " "
-		local hl_kind_sel = has_kind and "PmenuKindSel" or "PmenuSel"
-		local hl_menu_sel = has_menu and "PmenuExtraSel" or "PmenuSel"
+	vim.wo[M.win].cursorline = true
+	local word, kind, menu = unpack(M.items[M.selected + 1])
+	local has_kind = kind ~= "" and kind:sub(1, 1) ~= " "
+	local has_menu = menu ~= "" and menu:sub(1, 1) ~= " "
+	if has_kind then
 		vim.api.nvim_buf_set_extmark(
 			M.buf,
 			M.ns,
 			M.selected,
 			#word,
-			{ end_col = #kind + #word, hl_group = hl_kind_sel }
+			{ end_col = #kind + #word, hl_group = "PmenuKindSel" }
 		)
+	end
+	if has_menu then
 		vim.api.nvim_buf_set_extmark(
 			M.buf,
 			M.ns,
 			M.selected,
 			#word + #kind,
-			{ end_col = #menu + #word + #kind, hl_group = hl_menu_sel }
+			{ end_col = #menu + #word + #kind, hl_group = "PmenuExtraSel" }
 		)
-		if M.width > #word + #kind + #menu then
-			local end_hl_group = "PmenuSel"
-			end_hl_group = has_kind and hl_kind_sel or end_hl_group
-			end_hl_group = has_menu and hl_menu_sel or end_hl_group
-			vim.api.nvim_buf_set_extmark(
-				M.buf,
-				M.ns,
-				M.selected,
-				#word + #kind + #menu,
-				{ end_row = M.selected + 1, end_col = 0, strict = false, hl_group = end_hl_group, hl_eol = true }
-			)
-		end
+	end
+	if M.width > #word + #kind + #menu and (has_kind or has_menu) then
+		local end_hl_group = has_menu and "PmenuExtraSel" or "PmenuKindSel"
+		vim.api.nvim_buf_set_extmark(
+			M.buf,
+			M.ns,
+			M.selected,
+			#word + #kind + #menu,
+			{ end_row = M.selected + 1, end_col = 0, strict = false, hl_group = end_hl_group, hl_eol = true }
+		)
 	end
 	vim.api.nvim_win_set_cursor(M.win, { M.selected + 1, 0 })
 end
@@ -186,10 +156,21 @@ end
 
 function M.on_show(...)
 	M.items, M.selected, M.row, M.col, M.grid = ...
-	local height = vim.o.pumheight == 0 and 1000 or vim.o.pumheight
-	M.height = math.min(#M.items, height, math.max(vim.o.lines - M.row - 3, M.row))
+	M.height = vim.o.pumheight == 0 and 1000 or vim.o.pumheight
+	M.height = math.min(#M.items, M.height, math.max(vim.o.lines - M.row - 3, M.row))
+	if M.grid == 1 then
+		if M.height > vim.o.lines - M.row - 3 then
+			M.row = M.row - M.height
+		else
+			M.row = M.row + 1
+		end
+		if M.col ~= 0 then
+			M.col = M.col - 1
+		end
+	end
 	M.format(M.items)
-	M.width = math.max(vim.api.nvim_strwidth(table.concat(M.items[1])), vim.o.pumwidth)
+	M.width = math.min(vim.api.nvim_strwidth(table.concat(M.items[1])), vim.o.columns - M.col)
+	M.width = math.max(M.width, vim.o.pumwidth)
 	M.render()
 end
 
@@ -216,11 +197,10 @@ function M.disable()
 	vim.fn.pum_getpos = M.old_pum_getpos
 end
 
-function M.setup(opts)
-	opts = opts and opts or {}
-	M.opts = vim.tbl_deep_extend("force", M.opts, opts)
+function M.setup()
 	M.ns = vim.api.nvim_create_namespace("pmenu")
 	vim.api.nvim_set_hl(M.ns, "Normal", { link = "Pmenu" })
+	vim.api.nvim_set_hl(M.ns, "CursorLine", { link = "PmenuSel" })
 	M.old_pum_getpos = vim.fn.pum_getpos
 	vim.fn.pum_getpos = function()
 		if M.win == -1 or not vim.api.nvim_win_is_valid(M.win) then
@@ -228,9 +208,9 @@ function M.setup(opts)
 		else
 			return {
 				height = M.height,
-				width = math.min(M.width, vim.o.columns - M.pum_col),
-				row = M.pum_row,
-				col = M.pum_col,
+				width = M.width,
+				row = M.row,
+				col = M.col,
 				size = #M.items,
 				scrollbar = #M.items > M.height,
 			}

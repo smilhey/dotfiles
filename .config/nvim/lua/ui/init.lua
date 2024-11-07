@@ -34,8 +34,8 @@ local function attach()
 			if event:match("cmd") ~= nil and M.cmdline then
 				cmdwin.handler(event, ...)
 				if vim.api.nvim_win_is_valid(pumenu.win) then
-					pumenu.update_window() -- handle resizing of pumenu in cmdline mode
-					vim.api.nvim__redraw({ flush = true, win = pumenu.win })
+					pumenu.init_window()
+					vim.api.nvim__redraw({ flush = true })
 				end
 			elseif event:match("msg") ~= nil and M.messages then
 				messages.handler(event, ...)

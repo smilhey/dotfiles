@@ -87,6 +87,9 @@ vim.opt.foldmethod = "expr"
 vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 vim.opt.foldlevel = 99
 
+vim.o.pumheight = 10
+vim.o.pumblend = 15
+
 -- habamax colorscheme
 
 -- vim.cmd("colorscheme habamax")
