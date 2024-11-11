@@ -1,25 +1,36 @@
 local M = {
-	history = { win = -1, buf = -1, messages = {} },
+	history = { win = -1, buf = -1, messages = {}, hl_groups = {} },
 	output = { win = -1, buf = -1 },
 	confirm = { win = -1 },
 	split_height = 10,
 	log = {},
 }
 
+function M.buf_set_hl_lines(buffer, start, end_, strict_indexing, lines, hl_groups)
+	vim.api.nvim_buf_set_lines(buffer, start, end_, strict_indexing, lines)
+	for i, hl_group in ipairs(hl_groups) do
+		vim.api.nvim_buf_set_extmark(buffer, M.ns, start + i - 1, 0, { line_hl_group = hl_group })
+	end
+end
+
 function M.content_to_lines(content)
-	local msg = ""
+	local lines = {}
+	local hl_groups = {}
 	for _, chunk in ipairs(content) do
-		msg = msg .. chunk[2]
+		if chunk[2] == "" then
+			break
+		end
+		local msg_lines = vim.split(string.gsub(chunk[2], "\r", ""), "\n")
+		local ok, hl = pcall(vim.api.nvim_get_hl, 0, { id = chunk[3] })
+		if ok then
+			vim.api.nvim_set_hl(M.ns, "messages-hl-" .. tostring(chunk[3]), hl)
+		end
+		for _, line in ipairs(msg_lines) do
+			lines[#lines + 1] = line
+			hl_groups[#hl_groups + 1] = "messages-hl-" .. tostring(chunk[3])
+		end
 	end
-	msg = string.gsub(msg, "\r", "")
-	local lines = vim.split(msg, "\n")
-	while #lines > 1 and lines[#lines] == "" do
-		table.remove(lines, #lines)
-	end
-	while #lines > 1 and lines[1] == "" do
-		table.remove(lines, 1)
-	end
-	return lines
+	return lines, hl_groups
 end
 
 function M.clear_buf(display)
@@ -64,7 +75,7 @@ function M.init_win(display, height)
 	vim.wo[M[display].win].winfixbuf = true
 end
 
-function M.render_split(display, lines, clear)
+function M.render_split(display, lines, clear, hl_groups)
 	if vim.api.nvim_win_get_config(0).relative ~= "" then
 		vim.notify(table.concat(lines, "\n"), vim.log.levels.INFO)
 		return
@@ -78,7 +89,11 @@ function M.render_split(display, lines, clear)
 		end_line = -1
 	end
 	vim.bo[M[display].buf].modifiable = true
-	vim.api.nvim_buf_set_lines(M[display].buf, start_line, end_line, false, lines)
+	if hl_groups then
+		M.buf_set_hl_lines(M[display].buf, start_line, end_line, false, lines, hl_groups)
+	else
+		vim.api.nvim_buf_set_lines(M[display].buf, start_line, end_line, false, lines)
+	end
 	vim.bo[M[display].buf].modifiable = false
 end
 
@@ -89,6 +104,8 @@ function M.on_usr_msg(show_kind, lines)
 	end
 	if show_kind == "echo" then
 		vim.notify(msg, vim.log.levels.INFO)
+	elseif show_kind == "wmsg" then
+		vim.notify(msg, vim.log.levels.WARN)
 	else
 		vim.notify(msg, vim.log.levels.ERROR)
 	end
@@ -99,7 +116,12 @@ function M.on_history_show()
 		vim.notify("Messages history is empty", vim.log.levels.INFO)
 		return
 	end
-	M.render_split("history", M.history.messages, true)
+	M.render_split("history", M.history.messages, true, M.history.hl_groups)
+end
+
+function M.on_history_clear()
+	M.history.messages = {}
+	M.history.hl_groups = {}
 end
 
 function M.on_confirm(kind, lines)
@@ -171,7 +193,7 @@ function M.on_search_count(lines)
 	end)
 end
 
-function M.on_empty(lines)
+function M.on_empty(lines, hl_groups)
 	if #lines == 1 then
 		-- check if the message is a terminal command output
 		if lines[1]:find("^:!") then
@@ -181,7 +203,7 @@ function M.on_empty(lines)
 		end
 	else
 		vim.schedule(function()
-			M.render_split("output", lines, false)
+			M.render_split("output", lines, false, hl_groups)
 		end)
 	end
 end
@@ -198,15 +220,16 @@ vim.api.nvim_create_user_command("Mlog", M.show_log, { desc = "Log for messages"
 
 function M.on_show(...)
 	local kind, content, _ = ...
-	local lines = M.content_to_lines(content)
+	local lines, hl_groups = M.content_to_lines(content)
 	if #lines == 1 and string.find(lines[1], "Type  :qa") then
 		vim.notify("")
 		return
 	end
 	table.insert(M.log, vim.inspect(kind))
+	table.insert(M.log, table.concat(hl_groups, "---"))
 	table.insert(M.log, table.concat(lines, "---"))
 	if kind == "" then
-		M.on_empty(lines)
+		M.on_empty(lines, hl_groups)
 	elseif kind == "return_prompt" then
 		vim.api.nvim_input("<cr>")
 	elseif vim.tbl_contains({ "rpc_error", "lua_error", "echoerr", "echomsg", "emsg", "echo", "wmsg" }, kind) then
@@ -225,14 +248,21 @@ function M.handler(event, ...)
 		M.on_show(...)
 	elseif event == "msg_history_show" then
 		M.on_history_show()
+	elseif event == "msg_history_clear" then
+		-- M.on_history_clear()
 	else -- ignore (showcmd, showmode, showruler, history_clear and msg_clear)
 		return
 	end
 end
 
-function M.add_to_history(msg)
+function M.add_to_history(msg, hl_group)
 	local lines = vim.fn.split(msg, "\n")
 	M.history.messages = vim.iter({ M.history.messages, lines }):flatten():totable()
+	local hl_groups = {}
+	for _ = 1, #lines do
+		hl_groups[#hl_groups + 1] = hl_group
+	end
+	M.history.hl_groups = vim.iter({ M.history.hl_groups, hl_groups }):flatten():totable()
 end
 
 function M.setup()

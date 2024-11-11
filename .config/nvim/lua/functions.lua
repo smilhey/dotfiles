@@ -1,7 +1,9 @@
 --- Prints the inspected object
 -- @param object: The object to inspect and print
 function P(object)
-	print(vim.inspect(object))
+	vim.schedule(function()
+		vim.print(object)
+	end)
 end
 
 --- Returns a function that calls the provided function with the provided arguments

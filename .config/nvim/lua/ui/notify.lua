@@ -10,10 +10,10 @@ local M = {
 M.hl_table = {
 	"Debug", -- vim.log.levels.TRACE
 	"Debug", -- vim.log.levels.DEBUG
-	"NormalFloat", -- vim.log.levels.INFO
+	"Normal", -- vim.log.levels.INFO
 	"WarningMsg", -- vim.log.levels.WARN
 	"ErrorMsg", -- vim.log.levels.ERROR
-	"NormalFloat", -- vim.log.levels.OFF
+	"Normal", -- vim.log.levels.OFF
 }
 
 function M.init_buf()
@@ -105,7 +105,7 @@ function M.notify(msg, log_level, opts)
 			vim.schedule(M.clear)
 		end)
 	end
-	messages.add_to_history(msg)
+	messages.add_to_history(msg, M.hl_table[log_level + 1])
 	M.msg = msg
 	M.init_buf()
 	M.render(msg, log_level)
