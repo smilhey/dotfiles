@@ -157,17 +157,13 @@ end
 function M.on_show(...)
 	M.items, M.selected, M.row, M.col, M.grid = ...
 	M.height = vim.o.pumheight == 0 and 1000 or vim.o.pumheight
-	M.height = math.min(#M.items, M.height, math.max(vim.o.lines - M.row - 3, M.row))
-	if M.grid == 1 then
-		if M.height > vim.o.lines - M.row - 3 then
-			M.row = M.row - M.height
-		else
-			M.row = M.row + 1
-		end
-		if M.col ~= 0 then
-			M.col = M.col - 1
-		end
+	M.height = math.min(#M.items, M.height, math.max(vim.o.lines - M.row - 2, M.row))
+	if M.height > vim.o.lines - M.row - 2 then
+		M.row = M.row - M.height
+	else
+		M.row = M.row + 1
 	end
+	M.col = M.col - 1
 	M.format(M.items)
 	M.width = math.min(vim.api.nvim_strwidth(table.concat(M.items[1])), vim.o.columns - M.col)
 	M.width = math.max(M.width, vim.o.pumwidth)

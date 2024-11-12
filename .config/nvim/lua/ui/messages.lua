@@ -8,8 +8,10 @@ local M = {
 
 function M.buf_set_hl_lines(buffer, start, end_, strict_indexing, lines, hl_groups)
 	vim.api.nvim_buf_set_lines(buffer, start, end_, strict_indexing, lines)
-	for i, hl_group in ipairs(hl_groups) do
-		vim.api.nvim_buf_set_extmark(buffer, M.ns, start + i - 1, 0, { line_hl_group = hl_group })
+	if hl_groups then
+		for i, hl_group in ipairs(hl_groups) do
+			vim.api.nvim_buf_set_extmark(buffer, M.ns, start + i - 1, 0, { line_hl_group = hl_group })
+		end
 	end
 end
 
@@ -17,17 +19,20 @@ function M.content_to_lines(content)
 	local lines = {}
 	local hl_groups = {}
 	for _, chunk in ipairs(content) do
-		if chunk[2] == "" then
+		local msg = string.gsub(chunk[2], "\r", "")
+		if msg == "" then
 			break
 		end
-		local msg_lines = vim.split(string.gsub(chunk[2], "\r", ""), "\n")
+		local msg_lines = vim.split(msg, "\n")
 		local ok, hl = pcall(vim.api.nvim_get_hl, 0, { id = chunk[3] })
 		if ok then
 			vim.api.nvim_set_hl(M.ns, "messages-hl-" .. tostring(chunk[3]), hl)
 		end
 		for _, line in ipairs(msg_lines) do
-			lines[#lines + 1] = line
-			hl_groups[#hl_groups + 1] = "messages-hl-" .. tostring(chunk[3])
+			if line ~= "" then
+				lines[#lines + 1] = line
+				hl_groups[#hl_groups + 1] = "messages-hl-" .. tostring(chunk[3])
+			end
 		end
 	end
 	return lines, hl_groups
@@ -46,7 +51,6 @@ function M.init_buf(display)
 		return
 	end
 	local buf = vim.api.nvim_create_buf(false, true)
-	-- vim.bo[buf].filetype = "MsgArea"
 	vim.bo[buf].bufhidden = "wipe"
 	vim.bo[buf].modifiable = false
 	vim.api.nvim_buf_set_name(buf, "[MsgArea - " .. display .. "]")
@@ -57,44 +61,32 @@ function M.init_buf(display)
 	M[display].buf = buf
 end
 
-function M.init_win(display, height)
+function M.init_win(display)
 	if vim.api.nvim_win_is_valid(M[display].win) then
 		return
 	end
 	M.clear_buf(display)
-	M[display].win = vim.api.nvim_open_win(M[display].buf, true, { split = "below" })
-	-- getting the split to show at the bottom
-	vim.cmd("wincmd J")
-	-- minimum height to avoid conflicting with the cmdwindow
-	if height < 4 then
-		height = 4
-	elseif height > M.split_height then
-		height = M.split_height
-	end
-	vim.api.nvim_win_set_height(M[display].win, height)
+	M[display].win =
+		vim.api.nvim_open_win(M[display].buf, true, { relative = "editor", row = 1, col = 1, width = 1, height = 1 })
 	vim.wo[M[display].win].winfixbuf = true
 end
 
 function M.render_split(display, lines, clear, hl_groups)
-	if vim.api.nvim_win_get_config(0).relative ~= "" then
-		vim.notify(table.concat(lines, "\n"), vim.log.levels.INFO)
-		return
-	end
 	M.init_buf(display)
-	M.init_win(display, #lines)
-	local start_line, end_line = 0, -1
-	if not clear then
-		local buf_lines = vim.api.nvim_buf_get_lines(M[display].buf, 0, -1, true)
-		start_line = vim.deep_equal(buf_lines, { "" }) and 0 or #buf_lines
-		end_line = -1
-	end
+	M.init_win(display)
+	local start_line = clear and 0 or vim.fn.line("$", M[display].win) - 1
+	local end_line = clear and -1 or start_line
 	vim.bo[M[display].buf].modifiable = true
-	if hl_groups then
-		M.buf_set_hl_lines(M[display].buf, start_line, end_line, false, lines, hl_groups)
-	else
-		vim.api.nvim_buf_set_lines(M[display].buf, start_line, end_line, false, lines)
-	end
+	M.buf_set_hl_lines(M[display].buf, start_line, end_line, false, lines, hl_groups)
 	vim.bo[M[display].buf].modifiable = false
+	vim.api.nvim_win_call(M[display].win, function()
+		vim.cmd("wincmd J")
+		local height = math.min(vim.fn.line("$", M[display].win), M.split_height)
+		vim.api.nvim_win_set_height(M[display].win, height)
+		if clear then
+			vim.api.nvim_win_set_cursor(M[display].win, { vim.fn.line("$", M[display].win), 0 })
+		end
+	end)
 end
 
 function M.on_usr_msg(show_kind, lines)
@@ -197,9 +189,11 @@ function M.on_empty(lines, hl_groups)
 	if #lines == 1 then
 		-- check if the message is a terminal command output
 		if lines[1]:find("^:!") then
-			vim.notify("shell output", vim.log.levels.INFO)
+			vim.notify("terminal output", vim.log.levels.INFO)
 		else
-			M.on_usr_msg("echo", lines)
+			vim.schedule(function()
+				M.on_usr_msg("echo", lines)
+			end)
 		end
 	else
 		vim.schedule(function()
@@ -221,13 +215,13 @@ vim.api.nvim_create_user_command("Mlog", M.show_log, { desc = "Log for messages"
 function M.on_show(...)
 	local kind, content, _ = ...
 	local lines, hl_groups = M.content_to_lines(content)
+	table.insert(M.log, vim.inspect(kind))
+	table.insert(M.log, table.concat(hl_groups, " | "))
+	table.insert(M.log, table.concat(lines, " | "))
 	if #lines == 1 and string.find(lines[1], "Type  :qa") then
 		vim.notify("")
 		return
 	end
-	table.insert(M.log, vim.inspect(kind))
-	table.insert(M.log, table.concat(hl_groups, "---"))
-	table.insert(M.log, table.concat(lines, "---"))
 	if kind == "" then
 		M.on_empty(lines, hl_groups)
 	elseif kind == "return_prompt" then

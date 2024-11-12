@@ -5,14 +5,13 @@ function M.bwin_get_config(win)
 	local bwin_config = {
 		relative = "win",
 		win = win,
-		height = win_config.height - 1,
+		height = win_config.height,
 		width = 1,
 		row = 0,
-		col = win_config.width - 1,
+		col = win_config.width,
 		style = "minimal",
-		-- border = "single",
 		focusable = false,
-		zindex = 10,
+		zindex = win_config.zindex and win_config.zindex + 1 or 10,
 	}
 	return bwin_config
 end
@@ -40,37 +39,39 @@ function M.bbuf_create()
 end
 
 function M.sb_render(ns, win, bwin)
-	local buf, bbuf = vim.api.nvim_win_get_buf(win), vim.api.nvim_win_get_buf(bwin)
+	local bbuf = vim.api.nvim_win_get_buf(bwin)
 	local bwin_height = vim.api.nvim_win_get_height(bwin)
 	local top_line = vim.fn.line("w0", win)
-	local total_lines = vim.api.nvim_buf_line_count(buf)
-	local thumb_pos = math.floor(top_line / total_lines * bwin_height)
-	local thumb_size = math.ceil(bwin_height / total_lines * bwin_height)
-	thumb_pos = math.max(1, math.min(thumb_pos, bwin_height - thumb_size + 1))
+	local bot_line = vim.fn.line("$", win)
+	local thumb_pos = math.floor(top_line / bot_line * bwin_height)
+	local thumb_size = math.ceil(bwin_height / bot_line * bwin_height)
+	thumb_pos = math.min(thumb_pos, bwin_height - thumb_size)
 	vim.api.nvim_buf_clear_namespace(bbuf, ns, 0, -1)
-	vim.hl.range(bbuf, ns, "PmenuSbar", { 0, 0 }, { thumb_pos - 1, 0 })
-	vim.hl.range(bbuf, ns, "PmenuThumb", { thumb_pos - 1, 0 }, { thumb_pos + thumb_size - 1, 0 })
-	vim.hl.range(bbuf, ns, "PmenuSbar", { thumb_pos + thumb_size - 1, 0 }, { total_lines, 0 })
+	vim.hl.range(bbuf, ns, "PmenuSbar", { 0, 0 }, { thumb_pos, 0 })
+	vim.hl.range(bbuf, ns, "PmenuThumb", { thumb_pos, 0 }, { thumb_pos + thumb_size, 0 })
+	vim.hl.range(bbuf, ns, "PmenuSbar", { thumb_pos + thumb_size, 0 }, { bot_line, 0 })
+end
+
+function M.is_sb(win)
+	local buf = vim.api.nvim_win_get_buf(win)
+	return not vim.tbl_isempty(vim.api.nvim_buf_get_extmarks(buf, M.ns, 0, -1, {}))
 end
 
 function M.sb_show(win)
-	local buf
-	if vim.api.nvim_win_is_valid(win) then
-		buf = vim.api.nvim_win_get_buf(win)
-	else
+	if not vim.api.nvim_win_is_valid(win) then
 		return false
 	end
+	local buf = vim.api.nvim_win_get_buf(win)
 	local buftype = vim.bo[buf].buftype
-	if buftype:match("nofile") or buftype:match("prompt") or vim.fn.win_gettype(win) ~= "" then
+	if buftype:match("prompt") or vim.fn.win_gettype(win) ~= "" then
 		return false
 	end
 	return true
 end
 
-function M.sb_del(bwin)
-	if vim.api.nvim_win_is_valid(bwin) then
-		vim.api.nvim_win_close(bwin, true)
-	end
+function M.sb_del(win, bwin)
+	pcall(vim.api.nvim_win_close, bwin, true)
+	M.scrollbars[win] = nil
 end
 
 function M.sb_create(win)
@@ -80,22 +81,20 @@ function M.sb_create(win)
 end
 
 function M.sb_update(ns, win, bwin)
-	if not vim.api.nvim_win_is_valid(bwin) or not M.sb_show(win) then
-		M.sb_del(bwin)
-		M.scrollbars[win] = nil
-		return
+	if M.sb_show(win) then
+		local bwin_config = M.bwin_get_config(win)
+		vim.api.nvim_win_set_config(bwin, bwin_config)
+		M.sb_render(ns, win, bwin)
+	else
+		M.sb_del(win, bwin)
 	end
-	local bwin_config = M.bwin_get_config(win)
-	vim.api.nvim_win_set_config(bwin, bwin_config)
-	M.sb_render(ns, win, bwin)
 end
 
 function M.update()
-	local wins = vim.tbl_filter(function(win)
-		return M.sb_show(win) and not M.scrollbars[win]
-	end, vim.api.nvim_list_wins())
-	for _, win in ipairs(wins) do
-		M.scrollbars[win] = M.sb_create(win)
+	for _, win in ipairs(vim.api.nvim_list_wins()) do
+		if M.sb_show(win) and not M.is_sb(win) and not M.scrollbars[win] then
+			M.scrollbars[win] = M.sb_create(win)
+		end
 	end
 	for win, bwin in pairs(M.scrollbars) do
 		M.sb_update(M.ns, win, bwin)
@@ -117,8 +116,7 @@ end
 
 function M.clear()
 	for win, bwin in pairs(M.scrollbars) do
-		M.sb_del(bwin)
-		M.scrollbars[win] = nil
+		M.sb_del(win, bwin)
 	end
 end
 
@@ -131,7 +129,8 @@ end
 function M.setup()
 	M.ns = vim.api.nvim_create_namespace("scrollbar")
 	M.augroup = vim.api.nvim_create_augroup("scrollbar", { clear = true })
-	vim.api.nvim_create_autocmd({ "WinScrolled" }, {
+	vim.api.nvim_create_autocmd({ "WinScrolled", "BufWinEnter", "WinClosed" }, {
+		desc = "updating scrollbars",
 		group = M.augroup,
 		callback = M.debounced_update,
 	})

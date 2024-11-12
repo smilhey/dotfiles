@@ -33,6 +33,7 @@ local function show_complete_documentation(client, buf)
 				docs = vim.lsp.util.convert_input_to_markdown_lines(docs)
 				docs = table.concat(docs, "\n"):gsub("^\n+", ""):gsub("\n+$", "")
 				local winData = vim.api.nvim__complete_set(selected, { info = docs })
+				vim.g.doc_win = winData.winid
 				if not winData.winid or not vim.api.nvim_win_is_valid(winData.winid) then
 					return
 				end
