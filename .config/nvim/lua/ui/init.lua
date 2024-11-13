@@ -1,6 +1,6 @@
 local tabline = require("ui.tabline")
 local messages = require("ui.messages")
-local cmdwin = require("ui.cmdwin")
+local cmdline = require("ui.cmdline")
 -- local cmdline = require("ui.cmdline")
 local pumenu = require("ui.pumenu")
 local win_input = require("ui.input").win_input
@@ -23,23 +23,23 @@ local M = {}
 M.ns = vim.api.nvim_create_namespace("UI")
 M.cmdline, M.popupmenu, M.tabline, M.messages = true, true, true, true
 M.disable =
-	{ cmdline = cmdwin.disable, tabline = tabline.disable, popupmenu = pumenu.disable, messages = function() end }
-M.setup = { cmdline = cmdwin.setup, tabline = tabline.setup, popupmenu = pumenu.setup, messages = messages.setup }
+	{ cmdline = cmdline.disable, tabline = tabline.disable, popupmenu = pumenu.disable, messages = function() end }
+M.setup = { cmdline = cmdline.setup, tabline = tabline.setup, popupmenu = pumenu.setup, messages = messages.setup }
 
 local function attach()
 	vim.ui_attach(
 		M.ns,
 		{ ext_cmdline = M.cmdline, ext_popupmenu = M.popupmenu, ext_tabline = M.tabline, ext_messages = M.messages },
 		function(event, ...)
-			if event:match("cmd") ~= nil and M.cmdline then
-				cmdwin.handler(event, ...)
+			if event:match("cmdline") ~= nil and M.cmdline then
+				cmdline.handler(event, ...)
 				if vim.api.nvim_win_is_valid(pumenu.win) then
 					pumenu.init_window()
 					vim.api.nvim__redraw({ flush = true })
 				end
 			elseif event:match("msg") ~= nil and M.messages then
 				messages.handler(event, ...)
-			elseif event:match("pop") ~= nil and M.popupmenu then
+			elseif event:match("popupmenu") ~= nil and M.popupmenu then
 				pumenu.handler(event, ...)
 			elseif event:match("tabline") ~= nil and M.tabline then
 				tabline.handler(event, ...)
@@ -91,7 +91,7 @@ vim.api.nvim_create_user_command("Ui", ui_cmd, { desc = "Toggle UI elements", na
 tabline.setup()
 messages.setup()
 pumenu.setup()
-cmdwin.setup()
+cmdline.setup()
 scrollbar.setup()
 notify.setup()
 -- cmdline.setup()

@@ -1,4 +1,4 @@
-local cmdwin = require("ui.cmdwin")
+local cmdline = require("ui.cmdline")
 
 local M = {
 	buf = -1,
@@ -16,7 +16,7 @@ end
 
 function M.init_window()
 	if M.grid == -1 then
-		local config = vim.api.nvim_win_get_config(cmdwin.win)
+		local config = vim.api.nvim_win_get_config(cmdline.win)
 		M.height = math.min(#M.items, math.ceil(vim.o.lines * 0.25))
 		M.width = config.width
 		M.row = config.row + 3

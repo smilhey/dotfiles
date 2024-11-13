@@ -236,14 +236,34 @@ function M.on_show(...)
 	end
 end
 
+function M.on_showcmd(...)
+	local content = ...
+	local lines, _ = M.content_to_lines(content)
+	local cmd = lines[1]
+	vim.g.statusline_cmd = cmd and cmd or vim.g.statusline_cmd
+end
+
+function M.on_showmode(...)
+	local content = ...
+	local lines, _ = M.content_to_lines(content)
+	local mode = lines[1]
+	vim.g.statusline_mode = mode and mode:gsub("-", "") or " NORMAL "
+	vim.cmd("redrawstatus")
+end
+
 function M.handler(event, ...)
+	table.insert(M.log, event .. " : " .. vim.inspect(...))
 	if event == "msg_show" then
 		M.on_show(...)
 	elseif event == "msg_history_show" then
 		M.on_history_show()
 	elseif event == "msg_history_clear" then
 		-- M.on_history_clear()
-	else -- ignore (showcmd, showmode, showruler, history_clear and msg_clear)
+	elseif event == "msg_showcmd" then
+		M.on_showcmd(...)
+	elseif event == "msg_showmode" then
+		M.on_showmode(...)
+	else -- ignore (showruler, history_clear and msg_clear)
 		return
 	end
 end

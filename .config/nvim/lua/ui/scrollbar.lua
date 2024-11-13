@@ -81,6 +81,10 @@ function M.sb_create(win)
 end
 
 function M.sb_update(ns, win, bwin)
+	if not vim.api.nvim_win_is_valid(bwin) then
+		M.scrollbars[win] = nil
+		return
+	end
 	if M.sb_show(win) then
 		local bwin_config = M.bwin_get_config(win)
 		vim.api.nvim_win_set_config(bwin, bwin_config)

@@ -7,25 +7,19 @@ end
 
 function M.get_mode()
 	local mode_table = {
-		n = { mode = " NORMAL ", hl = "Search" },
-		v = { mode = " VISUAL ", hl = "Visual" },
-		V = { mode = " VISUAL ", hl = "Visual" },
-		["\22"] = { mode = " VISUAL ", hl = "Visual" },
-		s = { mode = " SELECT ", hl = "hlSelect" },
-		i = { mode = " INSERT ", hl = "Todo" },
-		R = { mode = " REPLACE ", hl = "Keyword" },
-		t = { mode = " TERMINAL ", hl = "Cursor" },
-		c = { mode = " COMMAND ", hl = "ModeMsg" },
+		[" NORMAL "] = "Search",
+		[" VISUAL LINE "] = "Visual",
+		[" VISUAL BLOCK "] = "Visual",
+		[" VISUAL "] = "Visual",
+		[" SELECT "] = "hlSelect",
+		[" INSERT "] = "Todo",
+		[" REPLACE "] = "Keyword",
+		[" TERMINAL "] = "Cursor",
+		[" COMMAND "] = "ModeMsg",
 	}
-	local mode = vim.api.nvim_get_mode().mode
-	if vim.fn.win_gettype() == "command" then
-		return M.create_item(" COMMAND ", "ModeMsg")
-	end
-	if mode_table[mode] == nil then
-		return M.create_item(" NORMAL ", "Search")
-	else
-		return M.create_item(mode_table[mode].mode, mode_table[mode].hl)
-	end
+
+	local mode = vim.fn.mode() == "c" and " COMMAND " or vim.g.statusline_mode
+	return M.create_item(mode, mode_table[mode])
 end
 
 function M.get_diagnostics()
@@ -42,7 +36,7 @@ function M.get_diagnostics()
 	}) do
 		local count = #vim.diagnostic.get(0, { severity = type[1] })
 		if count > 0 then
-			diagnostics = diagnostics .. M.create_item(prefix .. " : " .. tostring(count), type[2])
+			diagnostics = diagnostics .. M.create_item(prefix .. " " .. tostring(count), type[2])
 		end
 	end
 	return lsp_progress .. diagnostics
@@ -58,7 +52,7 @@ function M.get_cwd()
 end
 
 function M.get_branch()
-	local branch = vim.g.branch and vim.g.branch or ""
+	local branch = vim.g.statusline_branch and vim.g.statusline_branch or ""
 	branch = branch ~= "" and " " .. branch or ""
 	return M.create_item(branch)
 end
@@ -83,14 +77,11 @@ function M.get_macro()
 end
 
 function M.get_time()
-	local date = os.date("T - %H:%M")
+	local date = os.date("  %H:%M")
 	return M.create_item(date)
 end
 
 function M.get_venv()
-	-- if vim.bo.filetype ~= "python" then
-	-- 	return ""
-	-- end
 	local venv = ""
 	local conda_env = os.getenv("CONDA_DEFAULT_ENV")
 	local venv_path = os.getenv("VIRTUAL_ENV")
@@ -101,6 +92,11 @@ function M.get_venv()
 		venv = string.format("  %s (venv)", venv)
 	end
 	return M.create_item(venv, "String")
+end
+
+function M.get_cmd()
+	local cmd = vim.g.statusline_cmd and vim.g.statusline_cmd or ""
+	return M.create_item(cmd, "ModeMsg")
 end
 
 function M.get()
@@ -129,6 +125,8 @@ function M.get()
 		.. M.get_macro()
 		.. sep
 		.. M.get_venv()
+		.. sep
+		.. M.get_cmd()
 		.. sep
 		.. "%l/%L,%c %m "
 		.. sep
