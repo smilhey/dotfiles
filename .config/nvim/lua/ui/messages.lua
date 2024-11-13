@@ -19,11 +19,7 @@ function M.content_to_lines(content)
 	local lines = {}
 	local hl_groups = {}
 	for _, chunk in ipairs(content) do
-		local msg = string.gsub(chunk[2], "\r", "")
-		if msg == "" then
-			break
-		end
-		local msg_lines = vim.split(msg, "\n")
+		local msg_lines = vim.split(chunk[2], "[\r\n]")
 		local ok, hl = pcall(vim.api.nvim_get_hl, 0, { id = chunk[3] })
 		if ok then
 			vim.api.nvim_set_hl(M.ns, "messages-hl-" .. tostring(chunk[3]), hl)
@@ -218,6 +214,9 @@ function M.on_show(...)
 	table.insert(M.log, vim.inspect(kind))
 	table.insert(M.log, table.concat(hl_groups, " | "))
 	table.insert(M.log, table.concat(lines, " | "))
+	if #lines == 0 then
+		return
+	end
 	if #lines == 1 and string.find(lines[1], "Type  :qa") then
 		vim.notify("")
 		return

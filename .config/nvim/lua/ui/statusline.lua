@@ -58,7 +58,8 @@ function M.get_cwd()
 end
 
 function M.get_branch()
-	local branch = vim.g.branch ~= "" and " " .. vim.g.branch or ""
+	local branch = vim.g.branch and vim.g.branch or ""
+	branch = branch ~= "" and " " .. branch or ""
 	return M.create_item(branch)
 end
 
