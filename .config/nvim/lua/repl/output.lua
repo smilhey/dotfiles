@@ -5,108 +5,125 @@ local M = {
 	data = {},
 	queue = {},
 	enabled = {},
+	is_closed = {},
 	is_running = {},
-	opts = { display = { virt = true, float = false, output_height = 8, output_offset = false } },
+	opts = { display = { virt = false, float = true, output_height = 8, output_offset = true } },
 	float = { win = -1, buf = -1 },
 	ns = vim.api.nvim_create_namespace("output"),
 }
 
-function M.add_to_queue(chan, buf, mark)
-	if
-		vim.tbl_contains(M.queue[chan], function(v)
-			return vim.deep_equal(v, { buf, mark })
-		end, { predicate = true })
-	then
-		return
-	end
+local function get_output_row(buf, mark)
 	local cells_ns = vim.api.nvim_get_namespaces()["cells"]
 	local row = vim.api.nvim_buf_get_extmark_by_id(buf, cells_ns, mark, { details = true })[3].end_row
-	row = (M.opts.display.output_offset and row < vim.fn.getpos("$")[2] - 1) and row + 1 or row
+	return (M.opts.display.output_offset and row < vim.fn.getpos("$")[2] - 1) and row + 1 or row
+end
+
+local function adjust_output_height(lines)
+	local max_height = math.min(#lines, M.opts.display.output_height)
+	local output_lines = {}
+	for i = 1, max_height do
+		output_lines[#output_lines + 1] = { { lines[#lines - max_height + i], "Comment" } }
+	end
+	if #lines > max_height then
+		output_lines[#output_lines + 1] = { { "...[" .. tostring(#lines - max_height) .. " - lines]", "Comment" } }
+	end
+	return output_lines
+end
+
+function M.init(chan, buf)
+	M.data[buf] = {}
+	M.queue[chan] = M.queue[chan] or {}
+	M.is_running[chan] = M.is_running[chan] or false
+	M.is_closed[chan] = M.is_closed[chan] or false
+end
+
+function M.clear_queue(chan, buf)
+	if buf then
+		for i, input_info in ipairs(M.queue[chan]) do
+			if input_info[1] == buf then
+				M.data[buf] = {}
+				table.remove(M.queue[chan], i)
+			end
+		end
+	else
+		M.queue[chan] = {}
+	end
+end
+
+function M.add_to_queue(chan, buf, mark)
+	for i, input_info in ipairs(M.queue[chan]) do
+		if input_info[1] == buf and input_info[2] == mark then
+			if M.is_closed[chan] then
+				table.remove(M.queue[chan], i)
+				if #M.queue[chan] == 0 then
+					M.is_closed[chan] = false
+					return false
+				end
+			end
+			return not M.is_closed[chan]
+		end
+	end
+	if M.is_closed[chan] then
+		return false
+	end
+	local row = get_output_row(buf, mark)
 	M.data[buf][mark] = {}
-	M.queue[chan][#M.queue[chan] + 1] = { buf, mark }
+	table.insert(M.queue[chan], { buf, mark })
 	vim.api.nvim_buf_set_extmark(buf, M.ns, row, 0, { id = mark, virt_lines = { { { "[ * ]" } } } })
-end
-
-function M.is_end(data)
-	for i, str in ipairs(data) do
-		if str:find("KeyboardInterrupt") then
-			return i
-		end
-		if str:find("[MARK END]", 1, true) then
-			return i
-		end
-	end
-	return 0
-end
-
-function M.is_start(data)
-	for _, str in ipairs(data) do
-		if str:find("[MARK START]", 1, true) then
-			return true
-		end
-	end
-	return false
+	return true
 end
 
 function M.process(chan, data, name)
 	local repl = utils.get_repl(chan)
-	if M.is_start(data) then
+	local processed_data, is_start, is_end, is_error = format.parse(data, repl)
+	if is_start then
 		M.is_running[chan] = true
 	end
 	if M.is_running[chan] then
+		if not M.queue[chan] or #M.queue[chan] == 0 then
+			vim.notify("Running without any cell being queued")
+			return
+		end
 		local buf, mark = unpack(M.queue[chan][1])
-		local end_signal_index = M.is_end(data)
-		if end_signal_index > 0 then
+		M.data[buf][mark] = vim.iter({ M.data[buf][mark], processed_data }):flatten():totable()
+		if M.opts.display.virt then
+			M.display_virt(buf, mark, is_error)
+		end
+		if M.opts.display.float then
+			M.display_float(buf, mark, is_error)
+		end
+		if is_end or is_error then
 			table.remove(M.queue[chan], 1)
-			if end_signal_index > 1 then
-				data = vim.iter(data):take(end_signal_index - 1):totable()
-				M.data[buf][mark] = vim.iter({ M.data[buf][mark], data }):flatten():totable()
-			end
-			if M.opts.display.virt then
-				M.display_virt(repl, buf, mark)
-			end
-			if M.opts.display.float then
-				M.display_float(repl, buf, mark)
-			end
 			M.is_running[chan] = false
-			P(buf .. " - " .. mark)
-			P(data[buf][mark])
-		else
-			M.data[buf][mark] = vim.iter({ M.data[buf][mark], data }):flatten():totable()
+			M.is_closed[chan] = #M.queue[chan] > 0 and is_error or false
+			if is_error then
+				vim.notify("Cell execution failed, clearing queue", vim.log.levels.WARN)
+			end
 		end
 	end
 end
 
-function M.display_virt(repl, buf, mark)
-	local cells_ns = vim.api.nvim_get_namespaces()["cells"]
-	local row = vim.api.nvim_buf_get_extmark_by_id(buf, cells_ns, mark, { details = true })[3].end_row
-	row = (M.opts.display.output_offset and row < vim.fn.getpos("$")[2] - 1) and row + 1 or row
-	local lines = format.output[repl](M.data[buf][mark])
-	lines = #lines == 0 and { "[ ✓ ]" } or lines
-	local len = M.opts.display.output_height > #lines and #lines or M.opts.display.output_height
-	local virt_lines = {}
-	for i = 1, len do
-		virt_lines[#virt_lines + 1] = { { lines[i], "Comment" } }
-	end
-	if M.opts.display.output_height < #lines then
-		virt_lines[#virt_lines + 1] =
-			{ { "...[" .. tostring(#lines - M.opts.display.output_height) .. " - lines]", "Comment" } }
-	end
-	vim.api.nvim_buf_set_extmark(buf, M.ns, row, 0, { id = mark, virt_lines = virt_lines })
+function M.display_virt(buf, mark, fail)
+	local row = get_output_row(buf, mark)
+	local symbol = fail and { "[ x ]" } or { "[ ✓ ]" }
+	local lines = (#M.data[buf][mark] == 0 or fail) and symbol or M.data[buf][mark]
+	vim.api.nvim_buf_set_extmark(buf, M.ns, row, 0, { id = mark, virt_lines = adjust_output_height(lines) })
 end
 
-function M.clear_virt(buf, mark)
-	vim.api.nvim_buf_del_extmark(buf, M.ns, mark)
-end
-
-function M.display_float(repl, buf, mark)
-	local cells_ns = vim.api.nvim_get_namespaces()["cells"]
-	local row = vim.api.nvim_buf_get_extmark_by_id(buf, cells_ns, mark, { details = true })[3].end_row
-	row = M.opts.display.output_offset and row + 1 or row
-	local lines = format.output[repl](M.data[buf][mark])
-	local len = M.opts.display.output_height > #lines and #lines or M.opts.display.output_height
+function M.display_float(buf, mark, fail)
+	local row = get_output_row(buf, mark)
+	local lines = M.data[buf][mark]
+	if vim.api.nvim_win_is_valid(M.float.win) then
+		if buf == buf and mark == mark then
+			vim.api.nvim_buf_set_lines(M.float.buf, 0, -1, false, lines)
+			vim.api.nvim_win_set_cursor(M.float.win, { vim.fn.line("$", M.float.win), 0 })
+			return
+		else
+			M.clear_float()
+		end
+	end
 	local virt_pad = {}
-	for i = 1, len + 2 do
+	for i = 1, math.min(#lines, M.opts.display.output_height) + 2 do
 		virt_pad[i] = { { "" } }
 	end
 	if #lines > 0 then
@@ -119,16 +136,11 @@ function M.display_float(repl, buf, mark)
 				relative = "win",
 				bufpos = { row, 0 },
 				width = vim.o.columns,
-				height = #lines < M.opts.display.output_height and #lines or M.opts.display.output_height,
+				height = math.min(#lines, M.opts.display.output_height),
 				border = { "", "─", "", "", "", "─", "", "" },
 			})
 		or -1
-	vim.keymap.set("n", "q", function()
-		if M.opts.display.virt then
-			M.display_virt(repl, buf, mark)
-		end
-		vim.api.nvim_win_close(M.float.win, true)
-	end, { buffer = M.float.buf })
+	vim.keymap.set("n", "q", M.clear_float, { buffer = M.float.buf })
 	vim.api.nvim_buf_set_lines(M.float.buf, 0, -1, false, lines)
 end
 

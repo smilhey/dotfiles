@@ -13,10 +13,11 @@ function M.get_repl(chan)
 	return nil
 end
 
-function M.send_selection(chan, selection)
+function M.send_selection(chan, selection, buf, mark)
 	local repl = M.get_repl(chan)
 	repl = repl and repl or "default"
 	local data = format.input[repl](selection)
+	data = (buf and mark) and format.pad(data, repl, buf, mark) or data
 	vim.api.nvim_chan_send(chan, data)
 end
 
