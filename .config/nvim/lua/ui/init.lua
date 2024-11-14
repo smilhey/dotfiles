@@ -1,14 +1,14 @@
 local tabline = require("ui.tabline")
 local messages = require("ui.messages")
 local cmdline = require("ui.cmdline")
--- local cmdline = require("ui.cmdline")
 local pumenu = require("ui.pumenu")
 local win_input = require("ui.input").win_input
 local win_select = require("ui.select")
 local scrollbar = require("ui.scrollbar")
 local notify = require("ui.notify")
+local colorscheme = require("ui.colorscheme")
+local lsp_progress = require("ui.lsp_progress")
 -- local statusline = require("ui.statusline")
--- local lsp_progress = require("ui.lsp_progress")
 
 vim.ui.input = function(opts, on_confirm)
 	win_input(opts, on_confirm, {})
@@ -73,13 +73,15 @@ local function ui_cmd(args)
 		scrollbar.toggle()
 	elseif ui_element == "notify" then
 		notify.toggle()
+	elseif ui_element == "color" then
+		colorscheme()
 	else
 		toggle(ui_element)
 	end
 end
 
 local function ui_cmd_complete(ArgLead, _)
-	local items = { "cmdline", "popupmenu", "messages", "scrollbar", "notify", "tabline" }
+	local items = { "cmdline", "popupmenu", "messages", "scrollbar", "notify", "tabline", "color" }
 	local completion_list = vim.tbl_filter(function(v)
 		return string.find(v, "^" .. ArgLead) ~= nil
 	end, items)
@@ -94,6 +96,6 @@ pumenu.setup()
 cmdline.setup()
 scrollbar.setup()
 notify.setup()
--- cmdline.setup()
--- lsp_progress.setup()
+lsp_progress.setup()
+-- colorscheme()
 attach()

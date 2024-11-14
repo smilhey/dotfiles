@@ -61,9 +61,9 @@ vim.keymap.set("n", "<leader>m", function()
 			["d"] = { desc = "Delete mark", fn = del_mark, close = false, update = true },
 		},
 		{
-			legend = { include = true, style = "vertical" },
+			legend = { include = true, style = "horizontal" },
 			resize = { horizontal = true, vertical = true },
-			win_opts = { title = "Global Marks" },
+			win_opts = { title = " Global Marks ", border = "solid", title_pos = "center" },
 		}
 	)
 	menu()

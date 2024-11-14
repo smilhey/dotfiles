@@ -1,14 +1,4 @@
 --- @class menu
---- @field actions table
---- @field format function
---- @field get_items function
---- @field opts table
---- @field string_items table
---- @field buf number
---- @field namespace number
---- @field legend table
---- @field legend_size number
---- @field win number
 local Menu = {}
 
 --- Constructor for the Menu class.

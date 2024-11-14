@@ -1,6 +1,9 @@
 local M = {}
 
 function M.create_item(str, hl_group)
+	if not str then
+		return ""
+	end
 	hl_group = hl_group and hl_group or "StatusLine"
 	return "%#" .. hl_group .. "#" .. str .. "%#StatusLine# "
 end
@@ -17,7 +20,6 @@ function M.get_mode()
 		[" TERMINAL "] = "Cursor",
 		[" COMMAND "] = "ModeMsg",
 	}
-
 	local mode = vim.fn.mode() == "c" and " COMMAND " or vim.g.statusline_mode
 	return M.create_item(mode, mode_table[mode])
 end

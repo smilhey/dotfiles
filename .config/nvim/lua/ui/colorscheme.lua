@@ -295,7 +295,10 @@ local highlights_links = {
 }
 
 local function apply_colorscheme()
-	vim.cmd("hi clear")
+	if vim.g.colors_name then
+		vim.cmd("hi clear")
+	end
+	vim.g.colors_name = "dark"
 	for group, hi in pairs(highlights) do
 		vim.api.nvim_set_hl(0, group, hi)
 	end

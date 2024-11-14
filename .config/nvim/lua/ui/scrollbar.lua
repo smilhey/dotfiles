@@ -133,11 +133,17 @@ end
 function M.setup()
 	M.ns = vim.api.nvim_create_namespace("scrollbar")
 	M.augroup = vim.api.nvim_create_augroup("scrollbar", { clear = true })
-	vim.api.nvim_create_autocmd({ "WinScrolled", "BufWinEnter", "WinClosed" }, {
+	vim.api.nvim_create_autocmd({ "WinScrolled" }, {
 		desc = "updating scrollbars",
 		group = M.augroup,
 		callback = M.debounced_update,
 	})
+	vim.api.nvim_create_autocmd({ "BufWinEnter", "WinClosed" }, {
+		desc = "updating scrollbars",
+		group = M.augroup,
+		callback = vim.schedule_wrap(M.update),
+	})
+
 	M.enabled = true
 end
 

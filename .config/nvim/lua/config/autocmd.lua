@@ -183,7 +183,7 @@ local qol = vim.api.nvim_create_augroup("user_utils", { clear = true })
 vim.api.nvim_create_autocmd({ "DirChanged", "VimEnter" }, {
 	callback = function()
 		local branch = vim.system({ "git", "branch", "--show-current" }, { text = true }):wait().stdout
-		vim.g.branch = branch and string.sub(branch, 1, -2) or ""
+		vim.g.statusline_branch = branch and string.sub(branch, 1, -2) or ""
 	end,
 	desc = "Set cwd branch name",
 })

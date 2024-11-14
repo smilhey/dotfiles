@@ -206,14 +206,9 @@ function M.show_log()
 	M.render_split("output", M.log, true)
 end
 
-vim.api.nvim_create_user_command("Mlog", M.show_log, { desc = "Log for messages" })
-
 function M.on_show(...)
 	local kind, content, _ = ...
 	local lines, hl_groups = M.content_to_lines(content)
-	table.insert(M.log, vim.inspect(kind))
-	table.insert(M.log, table.concat(hl_groups, " | "))
-	table.insert(M.log, table.concat(lines, " | "))
 	if #lines == 0 then
 		return
 	end
@@ -280,6 +275,7 @@ end
 
 function M.setup()
 	M.ns = vim.api.nvim_create_namespace("messages")
+	vim.api.nvim_create_user_command("Mlog", M.show_log, { desc = "Log for messages" })
 end
 
 return M

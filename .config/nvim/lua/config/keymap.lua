@@ -65,7 +65,7 @@ vim.keymap.set("i", "<C-d>", function()
 		return "<C-d>"
 	end
 end, { expr = true, desc = "Scroll down completion doc" })
-vim.keymap.set("n", "<C-d>", "<C-d>zz", { desc = "Scroll down half screen and center" })
+vim.keymap.set("n", "<C-d>", "zz<C-d>", { desc = "Scroll down half screen and center" })
 vim.keymap.set("i", "<C-u>", function()
 	if vim.api.nvim_win_is_valid(vim.g.doc_win) then
 		local row = vim.fn.line(".", vim.g.doc_win) - vim.fn.winheight(vim.g.doc_win)
@@ -75,9 +75,9 @@ vim.keymap.set("i", "<C-u>", function()
 		return "<C-u>"
 	end
 end, { expr = true, desc = "Scroll up completion doc" })
-vim.keymap.set("n", "<C-u>", "<C-u>z.", { desc = "Scroll up half screen and center" })
-vim.keymap.set("n", "<C-f>", "<C-f>zz", { desc = "Scroll down full screen and center" })
-vim.keymap.set("n", "<C-b>", "<C-b>zz", { desc = "Scroll up full screen and center" })
+vim.keymap.set("n", "<C-u>", "zz<C-u>", { desc = "Scroll up half screen and center" })
+vim.keymap.set("n", "<C-f>", "zz<C-f>", { desc = "Scroll down full screen and center" })
+vim.keymap.set("n", "<C-b>", "zz<C-b>", { desc = "Scroll up full screen and center" })
 vim.keymap.set("n", "n", "nzzzv", { desc = "Move to next search and center" })
 vim.keymap.set("n", "N", "Nzzzv", { desc = "Move to previous search and center" })
 
