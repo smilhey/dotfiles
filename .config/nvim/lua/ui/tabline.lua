@@ -81,6 +81,9 @@ end
 function M.render_tabline(curtab, tabs, curbuf, buffers)
 	local b, b_hl_start, b_hl_end = M.format_buf(buffers, curbuf)
 	local t, t_hl_start, t_hl_end = M.format_tab(tabs, curtab)
+	if not b or not t or not b_hl_start or not b_hl_end or not t_hl_start or not t_hl_start then
+		return
+	end
 	local sep = string.rep(" ", vim.o.columns - string.len(b) - string.len(t))
 	local tabline = b .. sep .. t
 	vim.api.nvim_buf_set_lines(M.buf, 0, 1, false, { tabline })
@@ -98,16 +101,10 @@ function M.on_update(...)
 		return
 	end
 	local curtab, tabs, curbuf, buffers = ...
-	if not vim.tbl_contains(vim.api.nvim_tabpage_list_wins(curtab), M.win, {}) then
-		if vim.api.nvim_win_is_valid(M.win) then
-			vim.api.nvim_win_close(M.win, true)
-		end
-		if vim.api.nvim_buf_is_loaded(M.buf) then
-			vim.api.nvim_buf_delete(M.buf, {})
-		end
-		M.win = -1
-		M.buf = -1
+	if M.curtab ~= curtab then
+		M.close()
 	end
+	M.curtab = curtab
 	M.init_buf()
 	M.init_win()
 	vim.bo[M.buf].modifiable = true
@@ -123,8 +120,10 @@ function M.handler(event, ...)
 	end
 end
 
-function M.disable()
-	vim.api.nvim_win_close(M.win, true)
+function M.close()
+	if vim.api.nvim_win_is_valid(M.win) then
+		vim.api.nvim_win_close(M.win, true)
+	end
 	M.win = -1
 	M.buf = -1
 end

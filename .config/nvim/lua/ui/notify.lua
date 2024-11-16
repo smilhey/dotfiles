@@ -58,7 +58,7 @@ end
 
 function M.render(msg, log_level)
 	local lines_count = vim.api.nvim_buf_line_count(M.buf)
-	local lines = vim.fn.split(msg, "\n")
+	local lines = vim.split(msg, "\n")
 	lines = vim.tbl_map(function(line)
 		return vim.trim(line) .. " █"
 	end, lines)

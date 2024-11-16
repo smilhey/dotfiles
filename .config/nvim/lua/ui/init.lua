@@ -26,23 +26,34 @@ M.disable =
 	{ cmdline = cmdline.disable, tabline = tabline.disable, popupmenu = pumenu.disable, messages = function() end }
 M.setup = { cmdline = cmdline.setup, tabline = tabline.setup, popupmenu = pumenu.setup, messages = messages.setup }
 
+local function handler(event, ...)
+	if event:match("cmdline") ~= nil and M.cmdline then
+		cmdline.handler(event, ...)
+		if vim.api.nvim_win_is_valid(pumenu.win) then
+			pumenu.init_window()
+			vim.api.nvim__redraw({ flush = true })
+		end
+	elseif event:match("msg") ~= nil and M.messages then
+		messages.handler(event, ...)
+	elseif event:match("popupmenu") ~= nil and M.popupmenu then
+		pumenu.handler(event, ...)
+	elseif event:match("tabline") ~= nil and M.tabline then
+		tabline.handler(event, ...)
+	else
+		return false
+	end
+	return true
+end
+
 local function attach()
 	vim.ui_attach(
 		M.ns,
 		{ ext_cmdline = M.cmdline, ext_popupmenu = M.popupmenu, ext_tabline = M.tabline, ext_messages = M.messages },
-		function(event, ...)
-			if event:match("cmdline") ~= nil and M.cmdline then
-				cmdline.handler(event, ...)
-				if vim.api.nvim_win_is_valid(pumenu.win) then
-					pumenu.init_window()
-					vim.api.nvim__redraw({ flush = true })
-				end
-			elseif event:match("msg") ~= nil and M.messages then
-				messages.handler(event, ...)
-			elseif event:match("popupmenu") ~= nil and M.popupmenu then
-				pumenu.handler(event, ...)
-			elseif event:match("tabline") ~= nil and M.tabline then
-				tabline.handler(event, ...)
+		function(...)
+			if vim.in_fast_event() then
+				vim.schedule_wrap(handler)(...)
+			else
+				handler(...)
 			end
 		end
 	)

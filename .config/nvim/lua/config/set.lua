@@ -11,13 +11,13 @@ vim.opt.fillchars = {
 	foldsep = " ",
 	diff = "╱",
 	eob = " ",
-	vert = "┃",
-	horiz = "━",
-	verthoriz = "╋",
-	horizup = "┻",
-	horizdown = "┳",
-	vertleft = "┫",
-	vertright = "┣",
+	-- vert = "┃",
+	-- horiz = "━",
+	-- verthoriz = "╋",
+	-- horizup = "┻",
+	-- horizdown = "┳",
+	-- vertleft = "┫",
+	-- vertright = "┣",
 }
 vim.opt.list = true
 
@@ -25,14 +25,14 @@ vim.opt.list = true
 vim.opt.laststatus = 3
 vim.opt.cmdheight = 1
 vim.opt.cmdwinheight = 2
-vim.opt.showcmd = false
-vim.opt.showcmdloc = "statusline"
-vim.opt.showmode = false
+vim.opt.showcmd = true
+-- vim.opt.showcmdloc = "statusline"
+vim.opt.showmode = true
 vim.opt.statusline = "%{%v:lua.require'ui.statusline'.get()%}"
 vim.opt.tabline = "%{%v:lua.require'ui.tabline'.get()%}"
 -- vim.opt_local.winbar = "%#StatusLine# %n %*%=%m %f"
 vim.opt.showtabline = 2
-vim.opt.shortmess = "aoOstTIcCFq"
+vim.opt.shortmess = "aoOsIFq"
 
 vim.env.PATH = vim.env.PATH
 	.. ":/home/smilhey/miniforge3/condabin"
