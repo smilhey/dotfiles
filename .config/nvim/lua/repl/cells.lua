@@ -23,6 +23,7 @@ function cells.create(buf, info)
 		buf = buf,
 		mark = mark,
 		float = { win = -1, buf = -1 },
+		output = {},
 	}, cells)
 	return cell
 end
@@ -69,28 +70,29 @@ local function get_output_row(buf, mark, output_offset)
 	return (output_offset and row < vim.fn.getpos("$")[2] - 1) and row + 1 or row
 end
 
-local function adjust_output_height(lines, output_height)
+local function adjust_output_height(lines, output_height, info)
 	local max_height = math.min(#lines, output_height)
 	local output_lines = {}
 	for i = 1, max_height do
 		output_lines[#output_lines + 1] = { { lines[#lines - max_height + i], "Comment" } }
 	end
 	if #lines > max_height then
-		output_lines[#output_lines + 1] = { { "...[" .. tostring(#lines - max_height) .. " - lines]", "Comment" } }
+		info = info .. " ...[" .. tostring(#lines - max_height) .. " - lines]"
 	end
+	output_lines[#output_lines + 1] = { { info, "Comment" } }
 	return output_lines
 end
 
-function cells:display_virt(success)
+function cells:display_virt()
 	local row = get_output_row(self.buf, self.mark)
-	local symbol = success and { "[ ✓ ]" } or { "[ x ]" }
-	local lines = (#self.output == 0 or not success) and symbol or self.output
+	local symbol = ({ done = "[ ✓ ]", fail = "[ x ]", pending = "[ * ]" })[self.state]
+	local info = symbol .. " : " .. self.time
 	vim.api.nvim_buf_set_extmark(
 		self.buf,
 		self.o_ns,
 		row,
 		0,
-		{ id = self.mark, virt_lines = adjust_output_height(lines, cells.display.output_height) }
+		{ id = self.mark, virt_lines = adjust_output_height(self.output, cells.display.output_height, info) }
 	)
 end
 
@@ -135,9 +137,9 @@ function cells:display_float()
 	self:update_float()
 end
 
-function cells:display_output(success)
+function cells:display_output(state, time)
 	if cells.display.virt then
-		self:display_virt(success)
+		self:display_virt(state, time)
 	end
 	if cells.display.float then
 		self:update_float()
@@ -148,7 +150,7 @@ function cells:clear_float()
 	if vim.api.nvim_win_is_valid(self.float.win) then
 		vim.api.nvim_win_close(self.float.win, true)
 		if self.display.virt then
-			self:display_virt(true)
+			self:display_virt("done")
 		end
 	end
 end

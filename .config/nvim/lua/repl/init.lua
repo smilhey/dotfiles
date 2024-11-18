@@ -48,7 +48,7 @@ function M.init_term(buf)
 			cmd = vim.split(cmd, " ")
 			M.attach(buf, M.start_job(cmd))
 		else
-			M.attach(choice.id, false)
+			M.attach(buf, choice.id, false)
 		end
 		vim.notify("Terminal attached to buffer")
 	end
@@ -167,6 +167,12 @@ vim.keymap.set("n", "<leader>so", function()
 		cell:display_float()
 	end)
 end, { desc = "Send mark under cursor" })
+
+vim.keymap.set("n", "<leader>sc", function()
+	M.with_cur_cell(function(cell)
+		cell:clear_float()
+	end)
+end, { desc = "Clear cell float under cursor" })
 
 vim.keymap.set("n", "<leader>sd", function()
 	local buf = vim.api.nvim_get_current_buf()

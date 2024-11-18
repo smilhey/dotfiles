@@ -1,16 +1,12 @@
 local M = {}
 
-local open_code = "\27[200~"
-local close_code = "\27[201~"
 local cr = "\r"
 
-M.supported = { "ipython", "python", "luajit", "ghci" }
+M.supported = { "ipython", "python" }
 
 M.commentstring = {
-	luajit = "--",
 	python = "#",
 	ipython = "#",
-	ghci = "--",
 }
 
 function M.is_end(str)
@@ -46,19 +42,7 @@ M.input = {
 		local lines = vim.tbl_filter(function(line)
 			return line ~= ""
 		end, selection)
-		return open_code .. table.concat(lines, cr) .. close_code .. cr
-	end,
-	ghci = function(selection)
-		local lines = vim.tbl_filter(function(line)
-			return line ~= ""
-		end, selection)
-		return table.concat(lines, "\n") .. "\r"
-	end,
-	luajit = function(selection)
-		local lines = vim.tbl_filter(function(line)
-			return line ~= ""
-		end, selection)
-		return table.concat(lines, "\n") .. "\r"
+		return table.concat(lines, cr) .. cr
 	end,
 	python = function(selection)
 		local input = ""
@@ -103,37 +87,25 @@ M.input = {
 }
 
 M.output = {
-	ghci = function(line)
-		line = line:gsub("\27%[%??%d*[a-zA-Z]", "")
-		line = line:gsub("ghci> ", "")
-		line = line:gsub("\r", "")
-		local is_output = line:find("[IN]", -4, true) == nil and line:find("[MARK ", 1, true) == nil and line ~= ""
-		return is_output and line
-	end,
-	luajit = function(line)
-		line = line:gsub("> ", "")
-		line = line:gsub("[>\r]", "")
-		local is_output = line:find("[IN]", -4, true) == nil and line:find("[MARK ", 1, true) == nil and line ~= ""
-		return is_output and line
-	end,
 	python = function(line)
 		line = line:gsub("[>\r]", "")
 		local is_output = line:find("[IN]", -4, true) == nil
-			and line:find("[MARK ", 1, true) == nil
-			and line ~= ""
+			and line:find("[MARK START]", 1, true) == nil
+			and line:find("[MARK END]", 1, true) == nil
 			and line:match("^%s*$") == nil
 			and line:find("%.%.%.") ~= 1
+			and line ~= ""
 		return is_output and line
 	end,
 	ipython = function(line)
-		line = line:gsub("\27%[[0-9;?]*[a-zA-Z]", "")
 		line = line:gsub("\r", "")
-		local is_output = line:find("In %[") == nil
-			and line:find("   ...:") == nil
-			and line:find("#[IN]", 1, true) == nil
-			and line:find("[MARK ", 1, true) == nil
-			and line ~= ""
-		return is_output and line
+		local is_output = line:find("%[%?25l") == nil
+			and line:find("%[%?25h") == nil
+			and line:find("%[%?2004h") == nil
+			and line:find("%[%?2004l") == nil
+			and line:find("...:", 1, true) == nil
+		line = line:gsub("\27%[[0-9;?]*[a-zA-Z]", "")
+		return (is_output and line ~= "") and line
 	end,
 }
 

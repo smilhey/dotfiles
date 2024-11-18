@@ -10,8 +10,8 @@ function handlers.init(chan, receive)
 		repl = utils.get_repl(chan),
 		cells = {},
 		queue = {},
-		is_processing = false,
-		is_running = false,
+		processing = false,
+		active = false,
 		receive = receive,
 		cur_cell = nil,
 	}, handlers)
@@ -55,6 +55,11 @@ end
 
 function handlers:add_to_queue(cell)
 	table.insert(self.queue, cell)
+	if self.receive then
+		cell.state = "pending"
+		cell.time = ""
+		cell:display_virt()
+	end
 end
 
 function handlers:process_cell(cell)
@@ -68,45 +73,51 @@ end
 
 function handlers:process_queue()
 	if #self.queue == 0 then
-		self.is_processing = false
+		self.processing = false
 		return
 	end
-	if self.is_processing then
+	if self.processing then
 		return
 	end
 	self:process_cell(self.queue[1])
+	self.processing = self.receive
 	if not self.receive then
 		table.remove(self.queue, 1)
 	end
-	self.is_processing = true
 end
 
 function handlers:on_output(data)
 	local processed_data, is_start, is_end, is_error = format.parse(data, self.repl)
 	if is_start then
-		self.is_running = true
+		self.active = true
+		self.start_time = vim.uv.hrtime()
+	end
+	if not self.active then
+		return
 	end
 	if #self.queue == 0 then
-		if self.is_running then
-			vim.notify("Unexpected output with no active cell", vim.log.levels.WARN)
-		end
+		vim.notify("Unexpected output with no active cell", vim.log.levels.WARN)
 		return
 	end
 	local cell = self.queue[1]
 	cell.output = vim.iter({ cell.output, processed_data }):flatten():totable()
-	cell:display_virt(not is_error)
+	cell.time = os.date("!%M:%S", (vim.uv.hrtime() - self.start_time) / 1e9)
+	cell.state = "pending"
 	if is_error then
-		self.is_running = false
-		self.is_processing = false
+		cell.state = "fail"
+		self.active = false
+		self.processing = false
 		table.remove(self.queue, 1)
 		vim.notify("Cell execution failed, clearing queue", vim.log.levels.WARN)
 		self:clear_queue()
 	elseif is_end then
-		self.is_running = false
-		self.is_processing = false
+		cell.state = "done"
+		self.active = false
+		self.processing = false
 		table.remove(self.queue, 1)
 		self:process_queue()
 	end
+	cell:display_virt()
 end
 
 function handlers:interrupt()
