@@ -1,0 +1,92 @@
+#!/bin/sh
+
+# Check if pactl is available
+if ! command -v pactl >/dev/null; then
+    exit 0;
+fi
+
+# pactl output depends on the current locale
+export LANG=C.UTF-8 LC_ALL=C.UTF-8
+
+# Default audio sink (for speakers/headphones)
+SINK="@DEFAULT_SINK@"
+
+# Default audio source (for microphone)
+SOURCE="@DEFAULT_SOURCE@"
+
+# Function to get the volume of a sink/source
+get_volume() {
+    ret=$(pactl get-sink-volume "$1" 2>/dev/null || pactl get-source-volume "$1" 2>/dev/null)
+    # Get first percent value
+    ret=${ret%%%*}
+    ret=${ret##* }
+    echo "$ret"
+    unset ret
+}
+
+# Function to check mute status of a sink/source
+get_mute_status() {
+    pactl get-sink-mute "$1" 2>/dev/null || pactl get-source-mute "$1" 2>/dev/null
+}
+
+# Check if notify-send is available
+if ! command -v notify-send >/dev/null; then
+    exit 0;
+fi
+
+# Check if brightnessctl is available for brightness control
+if ! command -v brightnessctl >/dev/null; then
+    exit 0;
+fi
+
+# Argument handling
+if [ "$1" == "mic" ]; then
+    # Use microphone source
+    SOURCE=$(pactl list short sources | grep -i "input" | awk '{print $1}' | head -n 1)
+    
+    # Get microphone mute status
+    MUTE_STATUS=$(get_mute_status "$SOURCE")
+    TEXT="Microphone: $(echo "$MUTE_STATUS" | grep -q 'yes' && echo 'Muted' || echo 'Unmuted')"
+    notify-send \
+        --app-name "Mic Status" \
+        --expire-time 800 \
+        --hint string:x-canonical-private-synchronous:volume \
+        --hint "int:value:$(echo "$MUTE_STATUS" | grep -q 'yes' && echo 0 || echo 100)" \
+        --transient \
+        "$TEXT"
+    
+elif [ "$1" == "brightness" ]; then
+    # Get the current brightness level
+    BRIGHTNESS=$(brightnessctl get)
+    MAX_BRIGHTNESS=$(brightnessctl max)
+    PERCENT=$((100 * BRIGHTNESS / MAX_BRIGHTNESS))
+    
+    # Notify the current brightness percentage
+    TEXT="Brightness: ${PERCENT}%"
+    notify-send \
+        --app-name "Brightness Status" \
+        --expire-time 800 \
+        --hint string:x-canonical-private-synchronous:brightness \
+        --hint "int:value:$PERCENT" \
+        --transient \
+        "$TEXT"
+
+elif [ "$1" == "volume" ]; then
+    # Default behavior: Notify about speaker (sink) volume
+    VOLUME=$(get_volume "$SINK")
+    TEXT="Volume: ${VOLUME}%"
+    case $(get_mute_status "$SINK") in
+        *yes)
+            TEXT="Volume: Muted"
+            VOLUME=0
+            ;;
+    esac
+
+    notify-send \
+        --app-name "Volume Status" \
+        --expire-time 800 \
+        --hint string:x-canonical-private-synchronous:volume \
+        --hint "int:value:$VOLUME" \
+        --transient \
+        "$TEXT"
+fi

@@ -1,5 +1,6 @@
 local M = {
 	history = { win = -1, buf = -1, messages = {}, hl_groups = {} },
+	list = {},
 	output = { win = -1, buf = -1 },
 	confirm = { win = -1 },
 	split_height = 10,
@@ -89,7 +90,7 @@ function M.on_usr_msg(show_kind, lines)
 	if msg == "" then
 		return
 	end
-	if show_kind == "echo" then
+	if show_kind == "echo" or show_kind == "search_cmd" or show_kind == "lua_print" then
 		vim.notify(msg, vim.log.levels.INFO)
 	elseif show_kind == "wmsg" then
 		vim.notify(msg, vim.log.levels.WARN)
@@ -112,16 +113,20 @@ function M.on_history_clear()
 end
 
 function M.on_confirm(kind, lines)
+	if kind == "number_prompt" then
+		lines = M.list
+	end
 	local text = vim.tbl_filter(function(line)
 		return line ~= ""
 	end, lines)
+	local width = math.max(unpack(vim.tbl_map(function(line)
+		return #line
+	end, text)))
 	local win_opts = {
-		relative = "cursor",
-		row = 1,
-		col = 0,
-		width = math.max(unpack(vim.tbl_map(function(line)
-			return #line
-		end, text))),
+		relative = "editor",
+		row = math.ceil(vim.o.lines * 0.2),
+		col = math.ceil((vim.o.columns - width) * 0.5),
+		width = width,
 		height = #text,
 		style = "minimal",
 		border = "single",
@@ -131,15 +136,12 @@ function M.on_confirm(kind, lines)
 		win_opts.height = #text - 1
 		table.remove(text, 1)
 	elseif kind == "confirm_sub" then
-		if M.confirm.win ~= -1 then
-			vim.api.nvim_win_set_config(M.confirm.win, { relative = "cursor", row = 1, col = 0 })
-		end
+		vim.o.hlsearch = true
 	end
 	if M.confirm.win == -1 then
 		local buf = vim.api.nvim_create_buf(false, true)
 		M.confirm.win = vim.api.nvim_open_win(buf, false, win_opts)
 		vim.api.nvim_buf_set_lines(buf, 0, -1, false, text)
-		vim.o.hlsearch = true
 		vim.schedule(function()
 			vim.api.nvim_win_close(M.confirm.win, true)
 			M.confirm.win = -1
@@ -179,6 +181,11 @@ function M.on_search_count(lines)
 end
 
 function M.on_empty(lines, hl_groups)
+	if M.number_prompt then
+		M.render_split("output", lines, false, hl_groups)
+		vim.api.nvim__redraw({ flush = true, buf = M.output.buf })
+		return
+	end
 	if #lines == 1 then
 		-- check if the message is a terminal command output
 		if lines[1]:find("^:!") then
@@ -191,16 +198,17 @@ function M.on_empty(lines, hl_groups)
 	end
 end
 
+function M.on_list_cmd(lines, hl_groups)
+	M.list = lines
+end
+
 function M.show_log()
-	if #M.log == 0 then
-		vim.notify("Log is empty", vim.log.levels.INFO)
-		return
-	end
 	M.render_split("output", M.log, true)
 end
 
 function M.on_show(...)
 	local kind, content, _ = ...
+	table.insert(M.log, kind .. " : " .. vim.inspect(content))
 	local lines, hl_groups = M.content_to_lines(content)
 	if #lines == 0 then
 		return
@@ -211,11 +219,19 @@ function M.on_show(...)
 	end
 	if kind == "" then
 		M.on_empty(lines, hl_groups)
+	elseif kind == "list_cmd" then
+		M.on_list_cmd(lines, hl_groups)
 	elseif kind == "return_prompt" then
+		M.number_prompt = false
 		vim.api.nvim_input("<cr>")
-	elseif vim.tbl_contains({ "rpc_error", "lua_error", "echoerr", "echomsg", "emsg", "echo", "wmsg" }, kind) then
+	elseif
+		vim.tbl_contains(
+			{ "rpc_error", "lua_error", "echoerr", "echomsg", "emsg", "echo", "wmsg", "search_cmd", "lua_print" },
+			kind
+		)
+	then
 		M.on_usr_msg(kind, lines)
-	elseif kind == "confirm" or kind == "confirm_sub" then
+	elseif kind == "confirm" or kind == "confirm_sub" or kind == "number_prompt" then
 		M.on_confirm(kind, lines)
 	elseif kind == "search_count" then
 		M.on_search_count(lines)
@@ -241,7 +257,6 @@ end
 
 function M.handler(event, ...)
 	if event == "msg_show" then
-		table.insert(M.log, event .. " : " .. vim.inspect(...))
 		M.on_show(...)
 	elseif event == "msg_history_show" then
 		M.on_history_show()

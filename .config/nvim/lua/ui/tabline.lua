@@ -130,6 +130,21 @@ end
 
 function M.setup()
 	M.ns = vim.api.nvim_create_namespace("tabline")
+	M.augroup = vim.api.nvim_create_augroup("tabline", { clear = true })
+	vim.api.nvim_create_autocmd("VimResized", {
+		group = M.augroup,
+		callback = function()
+			if vim.api.nvim_win_is_valid(M.win) then
+				vim.api.nvim_win_set_config(M.win, {
+					relative = "editor",
+					height = 1,
+					width = vim.o.columns,
+					row = vim.o.lines,
+					col = 0,
+				})
+			end
+		end,
+	})
 	vim.api.nvim_set_hl(M.ns, "Search", { link = "none" })
 	vim.api.nvim_set_hl(M.ns, "CurSearch", { link = "none" })
 	vim.api.nvim_set_hl(M.ns, "Substitute", { link = "none" })
