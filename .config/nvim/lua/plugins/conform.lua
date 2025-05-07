@@ -20,9 +20,9 @@ return {
 			format_on_save = {
 				-- These options will be passed to conform.format()
 				timeout_ms = 500,
-				lsp_fallback = true,
+				lsp_format = "fallback",
 			},
-			-- format_after_save = { lsp_fallback = true },
+			-- format_after_save = { lsp_format = "fallback" },
 		})
 		conform.formatters.injected = {
 			options = {

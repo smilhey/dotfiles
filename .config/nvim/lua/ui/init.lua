@@ -49,18 +49,11 @@ local function attach()
 	vim.ui_attach(
 		M.ns,
 		{ ext_cmdline = M.cmdline, ext_popupmenu = M.popupmenu, ext_tabline = M.tabline, ext_messages = M.messages },
-		function(event, ...)
-			if event == "msg_show" then
-				local kind, _, _ = ...
-				if kind == "list_cmd" then
-					handler(event, ...)
-					return
-				end
-			end
+		function(...)
 			if vim.in_fast_event() then
-				vim.schedule_wrap(handler)(event, ...)
+				vim.schedule_wrap(handler)(...)
 			else
-				handler(event, ...)
+				handler(...)
 			end
 		end
 	)

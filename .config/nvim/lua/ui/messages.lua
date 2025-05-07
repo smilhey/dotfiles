@@ -113,9 +113,6 @@ function M.on_history_clear()
 end
 
 function M.on_confirm(kind, lines)
-	if kind == "number_prompt" then
-		lines = M.list
-	end
 	local text = vim.tbl_filter(function(line)
 		return line ~= ""
 	end, lines)
@@ -131,7 +128,9 @@ function M.on_confirm(kind, lines)
 		style = "minimal",
 		border = "single",
 	}
-	if kind == "confirm" then
+	if kind == "number_prompt" then
+		return
+	elseif kind == "confirm" then
 		win_opts.title = text[1]
 		win_opts.height = #text - 1
 		table.remove(text, 1)
@@ -199,7 +198,7 @@ function M.on_empty(lines, hl_groups)
 end
 
 function M.on_list_cmd(lines, hl_groups)
-	M.list = lines
+	M.render_split("output", lines, true, hl_groups)
 end
 
 function M.show_log()
@@ -222,7 +221,6 @@ function M.on_show(...)
 	elseif kind == "list_cmd" then
 		M.on_list_cmd(lines, hl_groups)
 	elseif kind == "return_prompt" then
-		M.number_prompt = false
 		vim.api.nvim_input("<cr>")
 	elseif
 		vim.tbl_contains(
@@ -284,6 +282,10 @@ end
 function M.setup()
 	M.ns = vim.api.nvim_create_namespace("messages")
 	vim.api.nvim_create_user_command("Mlog", M.show_log, { desc = "Log for messages" })
+	vim.fn.inputlist = function(list)
+		M.render_split("output", list, true)
+		return vim.fn.input("Enter a number : ")
+	end
 end
 
 return M

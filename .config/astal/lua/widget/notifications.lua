@@ -90,19 +90,20 @@ end
 
 -- Dynamically fetch Adwaita theme background color
 local function get_theme_background()
-	local widget = Gtk.Window() -- Temporary widget
+	local widget = Gtk.Window()
 	local context = widget:get_style_context()
 	local color = context:get_background_color(Gtk.StateFlags.NORMAL)
-	widget:destroy() -- Cleanup the temporary widget
+	widget:destroy()
 	return string.format("#%02x%02x%02x", color.red * 255, color.green * 255, color.blue * 255)
 end
 
 local notif_background_color = get_theme_background()
-print(notif_background_color)
 
 return function(gdkmonitor)
 	return Widget.Window({
 		class_name = "notifications",
+		visible = false,
+		anchor = Astal.WindowAnchor.TOP,
 		width_request = math.floor(gdkmonitor:get_geometry().width / 3),
 		setup = function(self)
 			local count = 0
@@ -120,7 +121,22 @@ return function(gdkmonitor)
 			end)
 		end,
 		Widget.Box({
-			css = string.format("padding: 1rem; background-color: %s;", notif_background_color),
+			setup = function(self)
+				self:hook(notifd, "notified", function(_, id)
+					if #self.children > 1 then
+						self.children[1]:destroy()
+					end
+					local n = notifd:get_notification(id)
+					local e_timeout = n.expire_timeout > 0 and n.expire_timeout * 1000 or popup_timeout
+					local widget = notif_item(n)
+					self:add(widget)
+					timeout(e_timeout, function()
+						widget:destroy()
+					end)
+				end)
+			end,
+			css = string.format("background-color: %s;", notif_background_color)
+				.. string.format("padding: %.5frem", rem(10)),
 			orientation = "VERTICAL",
 			class_name = "notifications-container",
 			spacing = 10,

@@ -6,7 +6,7 @@ return {
 		vim.api.nvim_create_autocmd({ "BufEnter" }, {
 			pattern = { "*.md", "*.ipynb" },
 			callback = function()
-				require("otter").activate(nil, false, true, nil)
+				require("otter").activate()
 			end,
 		})
 	end,

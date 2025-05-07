@@ -13,6 +13,10 @@
 
 (defalias cesc (tap-hold-press 200 200 esc ctl))
 (defalias grv (tap-hold-press 0 200 grv (layer-toggle arrows)))
+(defalias rlay (tap-hold-press 0 200 rctl (layer-toggle layers)))
+(defalias cs2 (layer-switch cs2layer))
+(defalias def (layer-switch default))
+
 
 (deflayer default
   caps    f1    f2   f3   f4   f5   f6   f7   f8   f9   f10  f11   f12    del
@@ -20,7 +24,16 @@
   tab     q     w    e    r    t    y    u    i    o    p    [     ]      ret               
   @cesc   a     s    d    f    g    h    j    k    l    ;    '     \                        
   lsft    z     x    c    v    b    n    m    ,    .    /    rsft         up                
-  lctl    lmet  lalt      spc       ralt cmps rctl                 left   down   rght
+  lctl    lmet  lalt      spc       ralt cmps @rlay                 left   down   rght
+)
+
+(deflayer cs2layer
+  esc     f1    f2   f3   f4   f5   f6   f7   f8   f9   f10  f11   f12    del
+  grv     1     2    3    4    5    6    7    8    9    0    -     =      bspc              
+  tab     q     w    e    r    t    y    u    i    o    p    [     ]      ret               
+  lctl    a     s    d    f    g    h    j    k    l    ;    '     \                        
+  lsft    z     x    c    v    b    n    m    ,    .    /    rsft         up                
+  lctl    lmet  lalt      spc       ralt cmps @rlay                 left   down   rght
 )
 
 (deflayer arrows
@@ -32,3 +45,11 @@
   _  _  _     _       _ _ _                 _   _   _
 )
 
+(deflayer layers
+  _  _  _  _  _  _  _  _  _  _  _  _   _   _
+  _  @def  @cs2  _  _  _  _  _  _  _  _  _   _   _              
+  _  _  _  _  _  _  _  _  _  _  _  _   _   _               
+  _  _  _  _  _  _  _  _  _  _    _   _   _                      
+  _  _  _  _  _  _  _  _  _  _  _  _             _               
+  _  _  _     _       _ _ _                 _   _   _
+)

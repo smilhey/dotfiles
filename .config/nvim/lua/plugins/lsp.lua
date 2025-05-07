@@ -37,6 +37,9 @@ local function show_complete_documentation(client, buf)
 				if not winData.winid or not vim.api.nvim_win_is_valid(winData.winid) then
 					return
 				end
+				local doc_ns = vim.api.nvim_create_namespace("doc")
+				vim.api.nvim_set_hl(doc_ns, "Normal", { link = "Pmenu" })
+				vim.api.nvim_win_set_hl_ns(winData.winid, doc_ns)
 				local pum_pos = vim.fn.pum_getpos()
 				local win_config = vim.api.nvim_win_get_config(winData.winid)
 				local anchor = pum_pos["row"] < vim.fn.winline() and "S" or "N"
@@ -63,11 +66,13 @@ local function show_complete_documentation(client, buf)
 				if not vim.api.nvim_buf_is_valid(winData.bufnr) then
 					return
 				end
+				vim.bo[winData.bufnr].modifiable = true
 				vim.lsp.util.stylize_markdown(
 					winData.bufnr,
 					vim.split(docs, "\n"),
 					{ width = width, height = win_config.height }
 				)
+				vim.bo[winData.bufnr].modifiable = false
 			end
 			_, prev_request =
 				client.request(vim.lsp.protocol.Methods.completionItem_resolve, completionItem, docs_handler, buf)
